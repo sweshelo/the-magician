@@ -26,7 +26,7 @@ class WebSocketService extends EventEmitter{
 
   // あるメッセージに対してサーバ側の応答を待たす
   // 主にゲーム外で利用
-  async request(message: Message<RequestPayload>): Promise<Message<RequestPayload>>{
+  async request<T extends RequestPayload, R extends RequestPayload>(message: Message<T>): Promise<Message<R>>{
     this.socket.send(JSON.stringify(message));
 
     return new Promise((resolve, reject) => {
@@ -35,7 +35,7 @@ class WebSocketService extends EventEmitter{
           const response = JSON.parse(e.data) as Message;
           if('requestId' in response.payload && response.payload.requestId === message.payload.requestId){
             this.socket.removeEventListener('message', handler)
-            resolve(response as Message<RequestPayload>)
+            resolve(response as Message<R>)
           }
         } catch(e) {
           this.socket.removeEventListener('message', handler)

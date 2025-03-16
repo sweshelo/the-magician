@@ -3,25 +3,43 @@
 import { Button } from '@/component/interface/button';
 import { useWebSocket } from '@/hooks/websocket/hooks';
 import { Message } from '@/type/message';
-import { RoomCreatePayload } from '@/type/payload/server';
+import { PlayerEntryPayload, RoomCreatePayload, RoomCreateResponse } from '@/type/payload/server';
 import { FormEventHandler, useState } from 'react';
 
 export const RoomCreator = () => {
   const [roomName, setRoomName] = useState('');
   const { websocket } = useWebSocket();
 
-  const handleSubmit: FormEventHandler<HTMLFormElement> = (e) => {
+  const handleSubmit: FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
     console.log(roomName);
-    websocket.send({
+    const response = await websocket.request<RoomCreatePayload, RoomCreateResponse>({
       action: {
         handler: 'server',
         type: 'open',
       },
       payload: {
-        name: roomName
+        requestId: crypto.randomUUID(),
+        name: roomName,
       }
     } satisfies Message<RoomCreatePayload>)
+    console.log('response: %s', JSON.stringify(response))
+    alert(response.payload.roomId)
+
+    websocket.send({
+      action: {
+        handler: 'room',
+        type: 'join',
+      },
+      payload: {
+        roomId: response.payload.roomId,
+        player: {
+          name: 'Sweshelo',
+          id: crypto.randomUUID()
+        },
+        deck: ['0', '0', '0', '1', '1', '1'],
+      }
+    } satisfies Message<PlayerEntryPayload>)
   };
 
   return (
