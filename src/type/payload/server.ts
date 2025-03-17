@@ -13,10 +13,10 @@ export interface RoomListPayload extends BasePayload {
 }
 
 export interface PlayerEntryPayload extends BasePayload {
-  deck: string[]
   roomId: string;
   player: {
     name: string;
     id: string;
+    deck: string[]
   }
 }

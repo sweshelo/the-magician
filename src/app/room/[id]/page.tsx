@@ -1,7 +1,12 @@
+import { Game } from "@/feature/game/Game";
+import { GameProvider } from "@/hooks/game";
+
 export default function Page() {
   return (
     <>
-      <p>Hello</p>
+      <GameProvider>
+        <Game />
+      </GameProvider>
     </>
   )
 }

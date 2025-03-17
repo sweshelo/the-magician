@@ -4,7 +4,7 @@ import { RoomEntrance } from "@/feature/RoomEntrance";
 export default function Page() {
   return (
     <>
-      <div className="space-y-4">
+      <div className="space-y-4 m-4">
         <RoomCreator />
         <RoomEntrance />
       </div>

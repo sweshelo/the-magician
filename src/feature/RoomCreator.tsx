@@ -4,11 +4,13 @@ import { Button } from '@/component/interface/button';
 import { useWebSocket } from '@/hooks/websocket/hooks';
 import { Message } from '@/type/message';
 import { PlayerEntryPayload, RoomCreatePayload, RoomCreateResponse } from '@/type/payload/server';
+import { useRouter } from 'next/navigation';
 import { FormEventHandler, useState } from 'react';
 
 export const RoomCreator = () => {
   const [roomName, setRoomName] = useState('');
   const { websocket } = useWebSocket();
+  const router = useRouter();
 
   const handleSubmit: FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
@@ -35,11 +37,13 @@ export const RoomCreator = () => {
         roomId: response.payload.roomId,
         player: {
           name: 'Sweshelo',
-          id: crypto.randomUUID()
+          id: crypto.randomUUID(),
+          deck: ['0', '0', '0', '1', '1', '1'],
         },
-        deck: ['0', '0', '0', '1', '1', '1'],
       }
     } satisfies Message<PlayerEntryPayload>)
+
+    router.push(`/room/${response.payload.roomId}`)
   };
 
   return (
