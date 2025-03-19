@@ -2,8 +2,9 @@
 
 import { Button } from '@/component/interface/button';
 import { useWebSocket } from '@/hooks/websocket/hooks';
-import { Message } from '@/type/message';
-import { PlayerEntryPayload, RoomCreatePayload, RoomCreateResponse } from '@/type/payload/server';
+import { Message } from '@/submodule/suit/types/message/message';
+import { PlayerEntryPayload } from '@/submodule/suit/types/message/payload/room';
+import { RoomOpenRequestPayload, RoomOpenResponsePayload } from '@/submodule/suit/types/message/payload/server';
 import { useRouter } from 'next/navigation';
 import { FormEventHandler, useState } from 'react';
 
@@ -15,16 +16,17 @@ export const RoomCreator = () => {
   const handleSubmit: FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
     console.log(roomName);
-    const response = await websocket.request<RoomCreatePayload, RoomCreateResponse>({
+    const response = await websocket.request<RoomOpenRequestPayload, RoomOpenResponsePayload>({
       action: {
         handler: 'server',
         type: 'open',
       },
       payload: {
+        type: 'RoomOpenRequest',
         requestId: crypto.randomUUID(),
         name: roomName,
       }
-    } satisfies Message<RoomCreatePayload>)
+    } satisfies Message<RoomOpenRequestPayload>)
     console.log('response: %s', JSON.stringify(response))
     alert(response.payload.roomId)
 
@@ -34,6 +36,7 @@ export const RoomCreator = () => {
         type: 'join',
       },
       payload: {
+        type: 'PlayerEntry',
         roomId: response.payload.roomId,
         player: {
           name: 'Sweshelo',

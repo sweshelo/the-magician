@@ -2,7 +2,7 @@
 
 import { Button } from "@/component/interface/button";
 import { useWebSocket } from "@/hooks/websocket/hooks"
-import { Message } from "@/type/message";
+import { Message } from "@/submodule/suit/types/message/message";
 import { useCallback, useEffect, useState } from "react";
 
 export const RoomEntrance = () => {
