@@ -9,7 +9,7 @@ export const colorTable = {
     4: 'bg-green-500',  // Green (lighter than before)
     5: 'bg-purple-600', // Purple (lighter than before)
   },
-  
+
   // Game UI Colors
   ui: {
     background: 'bg-slate-700',            // Lighter game background (was bg-slate-900)
@@ -20,9 +20,10 @@ export const colorTable = {
     text: {
       primary: 'text-white',
       secondary: 'text-slate-300',         // Lighter secondary text (was text-slate-400)
-    }
+    },
+    opponentCardBackground: 'bg-gray-600',
   },
-  
+
   // Symbol Colors
   symbols: {
     life: 'text-red-400',
@@ -39,7 +40,7 @@ export const getColorCode = (color: number) => {
 export const getUIColor = (colorPath: string): string | undefined => {
   // Split the path (e.g., "ui.background" -> ["ui", "background"])
   const parts = colorPath.split('.');
-  
+
   // Navigate through the colorTable object
   let result: unknown = colorTable;
   for (const part of parts) {
@@ -49,6 +50,6 @@ export const getUIColor = (colorPath: string): string | undefined => {
       return undefined;
     }
   }
-  
+
   return typeof result === 'string' ? result : undefined;
 };

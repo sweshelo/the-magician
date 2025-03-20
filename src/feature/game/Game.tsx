@@ -41,6 +41,16 @@ export const Game = () => {
               <div className="font-bold text-lg">{mockOpponentData.name}</div>
               <div className={`text-sm ${colorTable.ui.text.secondary}`}>オンライン</div>
             </div>
+            {/* 対戦相手の手札エリア */}
+            <div className="flex justify-center gap-2">
+              {/* 対戦相手の手札は裏向きに表示 */}
+              {[1, 2, 3, 4, 5, 6, 7].map((i) => (
+                <div
+                  key={`opponent-card-${i}`}
+                  className={`w-8 h-12 ${colorTable.ui.opponentCardBackground} rounded flex justify-center items-center shadow-md ${colorTable.symbols.mana} text-2xl`}
+                />
+              ))}
+            </div>
             <div className="flex gap-4">
               <div className="flex items-center gap-1">
                 <span className={colorTable.symbols.life}>❤️</span>
@@ -52,19 +62,6 @@ export const Game = () => {
               </div>
             </div>
           </div>
-
-          {/* 対戦相手の手札エリア */}
-          <div className="flex justify-center gap-2">
-            {/* 対戦相手の手札は裏向きに表示 */}
-            {[1, 2, 3, 4, 5].map((i) => (
-              <div
-                key={`opponent-card-${i}`}
-                className={`w-16 h-24 ${colorTable.ui.playerInfoBackground} rounded flex justify-center items-center shadow-md ${colorTable.symbols.mana} text-2xl`}
-              >
-                ✦
-              </div>
-            ))}
-          </div>
         </div>
 
         {/* フィールドエリア */}
@@ -72,14 +69,14 @@ export const Game = () => {
           {/* 対戦相手のフィールド */}
           <div className={`flex justify-center gap-4 pb-4 border-b border-dashed ${colorTable.ui.borderDashed}`}>
             {[1, 2, 3, 4, 5].map((i) => (
-              <UnitView image={'/image/card/full/2-3-128.jpg'} color='green' key={i}/>
+              <UnitView image={'/image/card/full/2-3-128.jpg'} color='green' key={i} />
             ))}
           </div>
 
           {/* 自分のフィールド */}
           <div className="flex justify-center gap-4 pt-4">
             {[1, 2, 3, 4, 5].map((i) => (
-              <CardView card={mockCard} key={i}/>
+              <UnitView image={'/image/card/full/2-3-128.jpg'} color='green' key={i} />
             ))}
           </div>
         </div>
@@ -108,7 +105,7 @@ export const Game = () => {
           <div className="flex justify-center gap-2 p-4">
             {/* 自分の手札は表向きに表示 */}
             {[1, 2, 3, 4].map((i) => (
-              <CardView card={mockCard} key={i}/>
+              <CardView card={mockCard} key={i} />
             ))}
           </div>
         </div>
