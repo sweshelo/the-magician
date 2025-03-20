@@ -2,6 +2,8 @@
 import { CardDetailWindow } from './CardDetailWindow';
 import { Card } from '@/type/game/Card';
 import { CardView } from './CardView';
+import { UnitView } from './UnitView';
+import { colorTable } from '@/helper/color';
 
 export const Game = () => {
   // モックデータ
@@ -25,39 +27,39 @@ export const Game = () => {
   }
 
   return (
-    <div className="flex h-screen bg-slate-900 text-white relative">
+    <div className={`flex h-screen ${colorTable.ui.background} ${colorTable.ui.text.primary} relative`}>
       {/* カード詳細ウィンドウ */}
       <CardDetailWindow />
 
       {/* メインゲームコンテナ */}
       <div className="flex flex-col w-full h-full p-4">
         {/* 対戦相手エリア */}
-        <div className="flex-1 flex flex-col p-4 border-b border-slate-700">
+        <div className={`flex-col p-4 border-b ${colorTable.ui.border}`}>
           {/* 対戦相手情報 */}
-          <div className="flex justify-between p-2 bg-slate-800/70 rounded-lg mb-4">
+          <div className={`flex justify-between p-2 ${colorTable.ui.playerInfoBackground} rounded-lg mb-4`}>
             <div className="player-identity">
               <div className="font-bold text-lg">{mockOpponentData.name}</div>
-              <div className="text-sm text-slate-400">オンライン</div>
+              <div className={`text-sm ${colorTable.ui.text.secondary}`}>オンライン</div>
             </div>
             <div className="flex gap-4">
               <div className="flex items-center gap-1">
-                <span className="text-red-400">❤️</span>
+                <span className={colorTable.symbols.life}>❤️</span>
                 <span>{mockOpponentData.life}</span>
               </div>
               <div className="flex items-center gap-1">
-                <span className="text-blue-400">💧</span>
+                <span className={colorTable.symbols.mana}>💧</span>
                 <span>{mockOpponentData.mana}/{mockOpponentData.maxMana}</span>
               </div>
             </div>
           </div>
 
           {/* 対戦相手の手札エリア */}
-          <div className="flex justify-center gap-2 p-4">
+          <div className="flex justify-center gap-2">
             {/* 対戦相手の手札は裏向きに表示 */}
             {[1, 2, 3, 4, 5].map((i) => (
               <div
                 key={`opponent-card-${i}`}
-                className="w-16 h-24 bg-slate-800 rounded flex justify-center items-center shadow-md text-blue-400 text-2xl"
+                className={`w-16 h-24 ${colorTable.ui.playerInfoBackground} rounded flex justify-center items-center shadow-md ${colorTable.symbols.mana} text-2xl`}
               >
                 ✦
               </div>
@@ -66,16 +68,16 @@ export const Game = () => {
         </div>
 
         {/* フィールドエリア */}
-        <div className="flex flex-col p-6 bg-slate-800/40 rounded-lg my-4">
+        <div className={`flex flex-col p-6 ${colorTable.ui.fieldBackground} rounded-lg my-4`}>
           {/* 対戦相手のフィールド */}
-          <div className="flex justify-center gap-4 mb-6 pb-4 border-b border-dashed border-slate-600">
+          <div className={`flex justify-center gap-4 pb-4 border-b border-dashed ${colorTable.ui.borderDashed}`}>
             {[1, 2, 3, 4, 5].map((i) => (
-              <CardView card={mockCard} key={i}/>
+              <UnitView image={'/image/card/full/2-3-128.jpg'} color='green' key={i}/>
             ))}
           </div>
 
           {/* 自分のフィールド */}
-          <div className="flex justify-center gap-4 p-4">
+          <div className="flex justify-center gap-4 pt-4">
             {[1, 2, 3, 4, 5].map((i) => (
               <CardView card={mockCard} key={i}/>
             ))}
@@ -83,20 +85,20 @@ export const Game = () => {
         </div>
 
         {/* 自分のエリア */}
-        <div className="flex-1 flex flex-col p-4">
+        <div className="flex-col p-4">
           {/* 自分の情報 */}
-          <div className="flex justify-between p-2 bg-slate-800/70 rounded-lg mb-4">
+          <div className={`flex justify-between p-2 ${colorTable.ui.playerInfoBackground} rounded-lg mb-4`}>
             <div className="player-identity">
               <div className="font-bold text-lg">{mockPlayerData.name}</div>
-              <div className="text-sm text-slate-400">あなたのターン</div>
+              <div className={`text-sm ${colorTable.ui.text.secondary}`}>あなたのターン</div>
             </div>
             <div className="flex gap-4">
               <div className="flex items-center gap-1">
-                <span className="text-red-400">❤️</span>
+                <span className={colorTable.symbols.life}>❤️</span>
                 <span>{mockPlayerData.life}</span>
               </div>
               <div className="flex items-center gap-1">
-                <span className="text-blue-400">💧</span>
+                <span className={colorTable.symbols.mana}>💧</span>
                 <span>{mockPlayerData.mana}/{mockPlayerData.maxMana}</span>
               </div>
             </div>
