@@ -1,4 +1,4 @@
-import { useGame } from "@/hooks/game/hooks"
+import { useGameContext } from "@/hooks/game/hooks"
 import master from "@/service/catalog";
 import classNames from "classnames";
 import Image from "next/image";
@@ -23,7 +23,7 @@ export const Level = ({ bp, lv, active }: LevelProps) => {
 }
 
 export const CardDetailWindow = () => {
-  const { selectedCard, setSelectedCard } = useGame();
+  const { selectedCard, setSelectedCard } = useGameContext();
   const catalog = selectedCard?.catalogId && master.get(selectedCard?.catalogId)
 
   return (

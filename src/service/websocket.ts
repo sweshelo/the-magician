@@ -1,5 +1,4 @@
-import { Message } from "@/submodule/suit/types/message/message";
-import { RequestPayload } from "@/submodule/suit/types/message/payload/base";
+import { Message, RequestPayload, ResponsePayload } from "@/submodule/suit/types";
 import EventEmitter from "events";
 
 class WebSocketService extends EventEmitter {
@@ -17,6 +16,11 @@ class WebSocketService extends EventEmitter {
       this.emit('close')
       throw Error('WebSocket Connection Closed.');
     })
+
+    this.socket.addEventListener('message', (event: MessageEvent<string>) => {
+      console.log(JSON.parse(event.data))
+      this.emit('message', JSON.parse(event.data))
+    })
   }
 
   // メッセージをサーバに送る
@@ -27,7 +31,7 @@ class WebSocketService extends EventEmitter {
 
   // あるメッセージに対してサーバ側の応答を待たす
   // 主にゲーム外で利用
-  async request<T extends RequestPayload, R extends RequestPayload>(message: Message<T>): Promise<Message<R>> {
+  async request<T extends RequestPayload, R extends ResponsePayload>(message: Message<T>): Promise<Message<R>> {
     this.socket.send(JSON.stringify(message));
 
     return new Promise((resolve, reject) => {

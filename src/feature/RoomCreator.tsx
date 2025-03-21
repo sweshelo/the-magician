@@ -3,7 +3,6 @@
 import { Button } from '@/component/interface/button';
 import { useWebSocket } from '@/hooks/websocket/hooks';
 import { Message } from '@/submodule/suit/types/message/message';
-import { PlayerEntryPayload } from '@/submodule/suit/types/message/payload/room';
 import { RoomOpenRequestPayload, RoomOpenResponsePayload } from '@/submodule/suit/types/message/payload/server';
 import { useRouter } from 'next/navigation';
 import { FormEventHandler, useState } from 'react';
@@ -29,22 +28,6 @@ export const RoomCreator = () => {
     } satisfies Message<RoomOpenRequestPayload>)
     console.log('response: %s', JSON.stringify(response))
     alert(response.payload.roomId)
-
-    websocket.send({
-      action: {
-        handler: 'room',
-        type: 'join',
-      },
-      payload: {
-        type: 'PlayerEntry',
-        roomId: response.payload.roomId,
-        player: {
-          name: 'Sweshelo',
-          id: crypto.randomUUID(),
-          deck: ['0', '0', '0', '1', '1', '1'],
-        },
-      }
-    } satisfies Message<PlayerEntryPayload>)
 
     router.push(`/room/${response.payload.roomId}`)
   };

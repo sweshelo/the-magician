@@ -1,11 +1,19 @@
 'use client';
-import { CardDetailWindow } from './CardDetailWindow';
+import { CardDetailWindow } from '@/component/ui/CardDetailWindow';
 import { Card } from '@/type/game/Card';
-import { CardView } from './CardView';
-import { UnitView } from './UnitView';
+import { CardView } from '@/component/ui/CardView';
+import { UnitView } from '@/component/ui/UnitView';
 import { colorTable } from '@/helper/color';
+import { useGame } from './hooks';
 
-export const Game = () => {
+interface RoomProps {
+  id: string
+}
+
+export const Game = ({ id }: RoomProps) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const hooks = useGame({ id })
+
   // モックデータ
   const mockPlayerData = {
     name: '自分',
