@@ -1,4 +1,4 @@
-import { Game } from "@/feature/game/Game";
+import { Game } from "@/feature/Game";
 import { GameProvider } from "@/hooks/game";
 
 export default async function Page({

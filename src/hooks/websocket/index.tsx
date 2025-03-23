@@ -1,16 +1,18 @@
 'use client';
 
 import { webSocketService } from "@/service/websocket";
-import { createContext, ReactNode, useState } from "react";
+import { createContext, ReactNode, useEffect, useState } from "react";
 
 type WebSocketContextType = {
-  websocket: typeof webSocketService;
+  websocket: typeof webSocketService | undefined;
 }
 
 export const WebSocketContext = createContext<WebSocketContextType | undefined>(undefined);
 
 export const WebSocketProvider = ({ children }: { children: ReactNode }) => {
-  const [websocket] = useState(webSocketService);
+  const [websocket, setWebsocket] = useState<typeof webSocketService | undefined>(undefined);
+
+  useEffect(() => setWebsocket(webSocketService), []);
 
   return (
     <WebSocketContext.Provider value={{ websocket }}>
