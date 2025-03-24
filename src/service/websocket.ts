@@ -23,6 +23,10 @@ class WebSocketService extends EventEmitter {
     })
   }
 
+  isConnected(){
+    return this.socket.readyState === WebSocket.OPEN
+  }
+
   // メッセージをサーバに送る
   // 主にゲーム内で利用
   send(message: Message) {

@@ -8,7 +8,7 @@ interface UseGameProps {
 
 export const useGame = ({ id }: UseGameProps) => {
   const { websocket } = useWebSocket();
-  const [isConnected, setConnected] = useState(false);
+  const [isConnected, setConnected] = useState(websocket?.isConnected());
 
   // ルーム参加処理
   useEffect(() => {
