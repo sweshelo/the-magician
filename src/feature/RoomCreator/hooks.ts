@@ -1,15 +1,18 @@
 import { useWebSocket } from '@/hooks/websocket/hooks';
+import { LocalStorageHelper } from '@/service/local-storage';
 import { Message } from '@/submodule/suit/types';
 import { RoomOpenRequestPayload, RoomOpenResponsePayload } from '@/submodule/suit/types';
 import { useRouter } from 'next/navigation';
-import { FormEventHandler, useState } from 'react';
+import { FormEventHandler, useCallback, useState } from 'react';
 
 export const useRoomCreator = () => {
   const [roomName, setRoomName] = useState('');
   const { websocket } = useWebSocket();
   const router = useRouter();
 
-  const handleSubmit: FormEventHandler<HTMLFormElement> = async (e) => {
+  const handleSubmit: FormEventHandler<HTMLFormElement> = useCallback(async (e) => {
+    if (!websocket) return;
+
     e.preventDefault();
     console.log(roomName);
     const response = await websocket.request<RoomOpenRequestPayload, RoomOpenResponsePayload>({
@@ -19,15 +22,12 @@ export const useRoomCreator = () => {
       },
       payload: {
         type: 'RoomOpenRequest',
-        requestId: crypto.randomUUID(),
+        requestId: LocalStorageHelper.playerId(),
         name: roomName,
       }
     } satisfies Message<RoomOpenRequestPayload>)
-    console.log('response: %s', JSON.stringify(response))
-    alert(response.payload.roomId)
-
     router.push(`/room/${response.payload.roomId}`)
-  };
+  }, [roomName, router, websocket]);
 
   return { setRoomName, roomName, handleSubmit }
 }

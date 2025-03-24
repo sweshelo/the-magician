@@ -1,6 +1,7 @@
 import { useWebSocket } from "@/hooks/websocket/hooks";
+import { LocalStorageHelper } from "@/service/local-storage";
 import { Message, PlayerEntryPayload } from "@/submodule/suit/types";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface UseGameProps {
   id: string
@@ -10,9 +11,13 @@ export const useGame = ({ id }: UseGameProps) => {
   const { websocket } = useWebSocket();
   const [isConnected, setConnected] = useState(websocket?.isConnected());
 
+  const isJoined = useRef(false);
+
   // ルーム参加処理
   useEffect(() => {
-    if (websocket && isConnected) {
+    if (websocket && isConnected && !isJoined.current) {
+      isJoined.current = true;
+
       websocket?.on('message', (message: Message) => {
         console.log('recieved message on useGame hooks : %s', message.action.type)
       })
@@ -27,7 +32,7 @@ export const useGame = ({ id }: UseGameProps) => {
           roomId: id,
           player: {
             name: 'Sweshelo',
-            id: crypto.randomUUID(),
+            id: LocalStorageHelper.playerId(),
             deck: ['0', '0', '0', '1', '1', '1'],
           },
         }

@@ -1,22 +1,13 @@
 'use client';
 
 import { Button } from "@/component/interface/button";
-import { useWebSocket } from "@/hooks/websocket/hooks"
-import { Message } from "@/submodule/suit/types/message/message";
-import { useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useCallback, useState } from "react";
 
 export const RoomEntrance = () => {
-  const { websocket } = useWebSocket();
   const [id, setId] = useState<string>();
-
-  const handleSubmit = useCallback(() => {
-  }, []);
-
-  useEffect(() => {
-    websocket.on('message', (message: Message) => {
-      console.log(message) // TODO
-    });
-  }, [websocket]);
+  const router = useRouter()
+  const handleSubmit = useCallback(() => router.push(`/room/${id}`), [id, router])
 
   return (
     <div className="p-4 bg-white rounded-lg shadow-md max-w-md mx-auto">
