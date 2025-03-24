@@ -11,8 +11,9 @@ interface RoomProps {
 }
 
 export const Game = ({ id }: RoomProps) => {
+  void id;
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const hooks = useGame({ id })
+  const hooks = useGame()
 
   // モックデータ
   const mockPlayerData = {
