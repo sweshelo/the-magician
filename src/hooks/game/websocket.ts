@@ -9,14 +9,14 @@ interface Props {
   id: string
 }
 
-export const useWebSocketGame = ({ id }: Props) => {
+export const useWebSocketGame = ({ id }: Props): void => {
   const { websocket } = useWebSocket()
   const [isConnected, setConnected] = useState<boolean>(websocket?.isConnected() ?? false)
   const isJoined = useRef(false)
 
   // ルーム参加処理
   useEffect(() => {
-    if ((websocket != null) && isConnected && !isJoined.current && id) {
+    if ((websocket != null) && isConnected && !isJoined.current) {
       isJoined.current = true
       // websocket?.on('message', (message: Message) => {
       //   messageHandler(message)

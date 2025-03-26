@@ -2,9 +2,9 @@ import { useContext } from 'react'
 
 import { Player } from '@/type/game/Player'
 import { Card } from '@/type/game/Card'
-import { GameContext } from './context'
+import { GameContext, GameContextType } from './context'
 
-const useGameContext = () => {
+const useGameContext = (): GameContextType => {
   const context = useContext(GameContext)
   if (context == null) throw Error('useGameContext must be used within a GameProvider')
   return context
@@ -17,10 +17,10 @@ const useGameContext = () => {
 export const useGame = () => {
   const { state, dispatch } = useGameContext()
 
-  const setTurn = (turn: number) => dispatch({ type: 'SET_TURN', turn })
-  const setRound = (round: number) => dispatch({ type: 'SET_ROUND', round })
-  const setPlayer = (player: Player) => dispatch({ type: 'SET_PLAYER', player })
-  const setSelectedCard = (card: Card) => dispatch({ type: 'SET_SELECTED_CARD', card })
+  const setTurn = (turn: number): void => dispatch({ type: 'SET_TURN', turn })
+  const setRound = (round: number): void => dispatch({ type: 'SET_ROUND', round })
+  const setPlayer = (player: Player): void => dispatch({ type: 'SET_PLAYER', player })
+  const setSelectedCard = (card: Card): void => dispatch({ type: 'SET_SELECTED_CARD', card })
 
   return {
     ...state,

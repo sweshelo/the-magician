@@ -3,7 +3,7 @@
 import { ICard } from "@/submodule/suit/types";
 import { createContext, ReactNode, useState } from "react";
 
-type SystemContextType = {
+export type SystemContextType = {
   selectedCard: ICard | undefined
   setSelectedCard: React.Dispatch<React.SetStateAction<ICard | undefined>>
 }

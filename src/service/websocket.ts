@@ -23,13 +23,13 @@ class WebSocketService extends EventEmitter {
     })
   }
 
-  isConnected () {
+  isConnected (): boolean {
     return this.socket.readyState === WebSocket.OPEN
   }
 
   // メッセージをサーバに送る
   // 主にゲーム内で利用
-  send (message: Message) {
+  send (message: Message): void {
     this.socket.send(JSON.stringify(message))
   }
 
@@ -39,11 +39,11 @@ class WebSocketService extends EventEmitter {
     this.socket.send(JSON.stringify(message))
 
     return await new Promise((resolve, reject) => {
-      const handler = (e: MessageEvent) => {
+      const handler = (e: MessageEvent): void => {
         try {
           const response = JSON.parse(e.data) as Message<R>
           const { payload } = response
-          if ('requestId' in payload && payload.requestId === payload.requestId) {
+          if ('requestId' in payload) {
             this.socket.removeEventListener('message', handler)
             resolve(response)
           }

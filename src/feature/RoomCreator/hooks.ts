@@ -2,14 +2,19 @@ import { useWebSocket } from '@/hooks/websocket/hooks'
 import { LocalStorageHelper } from '@/service/local-storage'
 import { Message, RoomOpenRequestPayload, RoomOpenResponsePayload } from '@/submodule/suit/types'
 import { useRouter } from 'next/navigation'
-import { FormEventHandler, useCallback, useState } from 'react'
+import { Dispatch, FormEvent, FormEventHandler, SetStateAction, useCallback, useState } from 'react'
 
-export const useRoomCreator = () => {
+interface Response {
+  setRoomName: Dispatch<SetStateAction<string>>
+  roomName: string
+  handleSubmit: FormEventHandler<HTMLFormElement>
+}
+export const useRoomCreator = (): Response => {
   const [roomName, setRoomName] = useState('')
   const { websocket } = useWebSocket()
   const router = useRouter()
 
-  const handleSubmit: FormEventHandler<HTMLFormElement> = useCallback(async (e) => {
+  const handleSubmit = useCallback(async (e: FormEvent<HTMLFormElement>) => {
     if (websocket == null) return
 
     e.preventDefault()
