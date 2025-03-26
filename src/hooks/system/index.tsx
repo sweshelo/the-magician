@@ -1,6 +1,6 @@
 'use client';
 
-import { ICard } from "@/submodule/suit/types/card";
+import { ICard } from "@/submodule/suit/types";
 import { createContext, ReactNode, useState } from "react";
 
 type SystemContextType = {

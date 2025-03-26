@@ -1,6 +1,6 @@
 import { Atom, Card } from "@/type/game/Card"
 import master from "@/service/catalog";
-import { useGameContext } from "@/hooks/game/hooks";
+import { useSystemContext } from "@/hooks/system/hooks";
 import { getColorCode } from "@/helper/color";
 
 interface Props {
@@ -9,7 +9,7 @@ interface Props {
 
 export const CardView = ({ card }: Props) => {
   const catalog = 'catalogId' in card && typeof card.catalogId === 'string' ? master.get(card.catalogId) : undefined;
-  const { setSelectedCard } = useGameContext();
+  const { setSelectedCard } = useSystemContext();
   const handleCardClick = () => {
     if (catalog) setSelectedCard(card as Card)
     console.log(catalog?.id)

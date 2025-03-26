@@ -1,4 +1,4 @@
-import { IUnit } from "@/submodule/suit/types/card"
+import { IUnit } from "@/submodule/suit/types"
 import { Atom } from "./Card"
 
 export interface Player {

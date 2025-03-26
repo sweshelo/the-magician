@@ -4,7 +4,7 @@ import { Card } from '@/type/game/Card';
 import { CardView } from '@/component/ui/CardView';
 import { UnitView } from '@/component/ui/UnitView';
 import { colorTable } from '@/helper/color';
-import { useGame } from './hooks';
+import { useGame, useWebSocketGame } from '@/hooks/game';
 
 interface RoomProps {
   id: string
@@ -14,6 +14,7 @@ export const Game = ({ id }: RoomProps) => {
   void id;
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const hooks = useGame()
+  useWebSocketGame({ id })
 
   // モックデータ
   const mockPlayerData = {
