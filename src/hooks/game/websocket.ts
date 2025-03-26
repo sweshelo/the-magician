@@ -11,11 +11,11 @@ interface Props {
 
 export const useWebSocketGame = ({ id }: Props) => {
   const { websocket } = useWebSocket();
-  const [isConnected, setConnected] = useState<boolean>(false);
+  const [isConnected, setConnected] = useState<boolean>(websocket?.isConnected() ?? false);
   const isJoined = useRef(false);
+
   // ルーム参加処理
   useEffect(() => {
-    console.log('hello')
     if (websocket && isConnected && !isJoined.current && id) {
       isJoined.current = true;
       // websocket?.on('message', (message: Message) => {
@@ -40,7 +40,6 @@ export const useWebSocketGame = ({ id }: Props) => {
   }, [id, websocket, isConnected])
 
   useEffect(() => {
-    console.log('websocket init')
     websocket?.on('open', () => setConnected(true))
   }, [websocket])
 }
