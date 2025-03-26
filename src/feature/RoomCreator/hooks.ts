@@ -14,7 +14,6 @@ export const useRoomCreator = () => {
     if (!websocket) return;
 
     e.preventDefault();
-    console.log(roomName);
     const response = await websocket.request<RoomOpenRequestPayload, RoomOpenResponsePayload>({
       action: {
         handler: 'server',

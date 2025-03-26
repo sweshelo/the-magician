@@ -1,22 +1,20 @@
-import { Card } from "@/type/game/Card";
-import { Player } from "@/type/game/Player";
+import { IPlayer } from "@/submodule/suit/types";
 
 // ステートの型定義
 export type GameState = {
   players?: {
-    [key: string]: Player
+    [key: string]: IPlayer
   };
   turn: number;
   round: number;
-  selectedCard?: Card;
 };
 
 // アクションの型定義
 export type GameAction =
-  | { type: 'SET_PLAYER'; player: Player }
+  | { type: 'SET_PLAYER'; player: IPlayer }
   | { type: 'SET_TURN'; turn: number }
   | { type: 'SET_ROUND'; round: number }
-  | { type: 'SET_SELECTED_CARD'; card?: Card };
+  | { type: 'SET_ALL'; game: GameState };
 
 // Reducer関数
 export function gameReducer(state: GameState, action: GameAction): GameState {
@@ -32,8 +30,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       return { ...state, turn: action.turn };
     case 'SET_ROUND':
       return { ...state, round: action.round };
-    case 'SET_SELECTED_CARD':
-      return { ...state, selectedCard: action.card };
+    case 'SET_ALL':
+      return { ...action.game }
     default:
       return state;
   }

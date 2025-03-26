@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useWebSocket } from "../websocket/hooks";
 import { LocalStorageHelper } from "@/service/local-storage";
 import { Message, PlayerEntryPayload } from "@/submodule/suit/types";
+import { useHandler } from "./handler";
 
 interface Props {
   id: string
@@ -13,14 +14,15 @@ export const useWebSocketGame = ({ id }: Props) => {
   const { websocket } = useWebSocket();
   const [isConnected, setConnected] = useState<boolean>(websocket?.isConnected() ?? false);
   const isJoined = useRef(false);
+  const { handle } = useHandler();
 
   // ルーム参加処理
   useEffect(() => {
     if (websocket && isConnected && !isJoined.current && id) {
       isJoined.current = true;
-      // websocket?.on('message', (message: Message) => {
-      //   messageHandler(message)
-      // })
+      websocket?.on('message', (message: Message) => {
+        handle(message)
+      })
       websocket.send({
         action: {
           handler: 'room',
@@ -32,12 +34,28 @@ export const useWebSocketGame = ({ id }: Props) => {
           player: {
             name: 'Sweshelo',
             id: LocalStorageHelper.playerId(),
-            deck: ['0', '0', '0', '1', '1', '1'],
+            deck: [
+              '1-0-001','1-0-001','1-0-001',
+              '1-0-001','1-0-001','1-0-001',
+              '1-0-001','1-0-001','1-0-001',
+              '1-0-001','1-0-001','1-0-001',
+              '1-0-001','1-0-001','1-0-001',
+              '1-0-001','1-0-001','1-0-001',
+              '1-0-001','1-0-001','1-0-001',
+              '1-0-001','1-0-001','1-0-001',
+              '1-0-001','1-0-001','1-0-001',
+              '1-0-001','1-0-001','1-0-001',
+              '1-0-001','1-0-001','1-0-001',
+              '1-0-001','1-0-001','1-0-001',
+              '1-0-001','1-0-001','1-0-001',
+              '1-0-001','1-0-001','1-0-001',
+              '2-3-128',
+            ],
           },
         }
       } satisfies Message<PlayerEntryPayload>)
     }
-  }, [id, websocket, isConnected])
+  }, [id, websocket, isConnected, handle])
 
   useEffect(() => {
     websocket?.on('open', () => setConnected(true))
