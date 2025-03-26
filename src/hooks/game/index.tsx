@@ -9,10 +9,12 @@ import { createContext, ReactNode, useReducer, useMemo } from "react";
  * この実装では、現状のplayers, turn, round, selectedCardを管理していますが、
  * 今後必要に応じてデータの正規化やより複雑なカード移動のロジックを実装する際に拡張できます。
  */
- 
+
 // ステートの型定義（正規化が必要な場合は、後々playersを辞書形式へ変更するなどの対処が可能）
 export type GameState = {
-  players?: Player[];
+  players?: {
+    [key: string]: Player
+  };
   turn: number;
   round: number;
   selectedCard?: Card;
@@ -27,8 +29,8 @@ const initialState: GameState = {
 };
 
 // アクションの型定義
-export type GameAction = 
-  | { type: 'SET_PLAYERS'; players: Player[] }
+export type GameAction =
+  | { type: 'SET_PLAYER'; players: Player }
   | { type: 'SET_TURN'; turn: number }
   | { type: 'SET_ROUND'; round: number }
   | { type: 'SET_SELECTED_CARD'; card?: Card };
@@ -36,8 +38,13 @@ export type GameAction =
 // Reducer関数
 function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
-    case 'SET_PLAYERS':
-      return { ...state, players: action.players };
+    case 'SET_PLAYER':
+      return {
+        ...state, players: {
+          ...state.players,
+          [action.players.id]: action.players
+        }
+      };
     case 'SET_TURN':
       return { ...state, turn: action.turn };
     case 'SET_ROUND':
