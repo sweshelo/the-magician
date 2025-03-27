@@ -1,8 +1,8 @@
 import { useContext } from 'react'
 
-import { Player } from '@/type/game/Player'
-import { Card } from '@/type/game/Card'
-import { GameContext, GameContextType } from './context'
+import { Player } from "@/type/game/Player";
+import { GameContext, GameContextType } from "./context";
+import { Card } from '@/type/game/Card';
 
 const useGameContext = (): GameContextType => {
   const context = useContext(GameContext)

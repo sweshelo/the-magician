@@ -16,7 +16,6 @@ const initialState: GameState = {
   players: undefined,
   turn: 0,
   round: 0,
-  selectedCard: undefined,
 };
 
 // Providerコンポーネント：useReducerを利用して状態管理を行い、Contextに値を渡します

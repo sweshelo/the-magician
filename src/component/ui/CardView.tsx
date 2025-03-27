@@ -12,7 +12,6 @@ export const CardView = ({ card }: Props) => {
   const { setSelectedCard } = useSystemContext();
   const handleCardClick = () => {
     if (catalog) setSelectedCard(card as Card)
-    console.log(catalog?.id)
   }
 
   return catalog ? (
