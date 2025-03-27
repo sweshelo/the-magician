@@ -1,10 +1,9 @@
 'use client';
 import { CardDetailWindow } from '@/component/ui/CardDetailWindow';
-import { Card } from '@/type/game/Card';
-import { CardView } from '@/component/ui/CardView';
 import { UnitView } from '@/component/ui/UnitView';
 import { colorTable } from '@/helper/color';
 import { useGame, useWebSocketGame } from '@/hooks/game';
+import { MyArea } from '../MyArea';
 
 interface RoomProps {
   id: string
@@ -16,25 +15,12 @@ export const Game = ({ id }: RoomProps) => {
   const hooks = useGame()
   useWebSocketGame({ id })
 
-  // モックデータ
-  const mockPlayerData = {
-    name: '自分',
-    life: 20,
-    mana: 5,
-    maxMana: 10,
-  };
-
   const mockOpponentData = {
     name: '対戦相手',
     life: 18,
     mana: 7,
     maxMana: 10,
   };
-
-  const mockCard: Card = {
-    id: crypto.randomUUID(),
-    catalogId: '2-3-128',
-  }
 
   return (
     <div className={`flex h-screen ${colorTable.ui.background} ${colorTable.ui.text.primary} relative`}>
@@ -92,33 +78,8 @@ export const Game = ({ id }: RoomProps) => {
         </div>
 
         {/* 自分のエリア */}
-        <div className="flex-col p-4">
-          {/* 自分の情報 */}
-          <div className={`flex justify-between p-2 ${colorTable.ui.playerInfoBackground} rounded-lg mb-4`}>
-            <div className="player-identity">
-              <div className="font-bold text-lg">{mockPlayerData.name}</div>
-              <div className={`text-sm ${colorTable.ui.text.secondary}`}>あなたのターン</div>
-            </div>
-            <div className="flex gap-4">
-              <div className="flex items-center gap-1">
-                <span className={colorTable.symbols.life}>❤️</span>
-                <span>{mockPlayerData.life}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <span className={colorTable.symbols.mana}>💧</span>
-                <span>{mockPlayerData.mana}/{mockPlayerData.maxMana}</span>
-              </div>
-            </div>
-          </div>
+        <MyArea />
 
-          {/* 自分の手札エリア */}
-          <div className="flex justify-center gap-2 p-4">
-            {/* 自分の手札は表向きに表示 */}
-            {[1, 2, 3, 4].map((i) => (
-              <CardView card={mockCard} key={i} />
-            ))}
-          </div>
-        </div>
       </div>
     </div>
   );

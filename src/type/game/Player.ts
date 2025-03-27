@@ -7,4 +7,14 @@ export interface Player {
   deck: Atom[] // 非公開のため Card ではなく Atom
   hand: Atom[] // 対戦相手は非公開のため Card ではなく Atom
   field: IUnit[]
+
+  cp: {
+    current: number
+    max: number
+  }
+
+  life: {
+    current: number
+    max: number
+  }
 }
