@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useWebSocket } from "../websocket/hooks";
 import { LocalStorageHelper } from "@/service/local-storage";
 import { Message, PlayerEntryPayload } from "@/submodule/suit/types";
@@ -35,19 +35,19 @@ export const useWebSocketGame = ({ id }: Props) => {
             name: 'Sweshelo',
             id: LocalStorageHelper.playerId(),
             deck: [
-              '1-0-001','1-0-001','1-0-001',
-              '1-0-001','1-0-001','1-0-001',
-              '1-0-001','1-0-001','1-0-001',
-              '1-0-001','1-0-001','1-0-001',
-              '1-0-001','1-0-001','1-0-001',
-              '1-0-001','1-0-001','1-0-001',
-              '1-0-001','1-0-001','1-0-001',
-              '1-0-001','1-0-001','1-0-001',
-              '1-0-001','1-0-001','1-0-001',
-              '1-0-001','1-0-001','1-0-001',
-              '1-0-001','1-0-001','1-0-001',
-              '1-0-001','1-0-001','1-0-001',
-              '1-0-001','1-0-001','1-0-001',
+              '1-0-001', '1-0-001', '1-0-001',
+              '1-0-001', '1-0-001', '1-0-001',
+              '1-0-001', '1-0-001', '1-0-001',
+              '1-0-001', '1-0-001', '1-0-001',
+              '1-0-001', '1-0-001', '1-0-001',
+              '1-0-001', '1-0-001', '1-0-001',
+              '1-0-001', '1-0-001', '1-0-001',
+              '1-0-001', '1-0-001', '1-0-001',
+              '1-0-001', '1-0-001', '1-0-001',
+              '1-0-001', '1-0-001', '1-0-001',
+              '1-0-001', '1-0-001', '1-0-001',
+              '1-0-001', '1-0-001', '1-0-001',
+              '1-0-001', '1-0-001', '1-0-001',
               '2-3-128',
             ],
           },
@@ -59,4 +59,14 @@ export const useWebSocketGame = ({ id }: Props) => {
   useEffect(() => {
     websocket?.on('open', () => setConnected(true))
   }, [websocket])
+
+  const send = useCallback((message: Message) => {
+    if (websocket) {
+      websocket?.send(message)
+    } else {
+      console.error('WebSocket接続確立前に send が呼び出されました。')
+    }
+  }, [websocket])
+
+  return { send }
 }

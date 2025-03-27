@@ -2,6 +2,7 @@
 
 import { CardDetailWindow } from '@/component/ui/CardDetailWindow';
 import { CPView } from '@/component/ui/CPView';
+import { DebugDialog } from '@/component/ui/DebugDialog';
 import { LifeView } from '@/component/ui/LifeView';
 import { UnitView } from '@/component/ui/UnitView';
 import { colorTable } from '@/helper/color';
@@ -14,13 +15,15 @@ interface RoomProps {
 
 export const Game = ({ id }: RoomProps) => {
   useWebSocketGame({ id })
-
   const { opponent, self } = useGame()
 
   return (
     <div className={`flex h-screen ${colorTable.ui.background} ${colorTable.ui.text.primary} relative`}>
       {/* カード詳細ウィンドウ */}
       <CardDetailWindow />
+
+      {/* デバッグダイアログ */}
+      <DebugDialog id={id}/>
 
       {/* メインゲームコンテナ */}
       <div className="flex flex-col w-full h-full p-4">

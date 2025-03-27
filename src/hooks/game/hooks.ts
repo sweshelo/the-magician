@@ -1,4 +1,6 @@
-import { useContext, useMemo } from 'react'
+'use client';
+
+import { useContext, useMemo, useState, useEffect } from 'react'
 
 import { Player } from "@/type/game/Player";
 import { GameContext, GameContextType } from "./context";
@@ -25,7 +27,14 @@ export const useGame = () => {
   const setPlayer = (player: Player): void => dispatch({ type: 'SET_PLAYER', player })
   const setAll = (game: GameState): void => dispatch({ type: 'SET_ALL', game })
 
-  const selfPlayerId = LocalStorageHelper.playerId()
+  // Using useState + useEffect to ensure this only runs on the client
+  const [selfPlayerId, setSelfPlayerId] = useState<string>('initial-id')
+
+  // This effect will only run on the client side
+  useEffect(() => {
+    setSelfPlayerId(LocalStorageHelper.playerId())
+  }, [])
+
   const self = useMemo<IPlayer | undefined>(() => state.players?.[selfPlayerId], [state.players, selfPlayerId])
   const selfStatus = useMemo(() => ({
     id: self?.id,
