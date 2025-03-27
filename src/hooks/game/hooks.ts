@@ -2,7 +2,7 @@ import { useContext } from 'react'
 
 import { Player } from "@/type/game/Player";
 import { GameContext, GameContextType } from "./context";
-import { Card } from '@/type/game/Card';
+import { GameState } from './reducer';
 
 const useGameContext = (): GameContextType => {
   const context = useContext(GameContext)
@@ -20,14 +20,13 @@ export const useGame = () => {
   const setTurn = (turn: number): void => dispatch({ type: 'SET_TURN', turn })
   const setRound = (round: number): void => dispatch({ type: 'SET_ROUND', round })
   const setPlayer = (player: Player): void => dispatch({ type: 'SET_PLAYER', player })
-  const setSelectedCard = (card: Card): void => dispatch({ type: 'SET_SELECTED_CARD', card })
+  const setAll = (game: GameState): void => dispatch({ type: 'SET_ALL', game })
 
   return {
     ...state,
     setTurn,
     setRound,
     setPlayer,
-    setSelectedCard,
-    dispatch
+    setAll,
   }
 }
