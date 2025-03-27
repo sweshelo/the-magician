@@ -1,8 +1,11 @@
-import { useContext } from 'react'
+import { useContext, useMemo } from 'react'
 
 import { Player } from "@/type/game/Player";
 import { GameContext, GameContextType } from "./context";
 import { GameState } from './reducer';
+import { LocalStorageHelper } from '@/service/local-storage';
+import { IAtom, IPlayer, IUnit } from '@/submodule/suit/types';
+import { Card } from '@/type/game/Card';
 
 const useGameContext = (): GameContextType => {
   const context = useContext(GameContext)
@@ -22,11 +25,42 @@ export const useGame = () => {
   const setPlayer = (player: Player): void => dispatch({ type: 'SET_PLAYER', player })
   const setAll = (game: GameState): void => dispatch({ type: 'SET_ALL', game })
 
+  const selfPlayerId = LocalStorageHelper.playerId()
+  const self = useMemo<IPlayer | undefined>(() => state.players?.[selfPlayerId], [state.players, selfPlayerId])
+  const selfStatus = useMemo(() => ({
+    id: self?.id,
+    name: self?.name,
+    cp: self?.cp,
+    life: self?.life,
+  }), [self])
+  const selfHand = useMemo<Card[]>(() => (self?.hand ?? []) as Card[], [self])
+  const selfField = useMemo<IUnit[]>(() => self?.field ?? [], [self])
+
+  const opponent = useMemo<IPlayer | undefined>(() => state.players && Object.entries(state.players).find(([key]) => key !== selfPlayerId)?.[1], [state.players, selfPlayerId])
+  const opponentStatus = useMemo(() => ({
+    id: opponent?.id,
+    name: opponent?.name,
+    cp: opponent?.cp,
+    life: opponent?.life,
+  }), [opponent])
+  const opponentHand = useMemo<IAtom[]>(() => opponent?.hand ?? [], [opponent])
+  const opponentField = useMemo<IUnit[]>(() => opponent?.field ?? [], [opponent])
+
   return {
     ...state,
     setTurn,
     setRound,
     setPlayer,
     setAll,
+    self: {
+      status: selfStatus,
+      hand: selfHand,
+      field: selfField,
+    },
+    opponent: {
+      status: opponentStatus,
+      hand: opponentHand,
+      field: opponentField,
+    }
   }
 }
