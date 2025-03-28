@@ -58,4 +58,4 @@ class WebSocketService extends EventEmitter {
   }
 }
 
-export const webSocketService = new WebSocketService('ws://localhost:4000/')
+export const webSocketService = new WebSocketService('ws://localhost:5000/')

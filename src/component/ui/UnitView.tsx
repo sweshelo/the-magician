@@ -1,15 +1,15 @@
+import { IUnit } from "@/submodule/suit/types";
 import { BPView } from "./BPView";
 import { UnitIconView } from "./UnitIconView";
 
 interface UnitViewProps {
-  color: string
-  image?: string
+  unit: IUnit
 }
 
-export const UnitView = ({ color, image }: UnitViewProps) => {
+export const UnitView = ({ unit }: UnitViewProps) => {
   return (
     <div className="flex flex-col items-center">
-      <UnitIconView color={color} image={image} />
+      <UnitIconView color={'green'} image={`/image/card/full/${unit.catalogId}.jpg`} />
       <div className="-mt-1">
         <BPView bp={1000} />
       </div>
