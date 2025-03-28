@@ -43,6 +43,7 @@ export const useGame = () => {
     life: self?.life,
   }), [self])
   const selfHand = useMemo<Card[]>(() => (self?.hand ?? []) as Card[], [self])
+  const selfDeck = useMemo<IAtom[]>(() => (self?.deck ?? []), [self])
   const selfField = useMemo<IUnit[]>(() => self?.field ?? [], [self])
 
   const opponent = useMemo<IPlayer | undefined>(() => state.players && Object.entries(state.players).find(([key]) => key !== selfPlayerId)?.[1], [state.players, selfPlayerId])
@@ -53,6 +54,7 @@ export const useGame = () => {
     life: opponent?.life,
   }), [opponent])
   const opponentHand = useMemo<IAtom[]>(() => opponent?.hand ?? [], [opponent])
+  const opponentDeck = useMemo<IAtom[]>(() => (self?.hand ?? []), [self])
   const opponentField = useMemo<IUnit[]>(() => opponent?.field ?? [], [opponent])
 
   return {
@@ -65,10 +67,12 @@ export const useGame = () => {
       status: selfStatus,
       hand: selfHand,
       field: selfField,
+      deck: selfDeck,
     },
     opponent: {
       status: opponentStatus,
       hand: opponentHand,
+      deck: opponentDeck,
       field: opponentField,
     }
   }
