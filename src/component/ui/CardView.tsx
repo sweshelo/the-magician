@@ -33,7 +33,7 @@ export const CardView = ({ card }: Props) => {
       <div className="border-gray-700 absolute bottom-0 w-full">
         {catalog && (
           <ul className={`w-full h-7 flex items-center justify-center font-bold text-white bg-gray-700`}>
-            <li className="text-xs">Lv 1</li>
+            <li className="text-xs">{`Lv ${card.lv}`}</li>
             {catalog.bp && <li className="ml-2">{catalog.bp?.[0]}</li>}
           </ul>
         )}
