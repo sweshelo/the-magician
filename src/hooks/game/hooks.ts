@@ -54,7 +54,7 @@ export const useGame = () => {
     life: opponent?.life,
   }), [opponent])
   const opponentHand = useMemo<IAtom[]>(() => opponent?.hand ?? [], [opponent])
-  const opponentDeck = useMemo<IAtom[]>(() => (self?.hand ?? []), [self])
+  const opponentDeck = useMemo<IAtom[]>(() => (opponent?.deck ?? []), [opponent])
   const opponentField = useMemo<IUnit[]>(() => opponent?.field ?? [], [opponent])
 
   return {
