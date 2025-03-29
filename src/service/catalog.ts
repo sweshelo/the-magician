@@ -1,31 +1,50 @@
 import { Catalog } from '@/type/game/Card'
+import master from '../../catalog.json';
 
-// モックカードデータ
-const catalog = new Map<string, Catalog>()
+interface CardMaster {
+  id: number;
+  ref: string;
+  name: string;
+  rare: string
+  type: string
+  color: string
+  species?: string[]
+  cost: number
+  bp?: number[]
+  ability: string
+}
 
-const data: Catalog[] = [
-  {
-    id: '1-0-001',
-    name: 'ブラッドハウンド',
-    cost: 1,
-    color: 1,
-    bp: [3000, 4000, 5000],
-    text: '■ダメージブレイク\nこのユニットがオーバークロックした時、対戦相手のユニットを1体選ぶ。それに4000ダメージを与える。',
-    image: '🐕️',
-    type: 'Unit'
-  },
-  {
-    id: '2-3-128',
-    name: '戦乙女ジャンヌダルク',
-    cost: 4,
-    color: 4,
-    bp: [4000, 5000, 6000],
-    text: '【不屈】\n■戦女神の誓い\n自身は効果によるダメージを受けず、そのダメージをこのユニットの基本ＢＰに＋する。\n■オルレアンの一撃\n自身がフィールドに出た時、ＢＰを＋［あなたの受けているライフダメージ×１０００］し、対戦相手のユニットを１体選ぶ。それの基本ＢＰをこのユニットのＢＰ分－する。\n自身がオーバークロックした時、対戦相手の全てのユニットの基本ＢＰを－３０００し、【攻撃禁止】を与える。',
-    image: '🏋️‍♀️',
-    type: 'Unit'
+const transformColor = (colorString: string) => {
+  switch (colorString) {
+    case '赤属性':
+      return 1;
+    case '黄属性':
+      return 2;
+    case '青属性':
+      return 3;
+    case '緑属性':
+      return 4;
+    case '紫属性':
+      return 5;
+    case '無属性':
+    default:
+      return 0;
   }
-]
+}
 
-data.forEach(c => catalog.set(c.id, c))
+const catalog = new Map<string, Catalog>()
+// Process each version of the master catalog
+Object.entries(master).forEach(([version, cards]) => {
+  cards.map((card: CardMaster): Catalog => {
+    const [bp1, bp2, bp3] = card.bp ?? []
+    return ({
+      ...card,
+      bp: card.bp ? [bp1, bp2, bp3] : undefined,
+      type: card.type as Catalog['type'],
+      color: transformColor(card.color),
+      version, // Add version information from master's key
+    })
+  }).forEach(c => catalog.set(c.ref, c))
+})
 
 export default catalog

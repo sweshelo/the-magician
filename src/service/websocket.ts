@@ -58,4 +58,4 @@ class WebSocketService extends EventEmitter {
   }
 }
 
-export const webSocketService = new WebSocketService('ws://localhost:5000/')
+export const webSocketService = new WebSocketService(`wss://${process.env.NEXT_PUBLIC_WEBSOCKET_HOST}`)

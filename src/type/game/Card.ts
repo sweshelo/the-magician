@@ -7,12 +7,14 @@ export interface Card extends Atom {
 }
 
 export interface Catalog {
-  id: string
+  id: number
+  ref: string
   name: string
   cost: number
   color: number
-  bp: [number, number, number] | undefined
-  text: string
-  image: string // mock only
-  type: 'Unit' | 'Trigger'
+  bp?: [number, number, number]
+  ability: string
+  type: 'unit' | 'trigger' | 'intercept' | 'advanced_unit'
+  species?: string[]
+  version?: string
 }
