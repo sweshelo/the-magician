@@ -3,7 +3,7 @@
 import { webSocketService } from "@/service/websocket";
 import { createContext, ReactNode, useEffect, useState } from "react";
 
-type WebSocketContextType = {
+export type WebSocketContextType = {
   websocket: typeof webSocketService | undefined;
 }
 
