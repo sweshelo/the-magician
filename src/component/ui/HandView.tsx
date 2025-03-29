@@ -1,17 +1,17 @@
 import { Card } from "@/type/game/Card"
 import { useSystemContext } from "@/hooks/system/hooks";
-import { useDndMonitor, useDraggable, useDroppable } from "@dnd-kit/core";
-import type { Active, DragStartEvent } from "@dnd-kit/core";
-import { useCallback, useState } from "react";
+import { useDraggable, useDroppable } from "@dnd-kit/core";
+import { useCallback, useEffect, useState } from "react";
 import { CardView } from "./CardView";
 
 interface Props {
-  card: Card
+  card: Card;
+  isHighlighted?: boolean;
 }
 
 export const HandView = ({ card }: Props) => {
-  const [activeCard, setActiveCard] = useState<Active>();
-  const { operable } = useSystemContext();
+  const [isHighlighted, setHighlighted] = useState(false);
+  const { operable, activeCard } = useSystemContext()
   const { attributes, listeners, setNodeRef: setDraggableRef, transform } = useDraggable({
     id: card.id,
     disabled: !operable,
@@ -29,7 +29,7 @@ export const HandView = ({ card }: Props) => {
 
   const style = {
     transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
-    backgroundColor: isOver ? 'green' : undefined,
+    zIndex: transform ? 1 : 0,
   };
 
   const setNodeRef = useCallback((ref: HTMLElement | null) => {
@@ -37,21 +37,32 @@ export const HandView = ({ card }: Props) => {
     setDroppableRef(ref)
   }, [setDraggableRef, setDroppableRef])
 
-  useDndMonitor({
-    onDragStart(e: DragStartEvent) {
-      setActiveCard(e.active)
-    }
-  })
+  const { setSelectedCard } = useSystemContext();
+  const handleCardClick = useCallback(() => {
+    if (card.catalogId) setSelectedCard(card)
+  }, [card, setSelectedCard])
+
+  useEffect(() => {
+    setHighlighted(activeCard?.id !== card.id && activeCard?.data.current?.type === card.catalogId)
+  }, [activeCard?.data, activeCard?.id, card.catalogId, card.id])
 
   return (
     <div
-      className="w-20 h-28"
+      className="relative"
       ref={setNodeRef}
       style={style}
       {...attributes}
       {...listeners}
+      onClick={handleCardClick}
     >
-      <CardView card={card} />
+      <div className="relative">
+        <div className={(isHighlighted && isOver) ? `animate-pulse-border`: ''}>
+          <CardView card={card} />
+        </div>
+        {isHighlighted && (
+          <div className="absolute inset-0 border-1 border-gray-300 animate-pulse-border shadow-glow pointer-events-none" />
+        )}
+      </div>
     </div>
   )
 }

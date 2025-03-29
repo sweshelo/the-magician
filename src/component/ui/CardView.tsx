@@ -1,6 +1,5 @@
-import { Atom, Card } from "@/type/game/Card"
+import { Atom } from "@/type/game/Card"
 import master from "@/service/catalog";
-import { useSystemContext } from "@/hooks/system/hooks";
 import { getColorCode } from "@/helper/color";
 
 interface Props {
@@ -9,14 +8,10 @@ interface Props {
 
 export const CardView = ({ card }: Props) => {
   const catalog = 'catalogId' in card && typeof card.catalogId === 'string' ? master.get(card.catalogId) : undefined;
-  const { setSelectedCard } = useSystemContext();
-  const handleCardClick = () => {
-    if (catalog) setSelectedCard(card as Card)
-  }
 
   return (
     <div
-      className={`w-20 h-28 border-2 border-slate-600 rounded flex justify-center items-center text-slate-500`}
+      className={`w-20 h-28 border-2 border-slate-600 rounded flex justify-center items-center text-slate-500 relative`}
       style={{
         backgroundImage: `url('/image/card/full/${catalog?.id}.jpg')`,
         backgroundSize: 'cover',
@@ -24,7 +19,6 @@ export const CardView = ({ card }: Props) => {
     >
       <div
         className={`w-full h-full rounded flex flex-col text-xs shadow-lg relative cursor-pointer`}
-        onClick={handleCardClick}
       >
         <div className="flex justify-between mb-1">
           <div className="border-3 border-gray-700">

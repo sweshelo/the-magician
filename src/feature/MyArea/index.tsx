@@ -1,9 +1,9 @@
 import { CPView } from "@/component/ui/CPView"
 import { DeckCountView } from "@/component/ui/DeckCountView"
-import { HandView } from "@/component/ui/HandView"
 import { LifeView } from "@/component/ui/LifeView"
 import { colorTable } from "@/helper/color"
 import { useGame } from "@/hooks/game"
+import { HandArea } from "../Hand"
 
 export const MyArea = () => {
   const { self } = useGame()
@@ -32,11 +32,7 @@ export const MyArea = () => {
       </div>
 
       {/* 自分の手札エリア */}
-      <div className="flex justify-center gap-2 p-4 min-h-[120px]">
-        {self?.hand?.map((card, index) => (
-          <HandView key={`hand-card-${index}`} card={card} />
-        ))}
-      </div>
+      <HandArea hand={self.hand} />
     </div>
   )
 }
