@@ -13,8 +13,7 @@ export const CardView = ({ card }: Props) => {
     <div
       className={`w-20 h-28 border-2 border-slate-600 rounded flex justify-center items-center text-slate-500 relative`}
       style={{
-        // `url(https://coj.sega.jp/player/img/cards/${catalog?.version?.replaceAll(' ', '')}/large_card/card_large_${catalog?.id.toString().padStart(4, '0')}.jpg)`
-        backgroundImage: `url('/image/card/full/${catalog?.ref}.jpg')`,
+        backgroundImage: `url('https://coj.sega.jp/player/img/${catalog?.img}')`,
         backgroundSize: 'cover',
       }}
     >

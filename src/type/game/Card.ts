@@ -7,8 +7,7 @@ export interface Card extends Atom {
 }
 
 export interface Catalog {
-  id: number
-  ref: string
+  id: string
   name: string
   cost: number
   color: number
@@ -17,4 +16,5 @@ export interface Catalog {
   type: 'unit' | 'trigger' | 'intercept' | 'advanced_unit'
   species?: string[]
   version?: string
+  img: string
 }
