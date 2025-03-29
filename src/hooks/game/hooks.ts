@@ -1,8 +1,6 @@
 'use client';
 
 import { useContext, useMemo, useState, useEffect } from 'react'
-
-import { Player } from "@/type/game/Player";
 import { GameContext, GameContextType } from "./context";
 import { GameState } from './reducer';
 import { LocalStorageHelper } from '@/service/local-storage';
@@ -24,7 +22,7 @@ export const useGame = () => {
 
   const setTurn = (turn: number): void => dispatch({ type: 'SET_TURN', turn })
   const setRound = (round: number): void => dispatch({ type: 'SET_ROUND', round })
-  const setPlayer = (player: Player): void => dispatch({ type: 'SET_PLAYER', player })
+  const setPlayer = (player: IPlayer): void => dispatch({ type: 'SET_PLAYER', player })
   const setAll = (game: GameState): void => dispatch({ type: 'SET_ALL', game })
 
   // Using useState + useEffect to ensure this only runs on the client
