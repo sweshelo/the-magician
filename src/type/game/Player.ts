@@ -1,4 +1,6 @@
-import { IAtom, IUnit } from '@/submodule/suit/types'
+// FIXME: このファイルがあるのはおかしい。Submoduleに移行すべき。
+
+import { IAtom, ICard, IUnit } from '@/submodule/suit/types'
 
 export interface Player {
   id: string
@@ -6,6 +8,7 @@ export interface Player {
   deck: IAtom[] // 非公開のため Card ではなく Atom
   hand: IAtom[] // 対戦相手は非公開のため Card ではなく Atom
   field: IUnit[]
+  trash: ICard[]
 
   cp: {
     current: number
