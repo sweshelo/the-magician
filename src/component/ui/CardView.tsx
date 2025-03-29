@@ -1,4 +1,4 @@
-import master from "@/service/catalog";
+import master from "@/submodule/suit/catalog/catalog";
 import { getColorCode } from "@/helper/color";
 import { ICard } from "@/submodule/suit/types";
 

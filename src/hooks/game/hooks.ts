@@ -7,7 +7,7 @@ import { GameContext, GameContextType } from "./context";
 import { GameState } from './reducer';
 import { LocalStorageHelper } from '@/service/local-storage';
 import { IAtom, IPlayer, IUnit } from '@/submodule/suit/types';
-import { Card } from '@/type/game/Card';
+import { ICard } from '@/submodule/suit/types/game/card';
 
 const useGameContext = (): GameContextType => {
   const context = useContext(GameContext)
@@ -42,7 +42,7 @@ export const useGame = () => {
     cp: self?.cp,
     life: self?.life,
   }), [self])
-  const selfHand = useMemo<Card[]>(() => (self?.hand ?? []) as Card[], [self])
+  const selfHand = useMemo<ICard[]>(() => (self?.hand ?? []) as ICard[], [self])
   const selfDeck = useMemo<IAtom[]>(() => (self?.deck ?? []), [self])
   const selfField = useMemo<IUnit[]>(() => self?.field ?? [], [self])
 
