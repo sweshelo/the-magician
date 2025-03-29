@@ -1,9 +1,9 @@
-import { Atom } from "@/type/game/Card"
 import master from "@/service/catalog";
 import { getColorCode } from "@/helper/color";
+import { ICard } from "@/submodule/suit/types";
 
 interface Props {
-  card: Atom
+  card: ICard
 }
 
 export const CardView = ({ card }: Props) => {
@@ -11,7 +11,7 @@ export const CardView = ({ card }: Props) => {
 
   return (
     <div
-      className={`w-20 h-28 border-2 border-slate-600 rounded flex justify-center items-center text-slate-500 relative`}
+      className={`w-28 h-39 border-2 border-slate-600 rounded justify-center items-center text-slate-500 relative`}
       style={{
         backgroundImage: `url('https://coj.sega.jp/player/img/${catalog?.img}')`,
         backgroundSize: 'cover',
@@ -29,6 +29,14 @@ export const CardView = ({ card }: Props) => {
             )}
           </div>
         </div>
+      </div>
+      <div className="border-gray-700 absolute bottom-0 w-full">
+        {catalog && (
+          <ul className={`w-full h-7 flex items-center justify-center font-bold text-white bg-gray-700`}>
+            <li className="text-xs">Lv 1</li>
+            {catalog.bp && <li className="ml-2">{catalog.bp?.[0]}</li>}
+          </ul>
+        )}
       </div>
     </div>
   )
