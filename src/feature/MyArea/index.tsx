@@ -7,10 +7,12 @@ import { HandArea } from "../Hand"
 import { GiCardDiscard, GiCardDraw } from "react-icons/gi"
 import { useSystemContext } from "@/hooks/system/hooks"
 import { BsTrash3Fill } from "react-icons/bs"
+import { CardsPanel } from "@/component/ui/CardsPanel"
+import { ICard } from "@/submodule/suit/types"
 
 export const MyArea = () => {
   const { self } = useGame()
-  const { activeCard } = useSystemContext()
+  const { activeCard, openTrash, setOpenTrash, openDeck, setOpenDeck } = useSystemContext()
 
   return (
     <div className="flex-col p-4 min-h-[250px]">
@@ -24,12 +26,16 @@ export const MyArea = () => {
         <div className="flex gap-4">
           {self?.deck && (
             <CardsCountView count={self.deck.length}>
-              <GiCardDraw color="cyan" size={40} />
+              <div className="flex justify-center items-center cursor-pointer w-full h-full" onClick={() => setOpenDeck(prev => !prev)}>
+                {
+                  <GiCardDraw color="cyan" size={40} />
+                }
+              </div>
             </CardsCountView>
           )}
           {self?.trash && (
             <CardsCountView count={self.trash.length}>
-              <div className="flex justify-center items-center cursor-pointer w-full h-full">
+              <div className="flex justify-center items-center cursor-pointer w-full h-full" onClick={() => setOpenTrash(prev => !prev)}>
                 {
                   activeCard ? <GiCardDiscard color="yellowgreen" size={40} /> : <BsTrash3Fill color="yellowgreen" size={32} />
                 }
@@ -50,6 +56,22 @@ export const MyArea = () => {
 
       {/* 自分の手札エリア */}
       <HandArea hand={self.hand} />
+
+      {/* 捨て札ビュー */}
+      <CardsPanel
+        cards={self.trash}
+        open={openTrash}
+        title="あなたの捨札"
+        onClose={() => setOpenTrash(false)}
+      />
+
+      {/* デッキビュー */}
+      <CardsPanel
+        cards={self.deck as ICard[]}
+        open={openDeck}
+        title="あなたのデッキ"
+        onClose={() => setOpenDeck(false)}
+      />
     </div>
   )
 }
