@@ -1,9 +1,10 @@
 import { CPView } from "@/component/ui/CPView"
-import { DeckCountView } from "@/component/ui/DeckCountView"
+import { CardsCountView } from "@/component/ui/CardsCountView"
 import { LifeView } from "@/component/ui/LifeView"
 import { colorTable } from "@/helper/color"
 import { useGame } from "@/hooks/game"
 import { HandArea } from "../Hand"
+import { GiCardDraw } from "react-icons/gi"
 
 export const MyArea = () => {
   const { self } = useGame()
@@ -17,9 +18,18 @@ export const MyArea = () => {
           <div className={`text-sm ${colorTable.ui.text.secondary}`}>あなたのターン</div>
         </div>
 
-        {self?.deck && (
-          <DeckCountView count={self.deck.length} />
-        )}
+        <div className="flex gap-4">
+          {self?.deck && (
+            <CardsCountView count={self.deck.length}>
+              <GiCardDraw color="cyan" size={40} />
+            </CardsCountView>
+          )}
+          {self?.trash && (
+            <CardsCountView count={self.trash.length}>
+              <GiCardDraw color="yellowgreen" size={40} />
+            </CardsCountView>
+          )}
+        </div>
 
         <div className="flex flex-col gap-2">
           {self?.status.life && (

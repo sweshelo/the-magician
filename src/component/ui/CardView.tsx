@@ -1,9 +1,9 @@
-import { Atom } from "@/type/game/Card"
-import master from "@/service/catalog";
+import master from "@/submodule/suit/catalog/catalog";
 import { getColorCode } from "@/helper/color";
+import { IAtom } from "@/submodule/suit/types";
 
 interface Props {
-  card: Atom
+  card: IAtom
 }
 
 export const CardView = ({ card }: Props) => {

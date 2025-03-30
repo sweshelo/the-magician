@@ -1,13 +1,10 @@
 'use client';
 
 import { useContext, useMemo, useState, useEffect } from 'react'
-
-import { Player } from "@/type/game/Player";
 import { GameContext, GameContextType } from "./context";
 import { GameState } from './reducer';
 import { LocalStorageHelper } from '@/service/local-storage';
-import { IAtom, IPlayer, IUnit } from '@/submodule/suit/types';
-import { Card } from '@/type/game/Card';
+import { IAtom, ICard, IPlayer, IUnit } from '@/submodule/suit/types';
 
 const useGameContext = (): GameContextType => {
   const context = useContext(GameContext)
@@ -24,7 +21,7 @@ export const useGame = () => {
 
   const setTurn = (turn: number): void => dispatch({ type: 'SET_TURN', turn })
   const setRound = (round: number): void => dispatch({ type: 'SET_ROUND', round })
-  const setPlayer = (player: Player): void => dispatch({ type: 'SET_PLAYER', player })
+  const setPlayer = (player: IPlayer): void => dispatch({ type: 'SET_PLAYER', player })
   const setAll = (game: GameState): void => dispatch({ type: 'SET_ALL', game })
 
   // Using useState + useEffect to ensure this only runs on the client
@@ -42,9 +39,10 @@ export const useGame = () => {
     cp: self?.cp,
     life: self?.life,
   }), [self])
-  const selfHand = useMemo<Card[]>(() => (self?.hand ?? []) as Card[], [self])
+  const selfHand = useMemo<ICard[]>(() => (self?.hand ?? []) as ICard[], [self])
   const selfDeck = useMemo<IAtom[]>(() => (self?.deck ?? []), [self])
   const selfField = useMemo<IUnit[]>(() => self?.field ?? [], [self])
+  const selfTrash = useMemo<ICard[]>(() => self?.trash ?? [], [self])
 
   const opponent = useMemo<IPlayer | undefined>(() => state.players && Object.entries(state.players).find(([key]) => key !== selfPlayerId)?.[1], [state.players, selfPlayerId])
   const opponentStatus = useMemo(() => ({
@@ -56,6 +54,7 @@ export const useGame = () => {
   const opponentHand = useMemo<IAtom[]>(() => opponent?.hand ?? [], [opponent])
   const opponentDeck = useMemo<IAtom[]>(() => (opponent?.deck ?? []), [opponent])
   const opponentField = useMemo<IUnit[]>(() => opponent?.field ?? [], [opponent])
+  const opponentTrash = useMemo<ICard[]>(() => self?.trash ?? [], [self])
 
   return {
     ...state,
@@ -68,12 +67,14 @@ export const useGame = () => {
       hand: selfHand,
       field: selfField,
       deck: selfDeck,
+      trash: selfTrash,
     },
     opponent: {
       status: opponentStatus,
       hand: opponentHand,
       deck: opponentDeck,
       field: opponentField,
+      trash: opponentTrash,
     }
   }
 }

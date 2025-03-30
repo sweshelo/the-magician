@@ -1,5 +1,5 @@
 import { useSystemContext } from "@/hooks/system/hooks";
-import master from "@/service/catalog";
+import master from "@/submodule/suit/catalog/catalog";
 import classNames from "classnames";
 import Image from "next/image";
 import { CostView } from "./CostView";
@@ -50,7 +50,7 @@ export const CardDetailWindow = () => {
 
           {/* 効果 */}
           <div className="mb-3">
-            <p className={`text-sm ${colorTable.ui.background} p-2 rounded whitespace-pre-wrap`}>{catalog.text}</p>
+            <p className={`text-sm ${colorTable.ui.background} p-2 rounded whitespace-pre-wrap`}>{catalog.ability}</p>
           </div>
 
           {/* BP */}

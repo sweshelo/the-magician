@@ -1,11 +1,10 @@
-import { IUnit } from '@/submodule/suit/types'
-import { Atom } from './Card'
+import { IUnit, IAtom } from '@/submodule/suit/types'
 
 export interface Player {
   id: string
   name: string
-  deck: Atom[] // 非公開のため Card ではなく Atom
-  hand: Atom[] // 対戦相手は非公開のため Card ではなく Atom
+  deck: IAtom[] // 非公開のため Card ではなく Atom
+  hand: IAtom[] // 対戦相手は非公開のため Card ではなく Atom
   field: IUnit[]
 
   cp: {

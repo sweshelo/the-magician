@@ -1,11 +1,11 @@
-import { Card } from "@/type/game/Card"
 import { useSystemContext } from "@/hooks/system/hooks";
 import { useDraggable, useDroppable } from "@dnd-kit/core";
 import { useCallback, useEffect, useState } from "react";
 import { CardView } from "./CardView";
+import { ICard } from "@/submodule/suit/types";
 
 interface Props {
-  card: Card;
+  card: ICard;
   isHighlighted?: boolean;
 }
 
