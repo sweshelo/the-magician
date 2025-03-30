@@ -57,7 +57,7 @@ export const useGameComponentHook = ({ id }: Props) => {
     if (websocket) {
       // Set initial state based on current connection state
       setConnected(websocket.isConnected());
-      
+
       // Set up listener for future state changes
       websocket.on('open', () => setConnected(true));
       websocket.on('close', () => setConnected(false));

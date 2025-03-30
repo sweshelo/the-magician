@@ -27,7 +27,7 @@ export const MyArea = () => {
           {self?.deck && (
             <CardsCountView count={self.deck.length}>
               <div className="flex justify-center items-center cursor-pointer w-full h-full" onClick={() => {
-                openCardsDialog(self.deck, "デッキ");
+                openCardsDialog(self.deck, "あなたのデッキ");
               }}>
                 {
                   <GiCardDraw color="cyan" size={40} />
@@ -38,7 +38,7 @@ export const MyArea = () => {
           {self?.trash && (
             <CardsCountView count={self.trash.length}>
               <div className="flex justify-center items-center cursor-pointer w-full h-full" onClick={() => {
-                openCardsDialog(self.trash, "捨て札");
+                openCardsDialog(self.trash, "あなたの捨札");
               }}>
                 {
                   activeCard ? <GiCardDiscard color="yellowgreen" size={40} /> : <BsTrash3Fill color="yellowgreen" size={32} />

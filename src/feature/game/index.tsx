@@ -11,6 +11,10 @@ import { MyArea } from '../MyArea';
 import { DndContext } from '@dnd-kit/core';
 import { useGameComponentHook } from './hook';
 import { CardsDialog } from '../CardsDialog';
+import { CardsCountView } from '@/component/ui/CardsCountView';
+import { GiCardDraw } from 'react-icons/gi';
+import { BsTrash3Fill } from 'react-icons/bs';
+import { useCardsDialog } from '@/hooks/cards-dialog';
 
 interface RoomProps {
   id: string
@@ -19,6 +23,7 @@ interface RoomProps {
 export const Game = ({ id }: RoomProps) => {
   useGameComponentHook({ id })
   const { opponent, self } = useGame()
+  const { openCardsDialog } = useCardsDialog();
 
   return (
     <DndContext>
@@ -48,6 +53,30 @@ export const Game = ({ id }: RoomProps) => {
                     className={`w-8 h-12 ${colorTable.ui.opponentCardBackground} rounded flex justify-center items-center shadow-md ${colorTable.symbols.mana} text-2xl`}
                   />
                 ))}
+              </div>
+              <div className="flex gap-4">
+                {opponent?.deck && (
+                  <CardsCountView count={opponent.deck.length}>
+                    <div className="flex justify-center items-center cursor-pointer w-full h-full" onClick={() => {
+                      openCardsDialog(opponent.deck, "対戦相手のデッキ");
+                    }}>
+                      {
+                        <GiCardDraw color="cyan" size={40} />
+                      }
+                    </div>
+                  </CardsCountView>
+                )}
+                {opponent?.trash && (
+                  <CardsCountView count={opponent.trash.length}>
+                    <div className="flex justify-center items-center cursor-pointer w-full h-full" onClick={() => {
+                      openCardsDialog(opponent.trash, "対戦相手の捨札");
+                    }}>
+                      {
+                        <BsTrash3Fill color="yellowgreen" size={32} />
+                      }
+                    </div>
+                  </CardsCountView>
+                )}
               </div>
               <div className="flex flex-col gap-2">
                 {opponent?.status.life !== undefined && (
