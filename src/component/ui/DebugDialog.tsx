@@ -3,13 +3,9 @@
 import { colorTable } from '@/helper/color';
 import { useGame, useWebSocketGame } from '@/hooks/game';
 
-interface DebugDialogProps {
-  id: string
-}
-
-export const DebugDialog = ({ id }: DebugDialogProps) => {
+export const DebugDialog = () => {
   const { self, opponent } = useGame()
-  const { send } = useWebSocketGame({ id })
+  const { send } = useWebSocketGame()
 
   const handleDebugButtonClick = () => {
     console.log('self: ', self, '\nopponent: ', opponent)

@@ -26,7 +26,7 @@ export const Game = ({ id }: RoomProps) => {
         <CardDetailWindow />
 
         {/* デバッグダイアログ */}
-        <DebugDialog id={id} />
+        <DebugDialog />
 
         {/* メインゲームコンテナ */}
         <div className="flex flex-col w-full h-full p-4">

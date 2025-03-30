@@ -4,10 +4,13 @@ import { LifeView } from "@/component/ui/LifeView"
 import { colorTable } from "@/helper/color"
 import { useGame } from "@/hooks/game"
 import { HandArea } from "../Hand"
-import { GiCardDraw } from "react-icons/gi"
+import { GiCardDiscard, GiCardDraw } from "react-icons/gi"
+import { useSystemContext } from "@/hooks/system/hooks"
+import { BsTrash3Fill } from "react-icons/bs"
 
 export const MyArea = () => {
   const { self } = useGame()
+  const { activeCard } = useSystemContext()
 
   return (
     <div className="flex-col p-4 min-h-[250px]">
@@ -26,7 +29,11 @@ export const MyArea = () => {
           )}
           {self?.trash && (
             <CardsCountView count={self.trash.length}>
-              <GiCardDraw color="yellowgreen" size={40} />
+              <div className="flex justify-center items-center cursor-pointer w-full h-full">
+                {
+                  activeCard ? <GiCardDiscard color="yellowgreen" size={40} /> : <BsTrash3Fill color="yellowgreen" size={32} />
+                }
+              </div>
             </CardsCountView>
           )}
         </div>
