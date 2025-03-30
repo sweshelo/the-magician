@@ -2,10 +2,12 @@
 
 import { colorTable } from '@/helper/color';
 import { useGame, useWebSocketGame } from '@/hooks/game';
+import { useSoundEffect } from '@/hooks/sound/hooks';
 
 export const DebugDialog = () => {
   const { self, opponent } = useGame()
   const { send } = useWebSocketGame()
+  const { draw } = useSoundEffect();
 
   const handleDebugButtonClick = () => {
     console.log('self: ', self, '\nopponent: ', opponent)
@@ -13,6 +15,7 @@ export const DebugDialog = () => {
 
   const handleDrawButtonClick = () => {
     console.log()
+    draw()
     send({
       action: {
         handler: 'core',

@@ -9,10 +9,12 @@ import { useSystemContext } from "@/hooks/system/hooks"
 import { BsTrash3Fill } from "react-icons/bs"
 import { CardsPanel } from "@/component/ui/CardsPanel"
 import { ICard } from "@/submodule/suit/types"
+import { useSoundEffect } from "@/hooks/sound/hooks"
 
 export const MyArea = () => {
   const { self } = useGame()
   const { activeCard, openTrash, setOpenTrash, openDeck, setOpenDeck } = useSystemContext()
+  const { open } = useSoundEffect();
 
   return (
     <div className="flex-col p-4 min-h-[250px]">
@@ -26,7 +28,10 @@ export const MyArea = () => {
         <div className="flex gap-4">
           {self?.deck && (
             <CardsCountView count={self.deck.length}>
-              <div className="flex justify-center items-center cursor-pointer w-full h-full" onClick={() => setOpenDeck(prev => !prev)}>
+              <div className="flex justify-center items-center cursor-pointer w-full h-full" onClick={() => {
+                setOpenDeck(prev => !prev)
+                open()
+              }}>
                 {
                   <GiCardDraw color="cyan" size={40} />
                 }
@@ -35,7 +40,10 @@ export const MyArea = () => {
           )}
           {self?.trash && (
             <CardsCountView count={self.trash.length}>
-              <div className="flex justify-center items-center cursor-pointer w-full h-full" onClick={() => setOpenTrash(prev => !prev)}>
+              <div className="flex justify-center items-center cursor-pointer w-full h-full" onClick={() => {
+                setOpenTrash(prev => !prev)
+                open()
+              }}>
                 {
                   activeCard ? <GiCardDiscard color="yellowgreen" size={40} /> : <BsTrash3Fill color="yellowgreen" size={32} />
                 }
