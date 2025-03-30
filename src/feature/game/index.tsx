@@ -43,7 +43,7 @@ export const Game = ({ id }: RoomProps) => {
                 {/* 対戦相手の手札は裏向きに表示 */}
                 {opponent?.hand?.map((i) => (
                   <div
-                    key={`opponent-card-${i}`}
+                    key={`opponent-card-${i.id}`}
                     className={`w-8 h-12 ${colorTable.ui.opponentCardBackground} rounded flex justify-center items-center shadow-md ${colorTable.symbols.mana} text-2xl`}
                   />
                 ))}
