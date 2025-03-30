@@ -6,16 +6,17 @@ import { DebugDialog } from '@/component/ui/DebugDialog';
 import { LifeView } from '@/component/ui/LifeView';
 import { UnitView } from '@/component/ui/UnitView';
 import { colorTable } from '@/helper/color';
-import { useGame, useWebSocketGame } from '@/hooks/game';
+import { useGame } from '@/hooks/game';
 import { MyArea } from '../MyArea';
 import { DndContext } from '@dnd-kit/core';
+import { useGameComponentHook } from './hook';
 
 interface RoomProps {
   id: string
 }
 
 export const Game = ({ id }: RoomProps) => {
-  useWebSocketGame({ id })
+  useGameComponentHook({ id })
   const { opponent, self } = useGame()
 
   return (

@@ -1,9 +1,9 @@
 import master from "@/submodule/suit/catalog/catalog";
 import { getColorCode } from "@/helper/color";
-import { IAtom } from "@/submodule/suit/types";
+import { ICard } from "@/submodule/suit/types";
 
 interface Props {
-  card: IAtom
+  card: ICard
 }
 
 export const CardView = ({ card }: Props) => {
@@ -11,10 +11,9 @@ export const CardView = ({ card }: Props) => {
 
   return (
     <div
-      className={`w-20 h-28 border-2 border-slate-600 rounded flex justify-center items-center text-slate-500 relative`}
+      className={`w-28 h-39 border-2 border-slate-600 rounded justify-center items-center text-slate-500 relative`}
       style={{
-        // `url(https://coj.sega.jp/player/img/cards/${catalog?.version?.replaceAll(' ', '')}/large_card/card_large_${catalog?.id.toString().padStart(4, '0')}.jpg)`
-        backgroundImage: `url('/image/card/full/${catalog?.ref}.jpg')`,
+        backgroundImage: `url('https://coj.sega.jp/player/img/${catalog?.img}')`,
         backgroundSize: 'cover',
       }}
     >
@@ -30,6 +29,14 @@ export const CardView = ({ card }: Props) => {
             )}
           </div>
         </div>
+      </div>
+      <div className="border-gray-700 absolute bottom-0 w-full">
+        {catalog && (
+          <ul className={`w-full h-7 flex items-center justify-center font-bold text-white bg-gray-700`}>
+            <li className="text-xs">{`Lv ${card.lv}`}</li>
+            {catalog.bp && <li className="ml-2">{catalog.bp?.[0]}</li>}
+          </ul>
+        )}
       </div>
     </div>
   )
