@@ -12,10 +12,8 @@ export type SystemContextType = {
   setActiveCard: React.Dispatch<React.SetStateAction<Active | undefined>>
   operable: boolean
   setOperable: React.Dispatch<React.SetStateAction<boolean>>
-  openTrash: boolean
-  setOpenTrash: React.Dispatch<React.SetStateAction<boolean>>
-  openDeck: boolean
-  setOpenDeck: React.Dispatch<React.SetStateAction<boolean>>
+  // Removed openDeck, setOpenDeck, openTrash, setOpenTrash
+  // These are now handled by the CardsDialog context
 }
 
 export const SystemContext = createContext<SystemContextType | undefined>(undefined);
@@ -27,10 +25,6 @@ export const SystemContextProvider = ({ children }: { children: ReactNode }) => 
   const [activeCard, setActiveCard] = useState<Active | undefined>(undefined);
   const [operable, setOperable] = useState(true); // Debug用. 本当は初期値 false
 
-  // 捨て札
-  const [openTrash, setOpenTrash] = useState(false);
-  const [openDeck, setOpenDeck] = useState(false);
-
   return (
     <SystemContext.Provider value={{
       selectedCard,
@@ -39,10 +33,6 @@ export const SystemContextProvider = ({ children }: { children: ReactNode }) => 
       setOperable,
       activeCard,
       setActiveCard,
-      openTrash,
-      setOpenTrash,
-      openDeck,
-      setOpenDeck,
     }}>
       {children}
     </SystemContext.Provider>

@@ -1,13 +1,20 @@
 import master from "@/submodule/suit/catalog/catalog";
 import { getColorCode } from "@/helper/color";
-import { ICard } from "@/submodule/suit/types";
+import { IAtom, ICard } from "@/submodule/suit/types";
 
 interface Props {
-  card: ICard
+  card: IAtom
+}
+
+// Type guard to check if an IAtom is actually an ICard
+function isICard(card: IAtom): card is ICard {
+  return 'catalogId' in card && typeof card.catalogId === 'string' && 'lv' in card && typeof card.lv === 'number';
 }
 
 export const CardView = ({ card }: Props) => {
-  const catalog = 'catalogId' in card && typeof card.catalogId === 'string' ? master.get(card.catalogId) : undefined;
+  // Use the type guard to check if this is an ICard
+  const cardAsICard = isICard(card) ? card : null;
+  const catalog = cardAsICard ? master.get(cardAsICard.catalogId) : undefined;
 
   return (
     <div
@@ -33,7 +40,7 @@ export const CardView = ({ card }: Props) => {
       <div className="border-gray-700 absolute bottom-0 w-full">
         {catalog && (
           <ul className={`w-full h-7 flex items-center justify-center font-bold text-white bg-gray-700`}>
-            <li className="text-xs">{`Lv ${card.lv}`}</li>
+            {cardAsICard && <li className="text-xs">{`Lv ${cardAsICard.lv}`}</li>}
             {catalog.bp && <li className="ml-2">{catalog.bp?.[0]}</li>}
           </ul>
         )}

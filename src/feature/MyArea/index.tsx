@@ -7,14 +7,12 @@ import { HandArea } from "../Hand"
 import { GiCardDiscard, GiCardDraw } from "react-icons/gi"
 import { useSystemContext } from "@/hooks/system/hooks"
 import { BsTrash3Fill } from "react-icons/bs"
-import { CardsPanel } from "@/component/ui/CardsPanel"
-import { ICard } from "@/submodule/suit/types"
-import { useSoundEffect } from "@/hooks/sound/hooks"
+import { useCardsDialog } from "@/hooks/cards-dialog"
 
 export const MyArea = () => {
   const { self } = useGame()
-  const { activeCard, openTrash, setOpenTrash, openDeck, setOpenDeck } = useSystemContext()
-  const { open } = useSoundEffect();
+  const { activeCard } = useSystemContext()
+  const { openCardsDialog } = useCardsDialog();
 
   return (
     <div className="flex-col p-4 min-h-[250px]">
@@ -29,8 +27,7 @@ export const MyArea = () => {
           {self?.deck && (
             <CardsCountView count={self.deck.length}>
               <div className="flex justify-center items-center cursor-pointer w-full h-full" onClick={() => {
-                setOpenDeck(prev => !prev)
-                open()
+                openCardsDialog(self.deck, "デッキ");
               }}>
                 {
                   <GiCardDraw color="cyan" size={40} />
@@ -41,8 +38,7 @@ export const MyArea = () => {
           {self?.trash && (
             <CardsCountView count={self.trash.length}>
               <div className="flex justify-center items-center cursor-pointer w-full h-full" onClick={() => {
-                setOpenTrash(prev => !prev)
-                open()
+                openCardsDialog(self.trash, "捨て札");
               }}>
                 {
                   activeCard ? <GiCardDiscard color="yellowgreen" size={40} /> : <BsTrash3Fill color="yellowgreen" size={32} />
@@ -64,22 +60,6 @@ export const MyArea = () => {
 
       {/* 自分の手札エリア */}
       <HandArea hand={self.hand} />
-
-      {/* 捨て札ビュー */}
-      <CardsPanel
-        cards={self.trash}
-        open={openTrash}
-        title="あなたの捨札"
-        onClose={() => setOpenTrash(false)}
-      />
-
-      {/* デッキビュー */}
-      <CardsPanel
-        cards={self.deck as ICard[]}
-        open={openDeck}
-        title="あなたのデッキ"
-        onClose={() => setOpenDeck(false)}
-      />
     </div>
   )
 }

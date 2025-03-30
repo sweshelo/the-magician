@@ -10,6 +10,7 @@ import { useGame } from '@/hooks/game';
 import { MyArea } from '../MyArea';
 import { DndContext } from '@dnd-kit/core';
 import { useGameComponentHook } from './hook';
+import { CardsDialog } from '../CardsDialog';
 
 interface RoomProps {
   id: string
@@ -78,6 +79,10 @@ export const Game = ({ id }: RoomProps) => {
 
           {/* 自分のエリア */}
           <MyArea />
+
+          {/* カード一覧 */}
+          <CardsDialog />
+
         </div>
       </div>
     </DndContext>
