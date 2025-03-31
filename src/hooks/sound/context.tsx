@@ -19,10 +19,10 @@ export const SoundManagerProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const activeBgm = useRef<AudioBufferSourceNode | null>(null);
 
   // Sound effect hooks
-  const [drawPlay, drawControls] = useSound('/sound/se/draw.ogg');
-  const [clockUpPlay, clockUpControls] = useSound('/sound/se/clock-up.ogg');
-  const [trashPlay, trashControls] = useSound('/sound/se/trash.ogg');
-  const [openPlay, openControls] = useSound('/sound/se/open-trash.ogg');
+  const [drawPlay, drawControls] = useSound('/sound/se/draw.ogg', { volume: 0.25 });
+  const [clockUpPlay, clockUpControls] = useSound('/sound/se/clock-up.ogg', { volume: 0.25 });
+  const [trashPlay, trashControls] = useSound('/sound/se/trash.ogg', { volume: 0.25 });
+  const [openPlay, openControls] = useSound('/sound/se/open-trash.ogg', { volume: 0.25 });
 
   // Create AudioContext for BGM
   const audioCtx = useMemo(() => {
