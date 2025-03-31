@@ -1,6 +1,8 @@
 import { ReactNode } from "react"
 import { useDroppable } from "@dnd-kit/core"
 import { useSystemContext } from "@/hooks/system/hooks"
+import { useGame } from "@/hooks/game"
+import catalog from "@/submodule/suit/catalog/catalog"
 
 interface MyFieldWrapperProps {
   children: ReactNode
@@ -8,12 +10,14 @@ interface MyFieldWrapperProps {
 
 export const MyFieldWrapper = ({ children }: MyFieldWrapperProps) => {
   const { activeCard } = useSystemContext()
+  const { self } = useGame();
   const { isOver, setNodeRef } = useDroppable({
     id: 'field',
     data: {
       type: 'field',
       accepts: ['card']
-    }
+    },
+    disabled: self.field.length >= 5 || catalog.get(activeCard?.data.current?.type)?.type !== 'unit',
   })
 
   return (
