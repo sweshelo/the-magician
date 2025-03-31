@@ -1,32 +1,34 @@
 'use client';
 
-import { useCallback, useMemo } from "react"
-import useSound from "use-sound"
+import { useCallback } from "react";
+import { useSoundManager } from "./context";
 
 export const useSoundEffect = () => {
-  const [draw] = useSound('/sound/se/draw.ogg')
-  const [clockUp] = useSound('/sound/se/clock-up.ogg')
-  const [trash] = useSound('/sound/se/trash.ogg')
-  const [open] = useSound('/sound/se/open-trash.ogg')
+  const { playSound, playBgm, stopBgm } = useSoundManager();
 
-  const audioCtx = useMemo(() => {
-    if (typeof window !== 'undefined' && window.AudioContext) return new AudioContext()
-  }, []);
+  const draw = useCallback(() => {
+    playSound('draw');
+  }, [playSound]);
+
+  const clockUp = useCallback(() => {
+    playSound('clockUp');
+  }, [playSound]);
+
+  const trash = useCallback(() => {
+    playSound('trash');
+  }, [playSound]);
+
+  const open = useCallback(() => {
+    playSound('open');
+  }, [playSound]);
+
   const bgm = useCallback(async () => {
-    if (audioCtx) {
-      const buffer = await (await fetch('/sound/bgm/Quiet Madness.wav')).arrayBuffer();
-      const audio = await audioCtx.decodeAudioData(buffer);
-      const source = audioCtx.createBufferSource();
-      source.buffer = audio;
-      source.loop = true;
-      source.loopStart = 0; // ループ開始位置（秒）
-      source.loopEnd = 124.235;   // ループ終了位置（秒）
-      source.connect(audioCtx.destination);
-      return source;
-    } else {
-      return
-    }
-  }, [audioCtx])
+    await playBgm();
+    return {
+      start: () => {}, // Already started in playBgm
+      stop: stopBgm
+    };
+  }, [playBgm, stopBgm]);
 
   return {
     draw,
@@ -34,5 +36,5 @@ export const useSoundEffect = () => {
     trash,
     open,
     bgm,
-  }
-}
+  };
+};
