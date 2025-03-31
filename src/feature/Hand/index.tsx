@@ -12,7 +12,7 @@ interface HandAreaProps {
 export const HandArea = ({ hand }: HandAreaProps) => {
   const { activeCard, setActiveCard } = useSystemContext();
   const { override, unitDrive } = useWebSocketGame()
-  const { trash, clockUp, draw } = useSoundEffect()
+  const { trash, clockUp, draw, drive } = useSoundEffect()
   useDndMonitor({
     onDragStart(e: DragStartEvent) {
       setActiveCard(e.active)
@@ -23,6 +23,7 @@ export const HandArea = ({ hand }: HandAreaProps) => {
       switch (over?.data.current?.type) {
         case 'field':
           unitDrive({ target: activeCard?.id as string })
+          drive()
           break;
         case 'card':
           override({ target: activeCard?.id as string, parent: over.id as string })

@@ -23,6 +23,7 @@ export const SoundManagerProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const [clockUpPlay, clockUpControls] = useSound('/sound/se/clock-up.ogg', { volume: 0.25 });
   const [trashPlay, trashControls] = useSound('/sound/se/trash.ogg', { volume: 0.25 });
   const [openPlay, openControls] = useSound('/sound/se/open-trash.ogg', { volume: 0.25 });
+  const [drivePlay, driveControls] = useSound('/sound/se/drive.ogg', { volume: 0.25 });
 
   // Create AudioContext for BGM
   const audioCtx = useMemo(() => {
@@ -36,7 +37,8 @@ export const SoundManagerProvider: React.FC<{ children: React.ReactNode }> = ({ 
     'clockUp': { play: clockUpPlay, controls: clockUpControls },
     'trash': { play: trashPlay, controls: trashControls },
     'open': { play: openPlay, controls: openControls },
-  }), [drawPlay, drawControls, clockUpPlay, clockUpControls, trashPlay, trashControls, openPlay, openControls]);
+    'drive': { play: drivePlay, controls: driveControls }
+  }), [drawPlay, drawControls, clockUpPlay, clockUpControls, trashPlay, trashControls, openPlay, openControls, drivePlay, driveControls]);
 
   // Function to play a sound
   const playSound = useCallback((soundId: string) => {

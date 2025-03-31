@@ -22,6 +22,11 @@ export const useSoundEffect = () => {
     playSound('open');
   }, [playSound]);
 
+  const drive = useCallback(() => {
+    console.log('drive')
+    playSound('drive');
+  }, [playSound])
+
   const bgm = useCallback(async () => {
     await playBgm();
     return {
@@ -35,6 +40,7 @@ export const useSoundEffect = () => {
     clockUp,
     trash,
     open,
+    drive,
     bgm,
   };
 };

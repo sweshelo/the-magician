@@ -10,8 +10,8 @@ export const UnitView = ({ unit }: UnitViewProps) => {
   return (
     <div className="flex flex-col items-center">
       <UnitIconView color={'green'} image={`/image/card/full/${unit.catalogId}.jpg`} />
-      <div className="-mt-1">
-        <BPView bp={1000} />
+      <div className="-mt-2">
+        <BPView bp={unit.bp} lv={unit.lv}/>
       </div>
     </div>
   );
