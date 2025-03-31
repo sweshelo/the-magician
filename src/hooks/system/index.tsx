@@ -12,6 +12,8 @@ export type SystemContextType = {
   setActiveCard: React.Dispatch<React.SetStateAction<Active | undefined>>
   operable: boolean
   setOperable: React.Dispatch<React.SetStateAction<boolean>>
+  // Removed openDeck, setOpenDeck, openTrash, setOpenTrash
+  // These are now handled by the CardsDialog context
 }
 
 export const SystemContext = createContext<SystemContextType | undefined>(undefined);

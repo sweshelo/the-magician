@@ -4,12 +4,17 @@ import { CardDetailWindow } from '@/component/ui/CardDetailWindow';
 import { CPView } from '@/component/ui/CPView';
 import { DebugDialog } from '@/component/ui/DebugDialog';
 import { LifeView } from '@/component/ui/LifeView';
-import { UnitView } from '@/component/ui/UnitView';
 import { colorTable } from '@/helper/color';
 import { useGame } from '@/hooks/game';
 import { MyArea } from '../MyArea';
 import { DndContext } from '@dnd-kit/core';
 import { useGameComponentHook } from './hook';
+import { CardsDialog } from '../CardsDialog';
+import { CardsCountView } from '@/component/ui/CardsCountView';
+import { GiCardDraw } from 'react-icons/gi';
+import { BsTrash3Fill } from 'react-icons/bs';
+import { useCardsDialog } from '@/hooks/cards-dialog';
+import { Field } from '../Field';
 
 interface RoomProps {
   id: string
@@ -18,6 +23,7 @@ interface RoomProps {
 export const Game = ({ id }: RoomProps) => {
   useGameComponentHook({ id })
   const { opponent, self } = useGame()
+  const { openCardsDialog } = useCardsDialog();
 
   return (
     <DndContext>
@@ -26,7 +32,7 @@ export const Game = ({ id }: RoomProps) => {
         <CardDetailWindow />
 
         {/* デバッグダイアログ */}
-        <DebugDialog id={id} />
+        <DebugDialog />
 
         {/* メインゲームコンテナ */}
         <div className="flex flex-col w-full h-full p-4">
@@ -43,10 +49,34 @@ export const Game = ({ id }: RoomProps) => {
                 {/* 対戦相手の手札は裏向きに表示 */}
                 {opponent?.hand?.map((i) => (
                   <div
-                    key={`opponent-card-${i}`}
+                    key={`opponent-card-${i.id}`}
                     className={`w-8 h-12 ${colorTable.ui.opponentCardBackground} rounded flex justify-center items-center shadow-md ${colorTable.symbols.mana} text-2xl`}
                   />
                 ))}
+              </div>
+              <div className="flex gap-4">
+                {opponent?.deck && (
+                  <CardsCountView count={opponent.deck.length}>
+                    <div className="flex justify-center items-center cursor-pointer w-full h-full" onClick={() => {
+                      openCardsDialog(opponent.deck, "対戦相手のデッキ");
+                    }}>
+                      {
+                        <GiCardDraw color="cyan" size={40} />
+                      }
+                    </div>
+                  </CardsCountView>
+                )}
+                {opponent?.trash && (
+                  <CardsCountView count={opponent.trash.length}>
+                    <div className="flex justify-center items-center cursor-pointer w-full h-full" onClick={() => {
+                      openCardsDialog(opponent.trash, "対戦相手の捨札");
+                    }}>
+                      {
+                        <BsTrash3Fill color="yellowgreen" size={32} />
+                      }
+                    </div>
+                  </CardsCountView>
+                )}
               </div>
               <div className="flex flex-col gap-2">
                 {opponent?.status.life !== undefined && (
@@ -62,22 +92,18 @@ export const Game = ({ id }: RoomProps) => {
           {/* フィールドエリア */}
           <div className={`flex flex-col p-6 ${colorTable.ui.fieldBackground} rounded-lg my-4`}>
             {/* 対戦相手のフィールド */}
-            <div className={`flex justify-center gap-4 pb-4 border-b border-dashed ${colorTable.ui.borderDashed}`}>
-              {opponent?.field.map((unit, i) => (
-                <UnitView unit={unit} key={i} />
-              ))}
-            </div>
-
+            <Field units={opponent.field} />
+            <div className={`border-b border-dashed ${colorTable.ui.borderDashed}`} />
             {/* 自分のフィールド */}
-            <div className="flex justify-center gap-4 pt-4">
-              {self?.field.map((unit, i) => (
-                <UnitView unit={unit} key={i} />
-              ))}
-            </div>
+            <Field units={self.field} />
           </div>
 
           {/* 自分のエリア */}
           <MyArea />
+
+          {/* カード一覧 */}
+          <CardsDialog />
+
         </div>
       </div>
     </DndContext>
