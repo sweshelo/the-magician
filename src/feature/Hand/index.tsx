@@ -11,7 +11,7 @@ interface HandAreaProps {
 
 export const HandArea = ({ hand }: HandAreaProps) => {
   const { activeCard, setActiveCard } = useSystemContext();
-  const { override } = useWebSocketGame()
+  const { override, unitDrive } = useWebSocketGame()
   const { trash, clockUp, draw } = useSoundEffect()
   useDndMonitor({
     onDragStart(e: DragStartEvent) {
@@ -19,11 +19,19 @@ export const HandArea = ({ hand }: HandAreaProps) => {
     },
     onDragEnd(e: DragEndEvent) {
       const { over } = e;
-      if (over != null && activeCard?.id) {
-        override({ target: activeCard?.id as string, parent: over.id as string })
-        trash()
-        clockUp()
-        draw()
+      console.log(over)
+      switch (over?.data.current?.type) {
+        case 'field':
+          unitDrive({ target: activeCard?.id as string })
+          break;
+        case 'card':
+          override({ target: activeCard?.id as string, parent: over.id as string })
+          trash()
+          clockUp()
+          draw()
+          break;
+        default:
+          break;
       }
       setActiveCard(undefined)
     }
