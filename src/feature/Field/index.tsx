@@ -7,7 +7,7 @@ interface FieldProps {
 
 export const Field = ({ units }: FieldProps) => {
   return (
-    <div className={`flex justify-center gap-4 pb-4 h-35`}>
+    <div className={`flex justify-center gap-4 h-48`}>
       {(units ?? []).map((unit, i) => (
         <UnitView unit={unit} key={i} />
       ))}

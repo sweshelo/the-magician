@@ -27,7 +27,7 @@ export const CardsDialog = () => {
       {/* Overlay for click-outside behavior */}
       {isOpen && (
         <div
-          className="absolute inset-0 bg-black/50 transition-opacity duration-100 pointer-events-auto"
+          className="absolute inset-0 transition-opacity duration-100 pointer-events-auto"
           style={{ opacity: isAnimating ? 1 : 0 }}
           onClick={closeCardsDialog}
         />
@@ -54,7 +54,7 @@ export const CardsDialog = () => {
 
         {/* Main panel content */}
         <div
-          className="bg-slate-800/35 rounded-lg w-full p-4 overflow-auto h-[500]"
+          className="bg-slate-800/35 w-full p-4 overflow-auto h-[520] border-y-3 border-white p-3"
           style={{
             opacity: isAnimating ? 1 : 0,
             transition: 'opacity 100ms ease-in-out',
