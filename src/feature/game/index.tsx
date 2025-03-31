@@ -4,7 +4,6 @@ import { CardDetailWindow } from '@/component/ui/CardDetailWindow';
 import { CPView } from '@/component/ui/CPView';
 import { DebugDialog } from '@/component/ui/DebugDialog';
 import { LifeView } from '@/component/ui/LifeView';
-import { UnitView } from '@/component/ui/UnitView';
 import { colorTable } from '@/helper/color';
 import { useGame } from '@/hooks/game';
 import { MyArea } from '../MyArea';
@@ -15,6 +14,7 @@ import { CardsCountView } from '@/component/ui/CardsCountView';
 import { GiCardDraw } from 'react-icons/gi';
 import { BsTrash3Fill } from 'react-icons/bs';
 import { useCardsDialog } from '@/hooks/cards-dialog';
+import { Field } from '../Field';
 
 interface RoomProps {
   id: string
@@ -92,18 +92,10 @@ export const Game = ({ id }: RoomProps) => {
           {/* フィールドエリア */}
           <div className={`flex flex-col p-6 ${colorTable.ui.fieldBackground} rounded-lg my-4`}>
             {/* 対戦相手のフィールド */}
-            <div className={`flex justify-center gap-4 pb-4 border-b border-dashed ${colorTable.ui.borderDashed}`}>
-              {opponent?.field.map((unit, i) => (
-                <UnitView unit={unit} key={i} />
-              ))}
-            </div>
-
+            <Field units={opponent.field} />
+            <div className={`border-b border-dashed ${colorTable.ui.borderDashed}`} />
             {/* 自分のフィールド */}
-            <div className="flex justify-center gap-4 pt-4">
-              {self?.field.map((unit, i) => (
-                <UnitView unit={unit} key={i} />
-              ))}
-            </div>
+            <Field units={self.field} />
           </div>
 
           {/* 自分のエリア */}
