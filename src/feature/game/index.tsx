@@ -15,6 +15,7 @@ import { GiCardDraw } from 'react-icons/gi';
 import { BsTrash3Fill } from 'react-icons/bs';
 import { useCardsDialog } from '@/hooks/cards-dialog';
 import { Field } from '../Field';
+import { MyFieldWrapper } from '../MyFieldWrapper';
 
 interface RoomProps {
   id: string
@@ -90,12 +91,14 @@ export const Game = ({ id }: RoomProps) => {
           </div>
 
           {/* フィールドエリア */}
-          <div className={`flex flex-col p-6 ${colorTable.ui.fieldBackground} rounded-lg my-4`}>
+          <div className={`flex flex-col p-x-6 ${colorTable.ui.fieldBackground} rounded-lg my-4`}>
             {/* 対戦相手のフィールド */}
             <Field units={opponent.field} />
-            <div className={`border-b border-dashed ${colorTable.ui.borderDashed}`} />
+            <div className={`border-b border-dashed ${colorTable.ui.borderDashed} h-1`} />
             {/* 自分のフィールド */}
-            <Field units={self.field} />
+            <MyFieldWrapper>
+              <Field units={self.field} />
+            </MyFieldWrapper>
           </div>
 
           {/* 自分のエリア */}

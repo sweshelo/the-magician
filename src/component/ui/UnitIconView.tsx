@@ -5,7 +5,7 @@ interface UnitViewProps {
 
 export const UnitIconView = ({ color, image }: UnitViewProps) => {
   return (
-    <div className="relative w-24 h-24 select-none">
+    <div className="relative w-32 h-32 select-none">
       <svg
         viewBox="0 0 100 120"
         className="absolute top-0 left-0 w-full h-full"

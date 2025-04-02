@@ -23,7 +23,8 @@ export const HandView = ({ card }: Props) => {
     id: card.id,
     disabled: activeCard?.id === card.id || card.catalogId !== activeCard?.data.current?.type,
     data: {
-      supports: [card.catalogId]
+      supports: [card.catalogId],
+      type: 'card',
     }
   });
 
