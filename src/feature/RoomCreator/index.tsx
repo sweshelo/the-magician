@@ -2,6 +2,7 @@
 
 import { Button } from '@/component/interface/button';
 import { Check } from '@/component/interface/check';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { Tooltip } from 'react-tooltip';
 import { useRoomCreator } from './hooks';
@@ -38,8 +39,9 @@ interface RoomCreatePayload {
 }
 
 export const RoomCreator = () => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { handleSubmit, roomName, setRoomName } = useRoomCreator();
-  
+
   const {
     register,
     // handleSubmit,
