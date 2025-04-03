@@ -1,6 +1,7 @@
 'use client';
 
 import { CardDetailWindow } from '@/component/ui/CardDetailWindow';
+import { CardEffectDialog } from '@/component/ui/CardEffectDialog';
 import { CPView } from '@/component/ui/CPView';
 import { DebugDialog } from '@/component/ui/DebugDialog';
 import { LifeView } from '@/component/ui/LifeView';
@@ -34,6 +35,9 @@ export const Game = ({ id }: RoomProps) => {
 
         {/* デバッグダイアログ */}
         <DebugDialog />
+
+        {/* カード効果表示ダイアログ */}
+        <CardEffectDialog />
 
         {/* メインゲームコンテナ */}
         <div className="flex flex-col w-full h-full p-4">

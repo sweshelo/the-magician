@@ -2,7 +2,7 @@
 
 import { useCallback } from "react";
 import { useWebSocket } from "../websocket/hooks";
-import { Message, OverridePayload, UnitDrivePayload } from "@/submodule/suit/types";
+import { ContinuePayload, Message, OverridePayload, UnitDrivePayload } from "@/submodule/suit/types";
 import { LocalStorageHelper } from "@/service/local-storage";
 
 export const useWebSocketGame = () => {
@@ -54,5 +54,23 @@ export const useWebSocketGame = () => {
     send(message)
   }, [send])
 
-  return { send, override, unitDrive }
+  interface ContinueProps {
+    promptId: string
+  }
+  const continueGame = useCallback(({ promptId }: ContinueProps) => {
+    const message: Message<ContinuePayload> = {
+      action: {
+        type: 'game',
+        handler: 'core',
+      },
+      payload: {
+        type: 'Continue',
+        promptId,
+        player: LocalStorageHelper.playerId(),
+      }
+    }
+    send(message)
+  }, [send])
+
+  return { send, override, unitDrive, continueGame }
 }
