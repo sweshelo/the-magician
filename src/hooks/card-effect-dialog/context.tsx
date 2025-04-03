@@ -17,7 +17,7 @@ export type CardEffectDialogAction =
 // Define the context type
 export type CardEffectDialogContextType = {
   state: CardEffectDialogState;
-  showDialog: (title: string, message: string) => void;
+  showDialog: (title: string, message: string) => Promise<void>;
   hideDialog: () => void;
 };
 
@@ -56,13 +56,15 @@ export const CardEffectDialogProvider = ({ children }: { children: ReactNode }) 
   const [state, dispatch] = useReducer(cardEffectDialogReducer, initialState);
 
   // Action creators
-  const showDialog = (title: string, message: string) => {
+  const showDialog = (title: string, message: string): Promise<void> => {
     dispatch({ type: 'SHOW_DIALOG', title, message });
 
-    // Auto hide after 3 seconds
-    setTimeout(() => {
-      dispatch({ type: 'HIDE_DIALOG' });
-    }, 4000);
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        dispatch({ type: 'HIDE_DIALOG' });
+        resolve();
+      }, 4000);
+    });
   };
 
   const hideDialog = () => {

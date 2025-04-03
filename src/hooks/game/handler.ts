@@ -2,17 +2,14 @@ import { Message } from "@/submodule/suit/types"
 import { useGame } from "./hooks";
 import { GameState } from "./reducer";
 import { useCardEffectDialog } from "@/hooks/card-effect-dialog";
+import { useWebSocketGame } from "./websocket";
 
 export const useHandler = () => {
   const { setAll } = useGame();
+  const { continueGame } = useWebSocketGame();
   const { showDialog } = useCardEffectDialog();
 
-  // カード効果をダイアログで表示する関数
-  const showCardEffect = (title: string, message: string) => {
-    showDialog(title, message);
-  };
-
-  const handle = (message: Message) => {
+  const handle = async(message: Message) => {
     const { payload } = message;
 
     // 標準のメッセージ型の処理
@@ -28,11 +25,12 @@ export const useHandler = () => {
 
       // カード効果表示
       case 'DisplayEffect': {
-        showCardEffect(payload.title, payload.message);
+        await showDialog(payload.title, payload.message);
+        continueGame({ promptId: payload.promptId });
         break;
       }
     }
   }
 
-  return { handle, showCardEffect }
+  return { handle, showDialog }
 }
