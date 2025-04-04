@@ -72,5 +72,20 @@ export const useWebSocketGame = () => {
     send(message)
   }, [send])
 
-  return { send, override, unitDrive, continueGame }
+  const choose = useCallback(({ promptId, choice }: { promptId: string, choice: string[] }) => {
+    const message: Message = {
+      action: {
+        type: 'game',
+        handler: 'core',
+      },
+      payload: {
+        type: 'Choose',
+        promptId,
+        choice,
+      }
+    }
+    send(message)
+  }, [send])
+
+  return { send, override, unitDrive, continueGame, choose }
 }

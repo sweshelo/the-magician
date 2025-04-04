@@ -51,24 +51,6 @@ export const DebugDialog = () => {
             Draw
           </button>
           <button
-            onClick={() => showDialog('転元超破＆神征の楔', '【スピードムーブ】\n【次元干渉／コスト3】\n可能なら即時アタックする\n対戦相手は手札からコスト6以上のユニットを出せない')}
-            className={`px-3 py-1 rounded ${colorTable.ui.border} bg-slate-600 hover:bg-red-500 transition-colors`}
-          >
-            Show Effect
-          </button>
-          <button
-            onClick={() => openCardsDialog(self.deck as ICard[], 'Debug Cards')}
-            className={`px-3 py-1 rounded ${colorTable.ui.border} bg-slate-600 hover:bg-red-500 transition-colors`}
-          >
-            View Cards
-          </button>
-          <button
-            onClick={() => openCardsSelector(self.deck as ICard[], 'Select Cards', 3).then(selected => console.log('Selected cards:', selected))}
-            className={`px-3 py-1 rounded ${colorTable.ui.border} bg-slate-600 hover:bg-red-500 transition-colors`}
-          >
-            Select Cards
-          </button>
-          <button
             onClick={() => openCardsSelector(self.deck as ICard[], 'Select Cards (5秒)', 2, { timeLimit: 5 }).then(selected => console.log('Timed selection:', selected))}
             className={`px-3 py-1 rounded ${colorTable.ui.border} bg-slate-600 hover:bg-red-500 transition-colors`}
           >
