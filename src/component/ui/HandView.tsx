@@ -56,14 +56,11 @@ export const HandView = ({ card }: Props) => {
       {...listeners}
       onClick={handleCardClick}
     >
-      <div className="relative">
-        <div className={(isHighlighted && isOver) ? `animate-pulse-border`: ''}>
-          <CardView card={card} />
-        </div>
-        {isHighlighted && (
-          <div className="absolute inset-0 border-1 border-gray-300 animate-pulse-border shadow-glow pointer-events-none" />
-        )}
-      </div>
+      <CardView
+        card={card}
+        isHighlighting={isHighlighted}
+        isSelecting={isOver}
+      />
     </div>
   )
 }

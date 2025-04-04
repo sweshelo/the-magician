@@ -1,15 +1,18 @@
 'use client';
 
 import { colorTable } from '@/helper/color';
+import { useCardsDialog } from '@/hooks/cards-dialog';
 import { useGame, useWebSocketGame } from '@/hooks/game';
 import { useHandler } from '@/hooks/game/handler';
 import { useSoundEffect } from '@/hooks/sound/hooks';
+import { ICard } from '@/submodule/suit/types';
 
 export const DebugDialog = () => {
   const { self, opponent } = useGame()
   const { send } = useWebSocketGame()
   const { draw } = useSoundEffect();
   const { showDialog } = useHandler();
+  const { openCardsDialog, openCardsSelector } = useCardsDialog();
 
   const handleDebugButtonClick = () => {
     console.log('self: ', self, '\nopponent: ', opponent)
@@ -49,9 +52,27 @@ export const DebugDialog = () => {
           </button>
           <button
             onClick={() => showDialog('転元超破＆神征の楔', '【スピードムーブ】\n【次元干渉／コスト3】\n可能なら即時アタックする\n対戦相手は手札からコスト6以上のユニットを出せない')}
-            className={`px-3 py-1 rounded ${colorTable.ui.border} bg-red-600 hover:bg-red-500 transition-colors`}
+            className={`px-3 py-1 rounded ${colorTable.ui.border} bg-slate-600 hover:bg-red-500 transition-colors`}
           >
             Show Effect
+          </button>
+          <button
+            onClick={() => openCardsDialog(self.deck as ICard[], 'Debug Cards')}
+            className={`px-3 py-1 rounded ${colorTable.ui.border} bg-slate-600 hover:bg-red-500 transition-colors`}
+          >
+            View Cards
+          </button>
+          <button
+            onClick={() => openCardsSelector(self.deck as ICard[], 'Select Cards', 3).then(selected => console.log('Selected cards:', selected))}
+            className={`px-3 py-1 rounded ${colorTable.ui.border} bg-slate-600 hover:bg-red-500 transition-colors`}
+          >
+            Select Cards
+          </button>
+          <button
+            onClick={() => openCardsSelector(self.deck as ICard[], 'Select Cards (5秒)', 2, { timeLimit: 5 }).then(selected => console.log('Timed selection:', selected))}
+            className={`px-3 py-1 rounded ${colorTable.ui.border} bg-slate-600 hover:bg-red-500 transition-colors`}
+          >
+            Timed Select
           </button>
         </div>
       </div>

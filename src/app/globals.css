@@ -62,6 +62,12 @@ body {
 
 .animate-pulse-border {
   animation: pulse-border 1.5s infinite ease-in-out;
+  animation-delay: 0s; /* Ensure all instances start at the same time */
+}
+
+/* Apply a consistent animation to all elements with this class */
+:root {
+  --animation-sync: 0; /* Global property to force consistent animation state */
 }
 
 .animate-field-highlight {
