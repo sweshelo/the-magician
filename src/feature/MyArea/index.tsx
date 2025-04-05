@@ -48,6 +48,13 @@ export const MyArea = () => {
           )}
         </div>
 
+        <div className="flex gap-1">
+          <div className="w-19 h-26 border-1 border-white rounded-sm bg-gray-800" />
+          <div className="w-19 h-26 border-1 border-white rounded-sm bg-gray-800" />
+          <div className="w-19 h-26 border-1 border-white rounded-sm bg-gray-800" />
+          <div className="w-19 h-26 border-1 border-white rounded-sm bg-gray-800" />
+        </div>
+
         <div className="flex flex-col gap-2">
           {self?.status.life && (
             <LifeView current={self.status.life.current} max={self.status.life.max} />

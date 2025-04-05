@@ -8,7 +8,7 @@ import { LifeView } from '@/component/ui/LifeView';
 import { colorTable } from '@/helper/color';
 import { useGame } from '@/hooks/game';
 import { MyArea } from '../MyArea';
-import { DndContext } from '@dnd-kit/core';
+import { DndContext, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { useGameComponentHook } from './hook';
 import { CardsDialog } from '../CardsDialog';
 import { CardsCountView } from '@/component/ui/CardsCountView';
@@ -29,9 +29,17 @@ export const Game = ({ id }: RoomProps) => {
   const { opponent, self } = useGame()
   const { openCardsDialog } = useCardsDialog();
 
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5
+      }
+    })
+  )
+
   return (
     <UnitSelectionProvider>
-      <DndContext>
+      <DndContext sensors={sensors}>
         <div className={`flex h-screen ${colorTable.ui.background} ${colorTable.ui.text.primary} relative`}>
           {/* カード詳細ウィンドウ */}
           <CardDetailWindow />

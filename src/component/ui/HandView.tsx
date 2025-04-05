@@ -49,7 +49,7 @@ export const HandView = ({ card }: Props) => {
 
   return (
     <div
-      className="relative"
+      className={`relative ${activeCard?.id === card.id && 'opacity-75'}`}
       ref={setNodeRef}
       style={style}
       {...attributes}

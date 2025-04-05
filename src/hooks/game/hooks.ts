@@ -40,7 +40,7 @@ export const useGame = () => {
     life: self?.life,
   }), [self])
   const selfHand = useMemo<ICard[]>(() => (self?.hand ?? []) as ICard[], [self])
-  const selfDeck = useMemo<IAtom[]>(() => (self?.deck ?? []), [self])
+  const selfDeck = useMemo<ICard[]>(() => (self?.deck ?? []) as ICard[], [self])
   const selfField = useMemo<IUnit[]>(() => self?.field ?? [], [self])
   const selfTrash = useMemo<ICard[]>(() => self?.trash ?? [], [self])
 

@@ -14,7 +14,7 @@ export const UnitIconView = ({
   return (
     <div className="flex items-center justify-center relative w-32 h-32 select-none perspective">
       {/* 3D perspective container for flip animation */}
-      <div 
+      <div
         className="w-full h-full relative transition-transform duration-600"
         style={{
           transformStyle: 'preserve-3d',
@@ -23,7 +23,7 @@ export const UnitIconView = ({
         }}
       >
         {/* Front face */}
-        <div 
+        <div
           className="absolute w-full h-full"
           style={{ backfaceVisibility: 'hidden' }}
         >
@@ -75,9 +75,9 @@ export const UnitIconView = ({
         </div>
 
         {/* Back face */}
-        <div 
+        <div
           className="absolute w-full h-full"
-          style={{ 
+          style={{
             backfaceVisibility: 'hidden',
             transform: 'rotateY(180deg)'
           }}
