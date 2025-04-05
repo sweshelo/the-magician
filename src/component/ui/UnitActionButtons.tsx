@@ -1,3 +1,4 @@
+import { useWebSocketGame } from "@/hooks/game";
 import { useUnitSelection } from "@/hooks/unit-selection";
 import { IUnit } from "@/submodule/suit/types";
 
@@ -15,6 +16,7 @@ export const UnitActionButtons = ({
   canWithdraw = true
 }: UnitActionButtonsProps) => {
   const { actionButtonUnitId, hideActionButtons } = useUnitSelection();
+  const { withdrawal } = useWebSocketGame()
 
   // Don't render buttons if not showing for this unit
   // We only pass this component when rendering units in player's field, so no need to check ownership
@@ -33,6 +35,7 @@ export const UnitActionButtons = ({
     console.log(`Unit ${unit.id} withdrawing`);
     // Implement withdrawal logic here
     hideActionButtons();
+    withdrawal({ target: unit })
   };
 
   const handleBoot = () => {
