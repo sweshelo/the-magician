@@ -45,7 +45,7 @@ export const CardView = ({ card, isSelecting, isHighlighting, onClick }: Props) 
         {catalog && (
           <ul className={`w-full h-7 flex items-center justify-center font-bold text-white bg-gray-700`}>
             {cardAsICard && <li className="text-xs">{`Lv ${cardAsICard.lv}`}</li>}
-            {catalog.bp && <li className="ml-2">{catalog.bp?.[0]}</li>}
+            {catalog.bp && <li className="ml-2">{catalog.bp?.[(cardAsICard?.lv ?? 1) - 1]}</li>}
           </ul>
         )}
       </div>
