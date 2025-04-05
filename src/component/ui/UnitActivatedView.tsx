@@ -26,11 +26,11 @@ export const UnitActivatedView = ({ color, active = true }: { color: string, act
   });
 
   return (
-    <>
-      {/* Clock effect circle with tick marks - using the CSS class we added */}
+    <div className="absolute top-0 left-0 w-32 h-32 pointer-events-none">
+      {/* Clock effect circle with tick marks */}
       <svg
         viewBox="0 0 100 120"
-        className="absolute top-0 left-0 w-full h-full z-0"
+        className="absolute top-0 left-0 w-full h-full"
         style={{
           animation: `rotate ${15}s linear infinite`,
           opacity: active ? 1 : 0,
@@ -58,6 +58,6 @@ export const UnitActivatedView = ({ color, active = true }: { color: string, act
         />
         {tickMarks}
       </svg>
-    </>
+    </div>
   )
 }

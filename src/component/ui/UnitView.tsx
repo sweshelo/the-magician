@@ -1,6 +1,7 @@
 import { IUnit } from "@/submodule/suit/types";
 import { BPView } from "./BPView";
 import { UnitIconView } from "./UnitIconView";
+import { UnitActivatedView } from "./UnitActivatedView";
 import catalog from "@/submodule/suit/catalog/catalog";
 
 interface UnitViewProps {
@@ -18,11 +19,18 @@ export const UnitView = ({ unit }: UnitViewProps) => {
 
   return (
     <div className="flex flex-col items-center">
-      <UnitIconView
-        color={color}
-        image={`/image/card/full/${unit.catalogId}.jpg`}
-        active={unit.active}
-      />
+      <div className="relative w-32 h-32">
+        {/* Position components to layer correctly */}
+        <div className="absolute inset-0 z-1">
+          <UnitIconView
+            color={color}
+            image={`/image/card/full/${unit.catalogId}.jpg`}
+          />
+        </div>
+        <div className="absolute inset-0 z-0">
+          <UnitActivatedView color={color} active={unit.active} />
+        </div>
+      </div>
       <div className="-mt-2">
         <BPView bp={unit.bp.base + unit.bp.diff} lv={unit.lv} />
       </div>
