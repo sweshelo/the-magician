@@ -4,6 +4,7 @@ import { colorTable } from '@/helper/color';
 import { useCardsDialog } from '@/hooks/cards-dialog';
 import { useGame, useWebSocketGame } from '@/hooks/game';
 import { useSoundEffect } from '@/hooks/sound/hooks';
+import { useSystemContext } from '@/hooks/system/hooks';
 import { useUnitSelection } from '@/hooks/unit-selection';
 import { ICard } from '@/submodule/suit/types';
 
@@ -13,6 +14,7 @@ export const DebugDialog = () => {
   const { draw } = useSoundEffect();
   const { openCardsSelector } = useCardsDialog();
   const { showSelectionButton } = useUnitSelection();
+  const { cursorCollisionSize, setCursorCollisionSize } = useSystemContext();
 
   const handleDebugButtonClick = () => {
     console.log('self: ', self, '\nopponent: ', opponent);
@@ -56,6 +58,15 @@ export const DebugDialog = () => {
     }
   };
 
+  // カーソル周辺のヒットエリアサイズを増減する
+  const increaseCursorSize = () => {
+    setCursorCollisionSize(prev => Math.min(prev + 2, 20));
+  };
+
+  const decreaseCursorSize = () => {
+    setCursorCollisionSize(prev => Math.max(prev - 2, 1));
+  };
+
   return (
     <div className={`absolute top-4 right-4 z-50 p-3 rounded-lg shadow-lg ${colorTable.ui.playerInfoBackground} border ${colorTable.ui.border}`}>
       <div className="flex flex-col">
@@ -97,6 +108,24 @@ export const DebugDialog = () => {
           >
             Show ブロック
           </button>
+
+          <div className="mt-2 border-t pt-2 border-gray-700">
+            <div className="text-sm mb-1">カーソル判定サイズ: {cursorCollisionSize}px</div>
+            <div className="flex gap-2">
+              <button
+                onClick={decreaseCursorSize}
+                className={`px-3 py-1 rounded ${colorTable.ui.border} bg-slate-600 hover:bg-slate-500 transition-colors`}
+              >
+                -
+              </button>
+              <button
+                onClick={increaseCursorSize}
+                className={`px-3 py-1 rounded ${colorTable.ui.border} bg-slate-600 hover:bg-slate-500 transition-colors`}
+              >
+                +
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

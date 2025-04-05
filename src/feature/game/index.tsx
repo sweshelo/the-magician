@@ -8,13 +8,22 @@ import { LifeView } from '@/component/ui/LifeView';
 import { colorTable } from '@/helper/color';
 import { useGame } from '@/hooks/game';
 import { MyArea } from '../MyArea';
-import { DndContext, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
+import {
+  DndContext,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  CollisionDetection,
+  rectIntersection,
+  ClientRect
+} from '@dnd-kit/core';
 import { useGameComponentHook } from './hook';
 import { CardsDialog } from '../CardsDialog';
 import { CardsCountView } from '@/component/ui/CardsCountView';
 import { GiCardDraw } from 'react-icons/gi';
 import { BsTrash3Fill } from 'react-icons/bs';
 import { useCardsDialog } from '@/hooks/cards-dialog';
+import { useSystemContext } from '@/hooks/system/hooks';
 import { Field } from '../Field';
 import { MyFieldWrapper } from '../MyFieldWrapper';
 import { UnitSelectionProvider } from '@/hooks/unit-selection';
@@ -28,6 +37,7 @@ export const Game = ({ id }: RoomProps) => {
   useGameComponentHook({ id })
   const { opponent, self } = useGame()
   const { openCardsDialog } = useCardsDialog();
+  const { cursorCollisionSize } = useSystemContext();
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -37,9 +47,43 @@ export const Game = ({ id }: RoomProps) => {
     })
   )
 
+  // Custom collision detection that uses mouse cursor position instead of entire draggable area
+  const cursorCollisionDetection: CollisionDetection = ({
+    active,
+    droppableContainers,
+    droppableRects,
+    pointerCoordinates,
+  }) => {
+    if (!pointerCoordinates) {
+      return [];
+    }
+
+    // Create a small rectangle around the cursor using the configurable size
+    const cursorRect: ClientRect = {
+      width: cursorCollisionSize * 2,
+      height: cursorCollisionSize * 2,
+      top: pointerCoordinates.y - cursorCollisionSize,
+      left: pointerCoordinates.x - cursorCollisionSize,
+      bottom: pointerCoordinates.y + cursorCollisionSize,
+      right: pointerCoordinates.x + cursorCollisionSize,
+    };
+
+    // Use the rectIntersection algorithm with our custom cursor rectangle
+    return rectIntersection({
+      active,
+      droppableContainers,
+      droppableRects,
+      collisionRect: cursorRect,
+      pointerCoordinates,
+    });
+  };
+
   return (
     <UnitSelectionProvider>
-      <DndContext sensors={sensors}>
+      <DndContext
+        sensors={sensors}
+        collisionDetection={cursorCollisionDetection}
+      >
         <div className={`flex h-screen ${colorTable.ui.background} ${colorTable.ui.text.primary} relative`}>
           {/* カード詳細ウィンドウ */}
           <CardDetailWindow />

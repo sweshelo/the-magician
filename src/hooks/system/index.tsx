@@ -12,6 +12,9 @@ export type SystemContextType = {
   setActiveCard: React.Dispatch<React.SetStateAction<Active | undefined>>
   operable: boolean
   setOperable: React.Dispatch<React.SetStateAction<boolean>>
+  // Cursor collision detection configuration
+  cursorCollisionSize: number
+  setCursorCollisionSize: React.Dispatch<React.SetStateAction<number>>
   // Removed openDeck, setOpenDeck, openTrash, setOpenTrash
   // These are now handled by the CardsDialog context
 }
@@ -24,6 +27,8 @@ export const SystemContextProvider = ({ children }: { children: ReactNode }) => 
   // ドラッグ中のカード
   const [activeCard, setActiveCard] = useState<Active | undefined>(undefined);
   const [operable, setOperable] = useState(true); // Debug用. 本当は初期値 false
+  // カーソル周辺のヒットエリアサイズ（ピクセル）
+  const [cursorCollisionSize, setCursorCollisionSize] = useState(5);
 
   return (
     <SystemContext.Provider value={{
@@ -33,6 +38,8 @@ export const SystemContextProvider = ({ children }: { children: ReactNode }) => 
       setOperable,
       activeCard,
       setActiveCard,
+      cursorCollisionSize,
+      setCursorCollisionSize,
     }}>
       {children}
     </SystemContext.Provider>
