@@ -1,11 +1,19 @@
+import { UnitActivatedView } from "./UnitActivatedView"
+
 interface UnitViewProps {
   color: string
   image?: string
+  active?: boolean
 }
 
-export const UnitIconView = ({ color, image }: UnitViewProps) => {
+export const UnitIconView = ({
+  color,
+  image,
+  active = true,
+}: UnitViewProps) => {
   return (
-    <div className="relative w-32 h-32 select-none">
+    <div className="flex items-center justify-center relative w-32 h-32 select-none">
+      <UnitActivatedView color={color} active={active} />
       <svg
         viewBox="0 0 100 120"
         className="absolute top-0 left-0 w-full h-full"

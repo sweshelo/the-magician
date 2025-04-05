@@ -47,7 +47,7 @@ export const useGameComponentHook = ({ id }: Props) => {
               'SP-005', 'SP-005', 'SP-005',
               'SP-001', 'SP-001', 'SP-001',
               '2-3-240',
-            ],
+            ].sort(() => Math.random() - 0.5),
           },
         }
       } satisfies Message<PlayerEntryPayload>)
