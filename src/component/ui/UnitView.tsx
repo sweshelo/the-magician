@@ -6,6 +6,7 @@ import catalog from "@/submodule/suit/catalog/catalog";
 
 interface UnitViewProps {
   unit: IUnit
+  backImage?: string
 }
 
 export const UnitView = ({ unit }: UnitViewProps) => {
@@ -25,6 +26,7 @@ export const UnitView = ({ unit }: UnitViewProps) => {
           <UnitIconView
             color={color}
             image={`/image/card/full/${unit.catalogId}.jpg`}
+            reversed={false}
           />
         </div>
         <div className="absolute inset-0 z-0">

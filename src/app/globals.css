@@ -91,3 +91,26 @@ body {
 .animate-clock-rotate {
   animation: rotate 10s linear infinite;
 }
+
+/* 3D flip perspective settings */
+.perspective {
+  perspective: 1000px;
+}
+
+/* Card flip animation */
+@keyframes flip {
+  0% {
+    transform: rotateY(0deg);
+  }
+  100% {
+    transform: rotateY(180deg);
+  }
+}
+
+.flip {
+  animation: flip 0.6s ease-in-out forwards;
+}
+
+.flip-reverse {
+  animation: flip 0.6s ease-in-out backwards;
+}
