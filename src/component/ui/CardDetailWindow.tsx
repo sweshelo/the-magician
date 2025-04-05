@@ -2,6 +2,7 @@ import { useSystemContext } from "@/hooks/system/hooks";
 import master from "@/submodule/suit/catalog/catalog";
 import classNames from "classnames";
 import { colorTable, getColorCode } from "@/helper/color";
+import Image from "next/image";
 
 interface LevelProps {
   lv: number;
@@ -24,12 +25,19 @@ export const CardDetailWindow = () => {
   const { selectedCard, setSelectedCard } = useSystemContext();
   const catalog = selectedCard?.catalogId && master.get(selectedCard?.catalogId)
 
+  const cardType = {
+    'unit': 'ユニットカード',
+    'advanced_unit': '進化カード',
+    'trigger': 'トリガーカード',
+    'intercept': 'インターセプトカード'
+}
+
   return (
     selectedCard && catalog && (
       <div className={`absolute left-4 bottom-2 transform w-100 ${colorTable.ui.playerInfoBackground} rounded-lg shadow-lg z-3 border ${colorTable.ui.border} overflow-hidden`}>
         {/* ウィンドウヘッダー */}
         <div
-          className={`flex justify-between items-center p-3 ${colorTable.ui.background}`}
+          className={`flex justify-between items-center p-3 h-20 ${colorTable.ui.background}`}
           style={{
             backgroundImage: `url(https://coj.sega.jp/player/img/${catalog.img})`,
             backgroundSize: 'cover',
@@ -41,7 +49,13 @@ export const CardDetailWindow = () => {
               {catalog.cost}
             </div>
           </div>
-          <h3 className="font-bold">{catalog.name}</h3>
+          <h3 className="font-bold bg-black/50 px-6 py-2 flex flex-col items-center justify-center">
+            <div className="flex items-center justify-center">
+              <span className="mr-2">{catalog.name}</span>
+              <Image src={`https://coj.sega.jp/player/images/common/card/r_${catalog.rarity}.png`} alt={catalog.rarity} width={32} height={32} />
+            </div>
+            <span className="text-xs mt-1">{cardType[catalog.type]}</span>
+          </h3>
           <button
             onClick={() => setSelectedCard(undefined)}
             className={`${colorTable.ui.text.secondary} hover:${colorTable.ui.text.primary}`}
@@ -55,11 +69,11 @@ export const CardDetailWindow = () => {
 
           {/* 効果 */}
           <div className="mb-3">
-            <p className={`text-sm p-2 rounded whitespace-pre-wrap min-h-30`}>{catalog.ability}</p>
+            <p className={`text-sm rounded whitespace-pre-wrap min-h-40`}>{catalog.ability}</p>
           </div>
 
           {/* BP */}
-          <div className="justify-between mb-4">
+          <div className="justify-between">
             <div className="flex flex-row items-center">
               <Level lv={1} bp={catalog.bp && catalog.bp[0]} active={true} />
               <Level lv={2} bp={catalog.bp && catalog.bp[1]} />
