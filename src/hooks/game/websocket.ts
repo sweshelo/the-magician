@@ -2,7 +2,7 @@
 
 import { useCallback } from "react";
 import { useWebSocket } from "../websocket/hooks";
-import { ContinuePayload, createMessage, IUnit, Message, OverridePayload, UnitDrivePayload } from "@/submodule/suit/types";
+import { ContinuePayload, createMessage, ICard, IUnit, Message, OverridePayload, UnitDrivePayload } from "@/submodule/suit/types";
 import { LocalStorageHelper } from "@/service/local-storage";
 
 export const useWebSocketGame = () => {
@@ -105,5 +105,23 @@ export const useWebSocketGame = () => {
     send(message)
   }, [send]);
 
-  return { send, override, unitDrive, continueGame, choose, withdrawal }
+  interface SetTriggerProps {
+    target: ICard
+  }
+  const setTrigger = useCallback(({ target }: SetTriggerProps) => {
+    const message: Message = createMessage({
+      action: {
+        type: 'game',
+        handler: 'core',
+      },
+      payload: {
+        type: 'TriggerSet',
+        target,
+        player: LocalStorageHelper.playerId(),
+      }
+    })
+    send(message)
+  }, [send])
+
+  return { send, override, unitDrive, continueGame, choose, withdrawal, setTrigger }
 }

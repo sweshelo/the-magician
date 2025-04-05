@@ -114,6 +114,27 @@ export const Game = ({ id }: RoomProps) => {
                     />
                   ))}
                 </div>
+                <div className="flex">
+                  <div className="flex gap-1">
+                    {
+                      [...Array(4)].map((_, index) => {
+                        const card = opponent.trigger[index]
+                        return card ? (
+                          <div
+                            className="w-10 h-13.5 border-1 border-white rounded-sm bg-gray-800"
+                            style={{
+                              backgroundImage: `url('/image/card/back/red.png')`,
+                              backgroundSize: 'cover',
+                            }}
+                            key={index}
+                          />
+                        ) : (
+                          <div className="w-10 h-13.5 border-1 border-white rounded-sm bg-gray-800" key={index} />
+                        )
+                      })
+                    }
+                  </div>
+                </div>
                 <div className="flex gap-4">
                   {opponent?.deck && (
                     <CardsCountView count={opponent.deck.length}>

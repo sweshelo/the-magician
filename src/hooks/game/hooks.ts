@@ -43,6 +43,7 @@ export const useGame = () => {
   const selfDeck = useMemo<ICard[]>(() => (self?.deck ?? []) as ICard[], [self])
   const selfField = useMemo<IUnit[]>(() => self?.field ?? [], [self])
   const selfTrash = useMemo<ICard[]>(() => self?.trash ?? [], [self])
+  const selfTrigger = useMemo<ICard[]>(() => (self?.trigger ?? []) as ICard[], [self])
 
   const opponent = useMemo<IPlayer | undefined>(() => state.players && Object.entries(state.players).find(([key]) => key !== selfPlayerId)?.[1], [state.players, selfPlayerId])
   const opponentStatus = useMemo(() => ({
@@ -55,6 +56,7 @@ export const useGame = () => {
   const opponentDeck = useMemo<IAtom[]>(() => (opponent?.deck ?? []), [opponent])
   const opponentField = useMemo<IUnit[]>(() => opponent?.field ?? [], [opponent])
   const opponentTrash = useMemo<ICard[]>(() => opponent?.trash ?? [], [opponent])
+  const opponentTrigger = useMemo<ICard[]>(() => (opponent?.trigger ?? []) as ICard[], [opponent])
 
   return {
     ...state,
@@ -68,6 +70,7 @@ export const useGame = () => {
       field: selfField,
       deck: selfDeck,
       trash: selfTrash,
+      trigger: selfTrigger,
     },
     opponent: {
       status: opponentStatus,
@@ -75,6 +78,7 @@ export const useGame = () => {
       deck: opponentDeck,
       field: opponentField,
       trash: opponentTrash,
+      trigger: opponentTrigger,
     }
   }
 }

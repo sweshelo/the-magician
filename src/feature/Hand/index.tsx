@@ -11,7 +11,7 @@ interface HandAreaProps {
 
 export const HandArea = ({ hand }: HandAreaProps) => {
   const { activeCard, setActiveCard } = useSystemContext();
-  const { override, unitDrive } = useWebSocketGame()
+  const { override, unitDrive, setTrigger } = useWebSocketGame()
   const { trash, clockUp, draw, drive } = useSoundEffect()
   useDndMonitor({
     onDragStart(e: DragStartEvent) {
@@ -30,6 +30,9 @@ export const HandArea = ({ hand }: HandAreaProps) => {
           trash()
           clockUp()
           draw()
+          break;
+        case 'trigger-zone':
+          setTrigger({ target: { id: activeCard?.id } as ICard })
           break;
         default:
           break;
