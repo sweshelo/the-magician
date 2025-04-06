@@ -6,6 +6,7 @@ import { UnitActionButtons } from "./UnitActionButtons";
 import { UnitSelectionButton } from "./UnitSelectionButton";
 import { useUnitSelection } from "@/hooks/unit-selection";
 import catalog from "@/submodule/suit/catalog/catalog";
+import { useSystemContext } from "@/hooks/system/hooks";
 
 interface UnitViewProps {
   unit: IUnit
@@ -15,6 +16,8 @@ interface UnitViewProps {
 
 export const UnitView = ({ unit, isOwnUnit = false }: UnitViewProps) => {
   const { showActionButtons } = useUnitSelection();
+  const { setSelectedCard } = useSystemContext();
+
   const color: string = ({
     1: 'orangered',
     2: 'gold',
@@ -28,6 +31,7 @@ export const UnitView = ({ unit, isOwnUnit = false }: UnitViewProps) => {
     if (isOwnUnit) {
       showActionButtons(unit.id);
     }
+    setSelectedCard(prev => prev?.catalogId === unit.catalogId ? undefined : unit)
   };
 
   return (

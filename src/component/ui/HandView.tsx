@@ -38,11 +38,6 @@ export const HandView = ({ card }: Props) => {
     setDroppableRef(ref)
   }, [setDraggableRef, setDroppableRef])
 
-  const { setSelectedCard } = useSystemContext();
-  const handleCardClick = useCallback(() => {
-    if (card.catalogId) setSelectedCard(card)
-  }, [card, setSelectedCard])
-
   useEffect(() => {
     setHighlighted(activeCard?.id !== card.id && activeCard?.data.current?.type === card.catalogId)
   }, [activeCard?.data, activeCard?.id, card.catalogId, card.id])
@@ -54,7 +49,6 @@ export const HandView = ({ card }: Props) => {
       style={style}
       {...attributes}
       {...listeners}
-      onClick={handleCardClick}
     >
       <CardView
         card={card}

@@ -1,6 +1,8 @@
 import master from "@/submodule/suit/catalog/catalog";
 import { getColorCode } from "@/helper/color";
 import { IAtom, ICard } from "@/submodule/suit/types";
+import { useSystemContext } from "@/hooks/system/hooks";
+import { useCallback } from "react";
 
 interface Props {
   card: IAtom
@@ -22,6 +24,11 @@ export const CardView = ({ card, isSelecting, isHighlighting, isSmall, onClick }
 
   const sizeClass = isSmall ? 'w-19 h-26' : 'w-28 h-39'
 
+  const { setSelectedCard } = useSystemContext();
+  const handleCardClick = useCallback(() => {
+    if (isICard(card)) setSelectedCard(prev => prev?.catalogId === card.catalogId ? undefined : card)
+  }, [card, setSelectedCard])
+
   return (
     <div
       className={`${sizeClass} border-2 border-slate-600 rounded justify-center items-center text-slate-500 relative ${isSelecting ? 'animate-pulse-border' : ''}`}
@@ -29,7 +36,10 @@ export const CardView = ({ card, isSelecting, isHighlighting, isSmall, onClick }
         backgroundImage: `url('https://coj.sega.jp/player/img/${catalog?.img}')`,
         backgroundSize: 'cover',
       }}
-      onClick={onClick}
+      onClick={() => {
+        handleCardClick()
+        onClick?.()
+      }}
     >
       <div
         className={`w-full h-full rounded flex flex-col text-xs shadow-lg relative cursor-pointer`}
