@@ -54,7 +54,7 @@ export const CardDetailWindow = () => {
               <span className="mr-2">{catalog.name}</span>
               <Image src={`https://coj.sega.jp/player/images/common/card/r_${catalog.rarity}.png`} alt={catalog.rarity} width={32} height={32} />
             </div>
-            <span className="text-xs mt-1">{cardType[catalog.type]}</span>
+            <span className="text-xs mt-1">{`${cardType[catalog.type]} - ${catalog.id}`}</span>
           </h3>
           <button
             onClick={() => setSelectedCard(undefined)}
