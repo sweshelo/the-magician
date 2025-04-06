@@ -28,7 +28,7 @@ export const SystemContextProvider = ({ children }: { children: ReactNode }) => 
   const [activeCard, setActiveCard] = useState<Active | undefined>(undefined);
   const [operable, setOperable] = useState(true); // Debug用. 本当は初期値 false
   // カーソル周辺のヒットエリアサイズ（ピクセル）
-  const [cursorCollisionSize, setCursorCollisionSize] = useState(5);
+  const [cursorCollisionSize, setCursorCollisionSize] = useState(15);
 
   return (
     <SystemContext.Provider value={{

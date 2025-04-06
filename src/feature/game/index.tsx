@@ -17,6 +17,7 @@ import {
   rectIntersection,
   ClientRect
 } from '@dnd-kit/core';
+import { restrictToWindowEdges } from '@dnd-kit/modifiers';
 import { useGameComponentHook } from './hook';
 import { CardsDialog } from '../CardsDialog';
 import { CardsCountView } from '@/component/ui/CardsCountView';
@@ -83,8 +84,9 @@ export const Game = ({ id }: RoomProps) => {
       <DndContext
         sensors={sensors}
         collisionDetection={cursorCollisionDetection}
+        modifiers={[restrictToWindowEdges]}
       >
-        <div className={`flex h-screen ${colorTable.ui.background} ${colorTable.ui.text.primary} relative`}>
+        <div className={`flex h-screen ${colorTable.ui.background} ${colorTable.ui.text.primary} relative overflow-hidden`}>
           {/* カード詳細ウィンドウ */}
           <CardDetailWindow />
 
