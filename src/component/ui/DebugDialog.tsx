@@ -73,7 +73,7 @@ export const DebugDialog = () => {
     if (interceptCards.length > 0) {
       // Set the first intercept card as available with a 10 second time limit
       setAvailableIntercepts([interceptCards[0]], 10);
-      console.log('Set intercept available with 10s time limit:', interceptCards[0]);
+      console.log('Set intercept available:', interceptCards[0]);
     } else {
       console.log('No intercept cards in trigger zone to test with');
     }
@@ -140,7 +140,7 @@ export const DebugDialog = () => {
             onClick={handleTestInterceptButton}
             className={`px-3 py-1 rounded ${colorTable.ui.border} bg-green-500 text-white hover:bg-green-600 transition-colors`}
           >
-            Timed Intercept (10s)
+            Enable Intercept
           </button>
           
           <button
