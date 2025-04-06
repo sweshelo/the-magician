@@ -38,32 +38,23 @@ export const HandView = ({ card }: Props) => {
     setDroppableRef(ref)
   }, [setDraggableRef, setDroppableRef])
 
-  const { setSelectedCard } = useSystemContext();
-  const handleCardClick = useCallback(() => {
-    if (card.catalogId) setSelectedCard(card)
-  }, [card, setSelectedCard])
-
   useEffect(() => {
     setHighlighted(activeCard?.id !== card.id && activeCard?.data.current?.type === card.catalogId)
   }, [activeCard?.data, activeCard?.id, card.catalogId, card.id])
 
   return (
     <div
-      className="relative"
+      className={`relative ${activeCard?.id === card.id && 'opacity-75'}`}
       ref={setNodeRef}
       style={style}
       {...attributes}
       {...listeners}
-      onClick={handleCardClick}
     >
-      <div className="relative">
-        <div className={(isHighlighted && isOver) ? `animate-pulse-border`: ''}>
-          <CardView card={card} />
-        </div>
-        {isHighlighted && (
-          <div className="absolute inset-0 border-1 border-gray-300 animate-pulse-border shadow-glow pointer-events-none" />
-        )}
-      </div>
+      <CardView
+        card={card}
+        isHighlighting={isHighlighted}
+        isSelecting={isOver}
+      />
     </div>
   )
 }

@@ -2,7 +2,7 @@
 
 import { useCallback } from "react";
 import { useWebSocket } from "../websocket/hooks";
-import { ContinuePayload, Message, OverridePayload, UnitDrivePayload } from "@/submodule/suit/types";
+import { ContinuePayload, createMessage, ICard, IUnit, Message, OverridePayload, UnitDrivePayload } from "@/submodule/suit/types";
 import { LocalStorageHelper } from "@/service/local-storage";
 
 export const useWebSocketGame = () => {
@@ -72,5 +72,56 @@ export const useWebSocketGame = () => {
     send(message)
   }, [send])
 
-  return { send, override, unitDrive, continueGame }
+  const choose = useCallback(({ promptId, choice }: { promptId: string, choice: string[] }) => {
+    const message: Message = {
+      action: {
+        type: 'game',
+        handler: 'core',
+      },
+      payload: {
+        type: 'Choose',
+        promptId,
+        choice,
+      }
+    }
+    send(message)
+  }, [send])
+
+  interface WithdrawalProps {
+    target: IUnit
+  }
+  const withdrawal = useCallback(({ target }: WithdrawalProps) => {
+    const message: Message = createMessage({
+      action: {
+        type: 'game',
+        handler: 'core',
+      },
+      payload: {
+        type: 'Withdrawal',
+        target,
+        player: LocalStorageHelper.playerId(),
+      }
+    })
+    send(message)
+  }, [send]);
+
+  interface SetTriggerProps {
+    target: ICard
+  }
+  const setTrigger = useCallback(({ target }: SetTriggerProps) => {
+    const message: Message = createMessage({
+      action: {
+        type: 'game',
+        handler: 'core',
+      },
+      payload: {
+        type: 'TriggerSet',
+        target,
+        player: LocalStorageHelper.playerId(),
+      }
+    })
+    send(message)
+  }, [send])
+
+  return { send, override, unitDrive, continueGame, choose, withdrawal, setTrigger }
 }

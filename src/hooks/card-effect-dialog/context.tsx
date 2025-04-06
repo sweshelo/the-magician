@@ -63,7 +63,7 @@ export const CardEffectDialogProvider = ({ children }: { children: ReactNode }) 
       setTimeout(() => {
         dispatch({ type: 'HIDE_DIALOG' });
         resolve();
-      }, 4000);
+      }, 2500);
     });
   };
 
