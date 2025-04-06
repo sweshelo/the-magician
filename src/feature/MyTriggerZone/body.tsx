@@ -6,7 +6,7 @@ import master from "@/submodule/suit/catalog/catalog"
 
 export const MyTriggerZoneBody = () => {
   const { self } = useGame()
-  
+
   return (
     <div className="flex gap-1">
       {
@@ -16,14 +16,17 @@ export const MyTriggerZoneBody = () => {
           const isUnit = catalog?.type === 'unit' || catalog?.type === 'advanced_unit'
 
           // Only show highlight for non-unit cards
-          const shouldShowHighlight = card && !isUnit
+          const shouldShowHighlight = false
 
           return card ? (
             isUnit ? (
               <BackFlipedCard card={card} key={index} />
             ) : (
-              <RotatedSquareHighlight isVisible={shouldShowHighlight} key={index}>
-                <CardView card={card} isSmall isHighlighting />
+              <RotatedSquareHighlight
+                isVisible={shouldShowHighlight}
+                key={index}
+              >
+                <CardView card={card} isSmall isHighlighting={shouldShowHighlight} />
               </RotatedSquareHighlight>
             )
           ) : (

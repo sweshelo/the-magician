@@ -5,7 +5,10 @@ interface RotatedSquareHighlightProps {
   children: React.ReactNode;
 }
 
-export const RotatedSquareHighlight: React.FC<RotatedSquareHighlightProps> = ({ isVisible, children }) => {
+export const RotatedSquareHighlight: React.FC<RotatedSquareHighlightProps> = ({
+  isVisible,
+  children,
+}) => {
   const [showHighlight, setShowHighlight] = useState(isVisible);
   const [isAnimatingOut, setIsAnimatingOut] = useState(false);
 
@@ -31,11 +34,11 @@ export const RotatedSquareHighlight: React.FC<RotatedSquareHighlightProps> = ({ 
       {showHighlight && (
         <div className="absolute inset-0 z-10 pointer-events-none flex items-center justify-center">
           <div
-            className="w-17 h-17 border border-white shadow-[0_0_5px_rgba(255,255,255,0.7)]"
+            className="w-19 h-19 border border-white shadow-[0_0_5px_rgba(255,255,255,0.7)]"
             style={{
               animation: isAnimatingOut
-                ? 'highlightDisappear 0.5s ease-out forwards, squareRotate 10s linear infinite'
-                : 'highlightAppear 0.5s ease-out, squareRotate 10s linear infinite'
+                ? `highlightDisappear 0.5s ease-out forwards, squareRotateAndScale 4s linear infinite`
+                : `highlightAppear 0.5s ease-out, squareRotateAndScale 4s linear infinite`
             }}
           >
             {/* Corner decorations */}
