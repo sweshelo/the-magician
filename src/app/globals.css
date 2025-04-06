@@ -107,6 +107,42 @@ body {
   }
 }
 
+/* Highlight appear animation - starts large and transparent, ends normal size and opaque */
+@keyframes highlightAppear {
+  0% {
+    opacity: 0;
+    transform: scale(2);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Square rotation animation */
+@keyframes squareRotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-square-rotate {
+  animation: squareRotate 2s linear infinite;
+}
+
+/* Highlight disappear animation - fades out */
+@keyframes highlightDisappear {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
 .flip {
   animation: flip 0.6s ease-in-out forwards;
 }
