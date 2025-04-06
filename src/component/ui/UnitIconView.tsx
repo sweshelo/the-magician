@@ -113,7 +113,7 @@ export const UnitIconView = ({
             className="absolute top-0 left-0 w-full h-full"
           >
             <defs>
-              <clipPath id="hexClipBack">
+              <clipPath id={`${uniqueId}-hexClipBack`}>
                 <polygon points="50,18 87,39 87,81 50,102 13,81 13,39" />
               </clipPath>
             </defs>
