@@ -32,7 +32,7 @@ export const useGameComponentHook = ({ id }: Props) => {
             name: 'Sweshelo',
             id: LocalStorageHelper.playerId(),
             deck: [
-              '1-0-040', '1-0-040', '1-0-040',
+              '2-3-011', '2-3-011', '2-3-011',
               '1-4-041', '1-4-041', '1-4-041',
               '2-0-025', '2-0-025', '2-0-025',
               '2-0-121', '2-0-121', '2-0-121',
@@ -45,9 +45,8 @@ export const useGameComponentHook = ({ id }: Props) => {
               '2-0-019', '2-0-019', '2-0-019',
               'SP-016', 'SP-016', 'SP-016',
               'SP-005', 'SP-005', 'SP-005',
-              'SP-001', 'SP-001', 'SP-001',
               '2-3-240',
-            ].sort(() => Math.random() - 0.5),
+            ]
           },
         }
       } satisfies Message<PlayerEntryPayload>)
