@@ -2,6 +2,7 @@ import { CardView } from "@/component/ui/CardView"
 import { useCallback, useEffect, useState, useRef } from "react"
 import { useCardsDialog } from "@/hooks/cards-dialog"
 import { ICard } from "@/submodule/suit/types";
+import { ProgressConfirmButton } from "@/component/ui/ProgressConfirmButton";
 
 export const CardsDialog = () => {
   const {
@@ -20,7 +21,6 @@ export const CardsDialog = () => {
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const animationKey = useRef(0);
   const startTimeRef = useRef<number | null>(null);
-  const progressBarRef = useRef<HTMLDivElement | null>(null);
 
   // Handle card click
   const handleCardClick = useCallback((card: ICard) => {
@@ -130,47 +130,17 @@ export const CardsDialog = () => {
             </div>
           </div>
         </div>
-        {/* 確定ボタンまたはタイマー */}
+        {/* 確定ボタン */}
         {(isOpen || isAnimating) && isSelector && (
-          timeLimit ? (
-            <div className="w-72 mt-4 bottom-10 z-15">
-              {/* プログレスバーと確定ボタンを統合 - CSSアニメーション使用 */}
-              <div className="w-full h-10 bg-gray-700 rounded-lg overflow-hidden relative">
-                <div
-                  ref={progressBarRef}
-                  key={animationKey.current}
-                  className="h-full bg-red-700"
-                  style={{
-                    width: '100%',
-                    animation: `countdown ${timeLimit}s linear forwards`,
-                    animationPlayState: isOpen ? 'running' : 'paused'
-                  }}
-                  onAnimationEnd={handleTimeExpiration}
-                />
-                <button
-                  className="absolute inset-0 flex items-center justify-center text-white font-bold border-2 border-red-900 rounded-lg shadow-lg hover:border-red-200 transition-colors disabled:opacity-50"
-                  onClick={() => confirmSelection()}
-                  disabled={selection.length !== count}
-                >
-                  確定
-                </button>
-              </div>
-              <style jsx>{`
-                @keyframes countdown {
-                  0% { width: 100%; }
-                  100% { width: 0%; }
-                }
-              `}</style>
-            </div>
-          ) : (
-            <button
-              className="w-50 mt-4 bottom-10 z-15 p-2 rounded-lg bg-red-700 text-white border-2 border-red-900 shadow-lg pointer-events-auto cursor-pointer hover:bg-red-600 hover:border-red-200 transition-colors disabled:opacity-50"
-              onClick={() => confirmSelection()}
-              disabled={selection.length !== count}
-            >
-              確定
-            </button>
-          )
+          <ProgressConfirmButton
+            timeLimit={timeLimit || undefined}
+            buttonText="確定"
+            onConfirm={() => confirmSelection()}
+            onTimeExpire={handleTimeExpiration}
+            disabled={selection.length !== count}
+            className="mt-4 bottom-10 z-15"
+            isRunning={isOpen}
+          />
         )}
       </div>
     </div>

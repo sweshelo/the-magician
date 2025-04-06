@@ -4,6 +4,7 @@ import { CardDetailWindow } from '@/component/ui/CardDetailWindow';
 import { CardEffectDialog } from '@/component/ui/CardEffectDialog';
 import { CPView } from '@/component/ui/CPView';
 import { DebugDialog } from '@/component/ui/DebugDialog';
+import { InterceptSelectionOverlay } from '@/component/ui/InterceptSelectionOverlay';
 import { LifeView } from '@/component/ui/LifeView';
 import { colorTable } from '@/helper/color';
 import { useGame } from '@/hooks/game';
@@ -95,6 +96,9 @@ export const Game = ({ id }: RoomProps) => {
 
           {/* カード効果表示ダイアログ */}
           <CardEffectDialog />
+
+          {/* インターセプト選択オーバーレイ */}
+          <InterceptSelectionOverlay />
 
           {/* メインゲームコンテナ */}
           <div className="flex flex-col w-full h-full p-4">

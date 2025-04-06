@@ -5,6 +5,7 @@ import { GameProvider } from "./game"
 import { CardsDialogProvider } from "./cards-dialog"
 import { SoundManagerProvider } from "./sound/context"
 import { CardEffectDialogProvider } from "./card-effect-dialog"
+import { InterceptUsageProvider } from "./intercept-usage"
 
 interface Props {
   children: ReactNode
@@ -18,7 +19,9 @@ export const GlobalContextProvider = ({ children }: Props) => {
           <SoundManagerProvider>
             <CardsDialogProvider>
               <CardEffectDialogProvider>
-                {children}
+                <InterceptUsageProvider>
+                  {children}
+                </InterceptUsageProvider>
               </CardEffectDialogProvider>
             </CardsDialogProvider>
           </SoundManagerProvider>

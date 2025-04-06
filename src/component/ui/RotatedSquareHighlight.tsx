@@ -1,44 +1,24 @@
-import React, { useEffect, useState } from 'react';
-
 interface RotatedSquareHighlightProps {
   isVisible: boolean;
   children: React.ReactNode;
+  onClick?: () => void;
 }
 
 export const RotatedSquareHighlight: React.FC<RotatedSquareHighlightProps> = ({
   isVisible,
   children,
+  onClick,
 }) => {
-  const [showHighlight, setShowHighlight] = useState(isVisible);
-  const [isAnimatingOut, setIsAnimatingOut] = useState(false);
-
-  // Handle visibility changes with animation timing
-  useEffect(() => {
-    if (isVisible && !showHighlight) {
-      setShowHighlight(true);
-      setIsAnimatingOut(false);
-    } else if (!isVisible && showHighlight && !isAnimatingOut) {
-      setIsAnimatingOut(true);
-      // Keep showing the element during fade-out animation
-      const timer = setTimeout(() => {
-        setShowHighlight(false);
-      }, 500); // Match the animation duration (0.5s)
-
-      return () => clearTimeout(timer);
-    }
-  }, [isVisible, showHighlight, isAnimatingOut]);
 
   return (
-    <div className="relative">
+    <div className="relative" onClick={onClick}>
       {children}
-      {showHighlight && (
-        <div className="absolute inset-0 z-10 pointer-events-none flex items-center justify-center">
+      {isVisible && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center cursor-pointer">
           <div
             className="w-19 h-19 border border-white shadow-[0_0_5px_rgba(255,255,255,0.7)]"
             style={{
-              animation: isAnimatingOut
-                ? `highlightDisappear 0.5s ease-out forwards, squareRotateAndScale 4s linear infinite`
-                : `highlightAppear 0.5s ease-out, squareRotateAndScale 4s linear infinite`
+              animation: `highlightAppear 0.5s ease-out, squareRotateAndScale 4s linear infinite`
             }}
           >
             {/* Corner decorations */}
