@@ -1,15 +1,17 @@
-import { Message } from "@/submodule/suit/types"
+import { ICard, Message } from "@/submodule/suit/types"
 import { useGame } from "./hooks";
 import { GameState } from "./reducer";
 import { useCardEffectDialog } from "@/hooks/card-effect-dialog";
 import { useWebSocketGame } from "./websocket";
 import { useCardsDialog } from "../cards-dialog";
+import { useInterceptUsage } from "../intercept-usage";
 
 export const useHandler = () => {
   const { setAll } = useGame();
   const { continueGame, choose } = useWebSocketGame();
   const { showDialog } = useCardEffectDialog();
   const { openCardsSelector } = useCardsDialog();
+  const { setAvailableIntercepts } = useInterceptUsage();
 
   const handle = async (message: Message) => {
     const { payload } = message;
@@ -44,9 +46,34 @@ export const useHandler = () => {
           choose({ promptId: payload.promptId, choice: response });
           break;
         }
+
+        if (choices.type === 'intercept') {
+          const selectedCard = await handleInterceptSelection(choices.items);
+          choose({
+            promptId: payload.promptId,
+            choice: selectedCard ? [selectedCard.id] : []
+          });
+        }
       }
     }
   }
 
-  return { handle, showDialog }
+  // Handle intercept selection by returning a Promise that resolves with the selected card or null
+  const handleInterceptSelection = (intercepts: ICard[]): Promise<ICard | null> => {
+    return new Promise((resolve) => {
+      // Setup handler functions that resolve the promise
+      const handleActivate = (card: ICard) => {
+        resolve(card);
+      };
+
+      const handleCancel = () => {
+        resolve(null);
+      };
+
+      // Set available intercepts and provide the handlers
+      setAvailableIntercepts(intercepts, undefined, handleActivate, handleCancel);
+    });
+  };
+
+  return { handle, showDialog, handleInterceptSelection }
 }

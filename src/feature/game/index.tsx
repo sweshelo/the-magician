@@ -4,6 +4,7 @@ import { CardDetailWindow } from '@/component/ui/CardDetailWindow';
 import { CardEffectDialog } from '@/component/ui/CardEffectDialog';
 import { CPView } from '@/component/ui/CPView';
 import { DebugDialog } from '@/component/ui/DebugDialog';
+import { InterceptSelectionOverlay } from '@/component/ui/InterceptSelectionOverlay';
 import { LifeView } from '@/component/ui/LifeView';
 import { colorTable } from '@/helper/color';
 import { useGame } from '@/hooks/game';
@@ -17,6 +18,7 @@ import {
   rectIntersection,
   ClientRect
 } from '@dnd-kit/core';
+import { restrictToWindowEdges } from '@dnd-kit/modifiers';
 import { useGameComponentHook } from './hook';
 import { CardsDialog } from '../CardsDialog';
 import { CardsCountView } from '@/component/ui/CardsCountView';
@@ -83,8 +85,9 @@ export const Game = ({ id }: RoomProps) => {
       <DndContext
         sensors={sensors}
         collisionDetection={cursorCollisionDetection}
+        modifiers={[restrictToWindowEdges]}
       >
-        <div className={`flex h-screen ${colorTable.ui.background} ${colorTable.ui.text.primary} relative`}>
+        <div className={`flex h-screen ${colorTable.ui.background} ${colorTable.ui.text.primary} relative overflow-hidden`}>
           {/* カード詳細ウィンドウ */}
           <CardDetailWindow />
 
@@ -93,6 +96,9 @@ export const Game = ({ id }: RoomProps) => {
 
           {/* カード効果表示ダイアログ */}
           <CardEffectDialog />
+
+          {/* インターセプト選択オーバーレイ */}
+          <InterceptSelectionOverlay />
 
           {/* メインゲームコンテナ */}
           <div className="flex flex-col w-full h-full p-4">

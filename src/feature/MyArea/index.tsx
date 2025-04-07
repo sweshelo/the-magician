@@ -8,9 +8,7 @@ import { GiCardDiscard, GiCardDraw } from "react-icons/gi"
 import { useSystemContext } from "@/hooks/system/hooks"
 import { BsTrash3Fill } from "react-icons/bs"
 import { useCardsDialog } from "@/hooks/cards-dialog"
-import { MyTriggerZoneWrapper } from "../MyTriggerZone"
-import { CardView } from "@/component/ui/CardView"
-import master from "@/submodule/suit/catalog/catalog"
+import { MyTriggerZone } from "../MyTriggerZone"
 
 export const MyArea = () => {
   const { self } = useGame()
@@ -51,41 +49,7 @@ export const MyArea = () => {
           )}
         </div>
 
-        <div className="flex">
-          <MyTriggerZoneWrapper>
-            <div className="flex gap-1">
-              {
-                [...Array(4)].map((_, index) => {
-                  const card = self.trigger[index]
-                  const catalog = card ? master.get(card.catalogId) : undefined
-                  const isUnit = catalog?.type === 'unit' || catalog?.type === 'advanced_unit'
-                  const color = {
-                    1: 'red',
-                    2: 'yellow',
-                    3: 'blue',
-                    4: 'green',
-                    5: 'purple',
-                  }
-
-                  return card ? (
-                    isUnit ? (
-                      <div
-                        className="w-19 h-26 border-1 border-white rounded-sm bg-gray-800"
-                        style={{
-                          backgroundImage: `url('/image/card/back/${color[catalog.color as keyof typeof color]}.png')`,
-                          backgroundSize: 'cover',
-                        }}
-                        key={index}
-                      />
-                    ) : <CardView card={card} isSmall key={index} />
-                  ) : (
-                    <div className="w-19 h-26 border-1 border-white rounded-sm bg-gray-800" key={index} />
-                  )
-                })
-              }
-            </div>
-          </MyTriggerZoneWrapper>
-        </div>
+        <MyTriggerZone />
 
         <div className="flex flex-col gap-2">
           {self?.status.life && (

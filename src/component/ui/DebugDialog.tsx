@@ -3,9 +3,11 @@
 import { colorTable } from '@/helper/color';
 import { useCardsDialog } from '@/hooks/cards-dialog';
 import { useGame, useWebSocketGame } from '@/hooks/game';
+import { useInterceptUsage } from '@/hooks/intercept-usage';
 import { useSoundEffect } from '@/hooks/sound/hooks';
 import { useSystemContext } from '@/hooks/system/hooks';
 import { useUnitSelection } from '@/hooks/unit-selection';
+import master from '@/submodule/suit/catalog/catalog';
 import { ICard } from '@/submodule/suit/types';
 
 export const DebugDialog = () => {
@@ -15,6 +17,7 @@ export const DebugDialog = () => {
   const { openCardsSelector } = useCardsDialog();
   const { showSelectionButton } = useUnitSelection();
   const { cursorCollisionSize, setCursorCollisionSize } = useSystemContext();
+  const { setAvailableIntercepts, clearAvailableIntercepts } = useInterceptUsage();
 
   const handleDebugButtonClick = () => {
     console.log('self: ', self, '\nopponent: ', opponent);
@@ -56,6 +59,30 @@ export const DebugDialog = () => {
     if (self.field.length > 0) {
       showSelectionButton(self.field[0].id, 'block');
     }
+  };
+
+  // New function to test the intercept usage functionality
+  const handleTestInterceptButton = () => {
+    // Test with the first available intercept card in trigger zone (if any)
+    const interceptCards = self.trigger.filter(card => {
+      if (!card) return false;
+      const catalog = master.get(card.catalogId);
+      return catalog?.type === 'intercept' || catalog?.type === 'trigger';
+    });
+
+    if (interceptCards.length > 0) {
+      // Set the first intercept card as available with a 10 second time limit
+      setAvailableIntercepts([interceptCards[0]], 10);
+      console.log('Set intercept available:', interceptCards[0]);
+    } else {
+      console.log('No intercept cards in trigger zone to test with');
+    }
+  };
+
+  // Function to clear available intercepts for testing
+  const handleClearInterceptsButton = () => {
+    clearAvailableIntercepts();
+    console.log('Cleared available intercepts');
   };
 
   // カーソル周辺のヒットエリアサイズを増減する
@@ -107,6 +134,20 @@ export const DebugDialog = () => {
             className={`px-3 py-1 rounded ${colorTable.ui.border} bg-blue-500 text-white hover:bg-blue-600 transition-colors`}
           >
             Show ブロック
+          </button>
+          
+          <button
+            onClick={handleTestInterceptButton}
+            className={`px-3 py-1 rounded ${colorTable.ui.border} bg-green-500 text-white hover:bg-green-600 transition-colors`}
+          >
+            Enable Intercept
+          </button>
+          
+          <button
+            onClick={handleClearInterceptsButton}
+            className={`px-3 py-1 rounded ${colorTable.ui.border} bg-slate-600 hover:bg-slate-500 transition-colors`}
+          >
+            Clear Intercepts
           </button>
 
           <div className="mt-2 border-t pt-2 border-gray-700">
