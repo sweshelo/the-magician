@@ -77,7 +77,7 @@ export const UnitView = ({ unit, isOwnUnit = false, showEffect = false, onEffect
         <UnitSelectionButton unitId={unit.id} />
       </div>
       <div className="-mt-2">
-        <BPView bp={unit.bp.base + unit.bp.diff} lv={unit.lv} />
+        <BPView bp={unit.bp.base + unit.bp.diff - unit.bp.damage} diff={unit.bp.diff - unit.bp.damage} lv={unit.lv} />
       </div>
     </div>
   );

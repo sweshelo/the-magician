@@ -32,6 +32,7 @@ export const useGameComponentHook = ({ id }: Props) => {
             name: 'Sweshelo',
             id: LocalStorageHelper.playerId(),
             deck: [
+              '1-4-008', '1-4-008', '1-4-008',
               '2-3-011', '2-3-011', '2-3-011',
               '1-4-041', '1-4-041', '1-4-041',
               '2-0-025', '2-0-025', '2-0-025',
