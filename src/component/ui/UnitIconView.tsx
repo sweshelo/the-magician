@@ -1,8 +1,12 @@
+import { UnitIconEffect } from './UnitIconEffect';
+
 interface UnitViewProps {
   color: string
   image?: string
   backImage?: string
   reversed?: boolean
+  showEffect?: boolean
+  onEffectComplete?: () => void
 }
 
 export const UnitIconView = ({
@@ -10,9 +14,17 @@ export const UnitIconView = ({
   image,
   backImage,
   reversed = false,
+  showEffect = false,
+  onEffectComplete
 }: UnitViewProps) => {
   return (
     <div className="flex items-center justify-center relative w-32 h-32 select-none perspective">
+      {/* Animation effect layer */}
+      <UnitIconEffect
+        show={showEffect}
+        onComplete={onEffectComplete}
+      />
+
       {/* 3D perspective container for flip animation */}
       <div
         className="w-full h-full relative transition-transform duration-600"

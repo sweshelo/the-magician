@@ -4,6 +4,7 @@ import { UnitIconView } from "./UnitIconView";
 import { UnitActivatedView } from "./UnitActivatedView";
 import { UnitActionButtons } from "./UnitActionButtons";
 import { UnitSelectionButton } from "./UnitSelectionButton";
+import { UnitIconEffect } from "./UnitIconEffect";
 import { useUnitSelection } from "@/hooks/unit-selection";
 import catalog from "@/submodule/suit/catalog/catalog";
 import { useSystemContext } from "@/hooks/system/hooks";
@@ -12,9 +13,11 @@ interface UnitViewProps {
   unit: IUnit
   backImage?: string
   isOwnUnit?: boolean
+  showEffect?: boolean
+  onEffectComplete?: () => void
 }
 
-export const UnitView = ({ unit, isOwnUnit = false }: UnitViewProps) => {
+export const UnitView = ({ unit, isOwnUnit = false, showEffect = false, onEffectComplete }: UnitViewProps) => {
   const { showActionButtons } = useUnitSelection();
   const { setSelectedCard } = useSystemContext();
 
@@ -40,6 +43,14 @@ export const UnitView = ({ unit, isOwnUnit = false }: UnitViewProps) => {
         className="relative w-32 h-32 unit-wrapper"
         onClick={isOwnUnit ? handleUnitClick : undefined}
       >
+        {/* Animation effect layer (highest z-index) */}
+        <div className="absolute inset-0 z-10">
+          <UnitIconEffect
+            show={showEffect}
+            onComplete={onEffectComplete}
+          />
+        </div>
+
         {/* Position components to layer correctly */}
         <div className="absolute inset-0 z-1">
           <UnitIconView

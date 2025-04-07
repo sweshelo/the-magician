@@ -7,8 +7,10 @@ import { useInterceptUsage } from '@/hooks/intercept-usage';
 import { useSoundEffect } from '@/hooks/sound/hooks';
 import { useSystemContext } from '@/hooks/system/hooks';
 import { useUnitSelection } from '@/hooks/unit-selection';
+import { useUnitIconEffect } from '@/hooks/unit-icon-effect';
 import master from '@/submodule/suit/catalog/catalog';
-import { ICard } from '@/submodule/suit/types';
+import { ICard, IUnit } from '@/submodule/suit/types';
+import { UnitView } from './UnitView';
 
 export const DebugDialog = () => {
   const { self, opponent } = useGame();
@@ -18,6 +20,20 @@ export const DebugDialog = () => {
   const { showSelectionButton } = useUnitSelection();
   const { cursorCollisionSize, setCursorCollisionSize } = useSystemContext();
   const { setAvailableIntercepts, clearAvailableIntercepts } = useInterceptUsage();
+  const { showEffect, isAnimating, triggerEffect, handleAnimationComplete } = useUnitIconEffect();
+
+  // Sample unit for testing animation effect
+  const sampleUnit: IUnit = {
+    id: 'sample-unit',
+    catalogId: 'unit01',
+    lv: 1,
+    bp: {
+      base: 1000,
+      diff: 0,
+      damage: 0
+    },
+    active: true
+  };
 
   const handleDebugButtonClick = () => {
     console.log('self: ', self, '\nopponent: ', opponent);
@@ -135,14 +151,14 @@ export const DebugDialog = () => {
           >
             Show ブロック
           </button>
-          
+
           <button
             onClick={handleTestInterceptButton}
             className={`px-3 py-1 rounded ${colorTable.ui.border} bg-green-500 text-white hover:bg-green-600 transition-colors`}
           >
             Enable Intercept
           </button>
-          
+
           <button
             onClick={handleClearInterceptsButton}
             className={`px-3 py-1 rounded ${colorTable.ui.border} bg-slate-600 hover:bg-slate-500 transition-colors`}
@@ -164,6 +180,40 @@ export const DebugDialog = () => {
                 className={`px-3 py-1 rounded ${colorTable.ui.border} bg-slate-600 hover:bg-slate-500 transition-colors`}
               >
                 +
+              </button>
+            </div>
+          </div>
+
+          {/* Unit Icon Effect Test Section */}
+          <div className="mt-4 border-t pt-4 border-gray-700">
+            <div className={`text-sm font-bold mb-2 ${colorTable.ui.text.primary}`}>
+              アニメーションエフェクト
+            </div>
+
+            {/* Sample Unit for testing animation */}
+            <div className="flex justify-center mb-4">
+              <div className="relative">
+                <UnitView
+                  unit={sampleUnit}
+                  showEffect={showEffect}
+                  onEffectComplete={handleAnimationComplete}
+                />
+              </div>
+            </div>
+
+            {/* Controls */}
+            <div className="flex flex-col gap-2">
+              <button
+                onClick={() => {
+                  console.log('Animation trigger button clicked');
+                  triggerEffect();
+                  console.log('Animation state after trigger:', { showEffect, isAnimating });
+                }}
+                disabled={isAnimating}
+                className={`px-3 py-1 rounded ${colorTable.ui.border} ${isAnimating ? 'bg-gray-500 cursor-not-allowed' : 'bg-purple-600 hover:bg-purple-500'
+                  } text-white transition-colors`}
+              >
+                {isAnimating ? 'アニメーション中...' : 'エフェクト実行'}
               </button>
             </div>
           </div>
