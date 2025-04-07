@@ -30,8 +30,6 @@ export const UnitIconEffect = ({
     timeoutsRef.current = [];
   }, []);
 
-  console.log('phase: ', phase, show)
-
   // Create initial rectangle positions
   useEffect(() => {
     const initialRectangles = Array.from({ length: rectangleCount }).map((_, i) => ({
