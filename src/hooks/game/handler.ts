@@ -5,6 +5,7 @@ import { useCardEffectDialog } from "@/hooks/card-effect-dialog";
 import { useWebSocketGame } from "./websocket";
 import { useCardsDialog } from "../cards-dialog";
 import { useInterceptUsage } from "../intercept-usage";
+import { useSoundEffect } from "../sound";
 
 export const useHandler = () => {
   const { setAll } = useGame();
@@ -12,6 +13,7 @@ export const useHandler = () => {
   const { showDialog } = useCardEffectDialog();
   const { openCardsSelector } = useCardsDialog();
   const { setAvailableIntercepts } = useInterceptUsage();
+  const { play } = useSoundEffect()
 
   const handle = async (message: Message) => {
     const { payload } = message;
@@ -29,6 +31,7 @@ export const useHandler = () => {
 
       // カード効果表示
       case 'DisplayEffect': {
+        play('effect')
         await showDialog(payload.title, payload.message);
         continueGame({ promptId: payload.promptId });
         break;
@@ -54,6 +57,15 @@ export const useHandler = () => {
             choice: selectedCard ? [selectedCard.id] : []
           });
         }
+
+        break;
+      }
+
+      // エフェクト通知
+      case 'SoundEffect': {
+        console.log('handling %s', payload.soundId)
+        play(payload.soundId)
+        break;
       }
     }
   }
