@@ -6,21 +6,21 @@ import { useGame, useWebSocketGame } from '@/hooks/game';
 import { useInterceptUsage } from '@/hooks/intercept-usage';
 import { useSoundEffect } from '@/hooks/sound/hooks';
 import { useSystemContext } from '@/hooks/system/hooks';
-import { useUnitSelection } from '@/hooks/unit-selection';
 import { useUnitIconEffect } from '@/hooks/unit-icon-effect';
 import master from '@/submodule/suit/catalog/catalog';
 import { ICard, IUnit } from '@/submodule/suit/types';
 import { UnitView } from './UnitView';
+import { useHandler } from '@/hooks/game/handler';
 
 export const DebugDialog = () => {
   const { self, opponent } = useGame();
   const { send } = useWebSocketGame();
   const { draw } = useSoundEffect();
   const { openCardsSelector } = useCardsDialog();
-  const { showSelectionButton } = useUnitSelection();
   const { cursorCollisionSize, setCursorCollisionSize } = useSystemContext();
   const { setAvailableIntercepts, clearAvailableIntercepts } = useInterceptUsage();
   const { showEffect, isAnimating, triggerEffect, handleAnimationComplete } = useUnitIconEffect();
+  const { handleUnitSelection } = useHandler()
 
   // Sample unit for testing animation effect
   const sampleUnit: IUnit = {
@@ -53,27 +53,11 @@ export const DebugDialog = () => {
     });
   };
 
-  // New function to test the selection button functionality
-  const handleShowSelectButton = () => {
-    // Find the first unit in the player's field to test with
-    if (self.field.length > 0) {
-      showSelectionButton(self.field[0].id, 'select');
-    }
-  };
-
   // New function to test the target button functionality
-  const handleShowTargetButton = () => {
+  const handleShowTargetButton = async() => {
     // Test with opponent's first unit if available
-    if (opponent.field.length > 0) {
-      showSelectionButton(opponent.field[0].id, 'target');
-    }
-  };
-
-  // New function to test the block button functionality
-  const handleShowBlockButton = () => {
-    // Test with player's first unit if available
     if (self.field.length > 0) {
-      showSelectionButton(self.field[0].id, 'block');
+      console.log(await handleUnitSelection(self.field, 'target'));
     }
   };
 
@@ -134,24 +118,11 @@ export const DebugDialog = () => {
             Timed Select
           </button>
           <button
-            onClick={handleShowSelectButton}
-            className={`px-3 py-1 rounded ${colorTable.ui.border} bg-white text-black hover:bg-gray-200 transition-colors`}
-          >
-            Show 選択
-          </button>
-          <button
             onClick={handleShowTargetButton}
             className={`px-3 py-1 rounded ${colorTable.ui.border} bg-red-500 text-white hover:bg-red-600 transition-colors`}
           >
             Show ターゲット
           </button>
-          <button
-            onClick={handleShowBlockButton}
-            className={`px-3 py-1 rounded ${colorTable.ui.border} bg-blue-500 text-white hover:bg-blue-600 transition-colors`}
-          >
-            Show ブロック
-          </button>
-
           <button
             onClick={handleTestInterceptButton}
             className={`px-3 py-1 rounded ${colorTable.ui.border} bg-green-500 text-white hover:bg-green-600 transition-colors`}

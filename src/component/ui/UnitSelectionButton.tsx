@@ -1,14 +1,15 @@
 import { useUnitSelection } from "@/hooks/unit-selection";
+import { IUnit } from "@/submodule/suit/types";
 
 interface UnitSelectionButtonProps {
   unitId: string;
 }
 
 export const UnitSelectionButton = ({ unitId }: UnitSelectionButtonProps) => {
-  const { selectedUnitId, selectionMode, selectUnit } = useUnitSelection();
+  const { candidate, selectionMode, handleSelected } = useUnitSelection();
 
   // Don't render if this unit is not the selected one
-  if (selectedUnitId !== unitId) {
+  if (!candidate?.find((unit: IUnit) => unit.id === unitId) || !handleSelected) {
     return null;
   }
 
@@ -26,7 +27,10 @@ export const UnitSelectionButton = ({ unitId }: UnitSelectionButtonProps) => {
       <button
         className={`selection-button ${config.bgColor} ${config.textColor} py-1 rounded-md 
           shadow-md border ${config.borderColor} hover:brightness-105 w-full opacity-80`}
-        onClick={() => selectUnit(unitId)}
+        onClick={() => {
+          handleSelected(unitId)
+          console.log('button clicked')
+        }}
       >
         {config.text}
       </button>

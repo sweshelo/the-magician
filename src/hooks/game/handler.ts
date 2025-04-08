@@ -1,4 +1,4 @@
-import { ICard, Message } from "@/submodule/suit/types"
+import { ICard, IUnit, Message } from "@/submodule/suit/types"
 import { useGame } from "./hooks";
 import { GameState } from "./reducer";
 import { useCardEffectDialog } from "@/hooks/card-effect-dialog";
@@ -6,11 +6,13 @@ import { useWebSocketGame } from "./websocket";
 import { useCardsDialog } from "../cards-dialog";
 import { useInterceptUsage } from "../intercept-usage";
 import { useSoundEffect } from "../sound";
+import { SelectionMode, useUnitSelection } from "../unit-selection";
 
 export const useHandler = () => {
   const { setAll } = useGame();
   const { continueGame, choose } = useWebSocketGame();
   const { showDialog } = useCardEffectDialog();
+  const { setAvailableUnits, setCandidate } = useUnitSelection()
   const { openCardsSelector } = useCardsDialog();
   const { setAvailableIntercepts } = useInterceptUsage();
   const { play } = useSoundEffect()
@@ -58,6 +60,14 @@ export const useHandler = () => {
           });
         }
 
+        if (choices.type === 'unit') {
+          const selectedUnit = await handleUnitSelection(choices.items);
+          choose({
+            promptId: payload.promptId,
+            choice: [selectedUnit]
+          })
+        }
+
         break;
       }
 
@@ -87,5 +97,18 @@ export const useHandler = () => {
     });
   };
 
-  return { handle, showDialog, handleInterceptSelection }
+  const handleUnitSelection = (units: IUnit[], mode: SelectionMode = 'target'): Promise<IUnit['id']> => {
+    return new Promise((resolve) => {
+      // Setup handler functions that resolve the promise
+      const handleSelect = (unit: IUnit['id']) => {
+        resolve(unit);
+        setCandidate(undefined);
+      };
+
+      // Set available intercepts and provide the handlers
+      setAvailableUnits(units, handleSelect, mode);
+    });
+  };
+
+  return { handle, showDialog, handleInterceptSelection, handleUnitSelection }
 }

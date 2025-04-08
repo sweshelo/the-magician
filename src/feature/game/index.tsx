@@ -28,7 +28,6 @@ import { useCardsDialog } from '@/hooks/cards-dialog';
 import { useSystemContext } from '@/hooks/system/hooks';
 import { Field } from '../Field';
 import { MyFieldWrapper } from '../MyFieldWrapper';
-import { UnitSelectionProvider } from '@/hooks/unit-selection';
 import { ICard } from '@/submodule/suit/types';
 
 interface RoomProps {
@@ -81,12 +80,11 @@ export const Game = ({ id }: RoomProps) => {
   };
 
   return (
-    <UnitSelectionProvider>
-      <DndContext
-        sensors={sensors}
-        collisionDetection={cursorCollisionDetection}
-        modifiers={[restrictToWindowEdges]}
-      >
+    <DndContext
+      sensors={sensors}
+      collisionDetection={cursorCollisionDetection}
+      modifiers={[restrictToWindowEdges]}
+    >
         <div className={`flex h-screen ${colorTable.ui.background} ${colorTable.ui.text.primary} relative overflow-hidden`}>
           {/* カード詳細ウィンドウ */}
           <CardDetailWindow />
@@ -194,7 +192,6 @@ export const Game = ({ id }: RoomProps) => {
             <CardsDialog />
           </div>
         </div>
-      </DndContext>
-    </UnitSelectionProvider>
+    </DndContext>
   );
 };

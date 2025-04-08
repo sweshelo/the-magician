@@ -18,7 +18,7 @@ interface UnitViewProps {
 }
 
 export const UnitView = ({ unit, isOwnUnit = false, showEffect = false, onEffectComplete }: UnitViewProps) => {
-  const { showActionButtons } = useUnitSelection();
+  const { setActiveUnit, candidate } = useUnitSelection();
   const { setSelectedCard } = useSystemContext();
 
   const color: string = ({
@@ -31,8 +31,8 @@ export const UnitView = ({ unit, isOwnUnit = false, showEffect = false, onEffect
 
   // Handle unit click to show action buttons
   const handleUnitClick = () => {
-    if (isOwnUnit) {
-      showActionButtons(unit.id);
+    if (isOwnUnit && !candidate) {
+      setActiveUnit((prev) => prev?.id !== unit.id ? unit : undefined);
     }
     setSelectedCard(prev => prev?.catalogId === unit.catalogId ? undefined : unit)
   };
