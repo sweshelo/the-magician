@@ -7,7 +7,7 @@ export type SelectionMode = 'select' | 'target' | 'block';
 
 export interface UnitSelectionContextType {
   candidate: IUnit[] | undefined;
-  setCandidate: (unit: IUnit[]) => void;
+  setCandidate: (unit: IUnit[] | undefined) => void;
   selectionMode: SelectionMode;
   setSelectionMode: (mode: SelectionMode) => void;
   handleSelected: ((unit: IUnit['id']) => void) | undefined;
