@@ -34,7 +34,7 @@ export const UnitView = ({ unit, isOwnUnit = false, showEffect = false, onEffect
     if (isOwnUnit && !candidate) {
       setActiveUnit((prev) => prev?.id !== unit.id ? unit : undefined);
     }
-    setSelectedCard(prev => prev?.catalogId === unit.catalogId ? undefined : unit)
+    // setSelectedCard(prev => prev?.catalogId === unit.catalogId ? undefined : unit)
   };
 
   return (

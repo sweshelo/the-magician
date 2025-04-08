@@ -26,7 +26,7 @@ export const CardView = ({ card, isSelecting, isHighlighting, isSmall, onClick }
 
   const { setSelectedCard } = useSystemContext();
   const handleCardClick = useCallback(() => {
-    if (isICard(card)) setSelectedCard(prev => prev?.catalogId === card.catalogId ? undefined : card)
+    // if (isICard(card)) setSelectedCard(prev => prev?.catalogId === card.catalogId ? undefined : card)
   }, [card, setSelectedCard])
 
   return (
