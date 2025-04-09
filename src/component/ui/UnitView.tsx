@@ -34,7 +34,7 @@ export const UnitView = ({ unit, isOwnUnit = false, showEffect = false, onEffect
     if (isOwnUnit && !candidate) {
       setActiveUnit((prev) => prev?.id !== unit.id ? unit : undefined);
     }
-    // setSelectedCard(prev => prev?.catalogId === unit.catalogId ? undefined : unit)
+    setSelectedCard(prev => prev?.catalogId === unit.catalogId ? undefined : unit)
   };
 
   return (
@@ -44,7 +44,7 @@ export const UnitView = ({ unit, isOwnUnit = false, showEffect = false, onEffect
         onClick={isOwnUnit ? handleUnitClick : undefined}
       >
         {/* Animation effect layer (highest z-index) */}
-        <div className="absolute inset-0 z-10">
+        <div className="absolute inset-0 z-10 pointer-events-none">
           <UnitIconEffect
             show={showEffect}
             onComplete={onEffectComplete}

@@ -82,7 +82,7 @@ export const CardsDialog = () => {
   if (!isOpen && !isAnimating) return null;
 
   return (
-    <div className="fixed inset-0 z-5 flex items-center justify-center pointer-events-none">
+    <div className="fixed inset-0 z-10 flex items-center justify-center pointer-events-none">
       {/* Overlay for click-outside behavior */}
       {isOpen && (!isSelector ? (
         <div

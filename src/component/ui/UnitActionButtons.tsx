@@ -44,7 +44,7 @@ export const UnitActionButtons = ({
   };
 
   return (
-    <div className="absolute inset-0 pointer-events-auto z-20 flex flex-col justify-between px-2 py-1">
+    <div className="absolute inset-0 pointer-events-auto z-5 flex flex-col justify-between px-2 py-1">
       {/* Attack Button (top) */}
       {canAttack ? (
         <button

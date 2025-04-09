@@ -23,7 +23,7 @@ export const UnitSelectionButton = ({ unitId }: UnitSelectionButtonProps) => {
   const config = buttonConfig[selectionMode];
 
   return (
-    <div className="absolute inset-0 flex items-center justify-center z-30 pointer-events-auto px-2">
+    <div className="absolute inset-0 flex items-center justify-center z-5 pointer-events-auto px-2">
       <button
         className={`selection-button ${config.bgColor} ${config.textColor} py-1 rounded-md 
           shadow-md border ${config.borderColor} hover:brightness-105 w-full opacity-80`}
