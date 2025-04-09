@@ -7,6 +7,7 @@ import { useCardsDialog } from "../cards-dialog";
 import { useInterceptUsage } from "../intercept-usage";
 import { useSoundEffect } from "../sound";
 import { SelectionMode, useUnitSelection } from "../unit-selection";
+import { useSystemContext } from "../system/hooks";
 
 export const useHandler = () => {
   const { setAll } = useGame();
@@ -16,6 +17,7 @@ export const useHandler = () => {
   const { openCardsSelector } = useCardsDialog();
   const { setAvailableIntercepts } = useInterceptUsage();
   const { play } = useSoundEffect()
+  const { setOperable } = useSystemContext()
 
   const handle = async (message: Message) => {
     const { payload } = message;
@@ -24,8 +26,7 @@ export const useHandler = () => {
     switch (payload.type) {
       case 'Sync': {
         const game: GameState = {
-          ...payload.body.game,
-          players: payload.body.players
+          ...payload.body,
         }
         setAll(game);
         break;
@@ -76,6 +77,19 @@ export const useHandler = () => {
       case 'SoundEffect': {
         console.log('handling %s', payload.soundId)
         play(payload.soundId)
+        break;
+      }
+
+      // 操作権限
+      case 'Operation': {
+        switch(payload.action){
+          case 'defrost':
+            setOperable(true);
+            break;
+          case 'freeze':
+            setOperable(false);
+            break;
+        };
         break;
       }
     }

@@ -36,7 +36,7 @@ interface RoomProps {
 
 export const Game = ({ id }: RoomProps) => {
   useGameComponentHook({ id })
-  const { opponent, self } = useGame()
+  const { opponent, self, rule } = useGame()
   const { openCardsDialog } = useCardsDialog();
   const { cursorCollisionSize } = useSystemContext();
 
@@ -121,7 +121,7 @@ export const Game = ({ id }: RoomProps) => {
                 <div className="flex">
                   <div className="flex gap-1">
                     {
-                      [...Array(4)].map((_, index) => {
+                      [...Array(rule.player.max.trigger)].map((_, index) => {
                         const card = opponent.trigger[index]
                         return card ? (
                           <div
