@@ -17,7 +17,7 @@ interface UnitViewProps {
 
 export const UnitView = ({ unit, isOwnUnit = false }: UnitViewProps) => {
   const { setActiveUnit, candidate, animationUnit, setAnimationUnit } = useUnitSelection();
-  const { setSelectedCard } = useSystemContext();
+  const { setSelectedCard, operable } = useSystemContext();
 
   const color: string = ({
     1: 'orangered',
@@ -29,7 +29,7 @@ export const UnitView = ({ unit, isOwnUnit = false }: UnitViewProps) => {
 
   // Handle unit click to show action buttons
   const handleUnitClick = () => {
-    if (isOwnUnit && !candidate) {
+    if (isOwnUnit && !candidate && operable) {
       setActiveUnit((prev) => prev?.id !== unit.id ? unit : undefined);
     }
     setSelectedCard(prev => prev?.catalogId === unit.catalogId ? undefined : unit)
