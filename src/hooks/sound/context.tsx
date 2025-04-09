@@ -12,7 +12,7 @@ export type SoundKey =
   | 'evolve' | 'fortitude' | 'grow' | 'guard'
   | 'leave' | 'open' | 'oracle' | 'overheat'
   | 'penetrate' | 'purple-consume' | 'purple-increase' | 'reboot'
-  | 'recover' | 'selected' | 'silent' | 'speedmove'
+  | 'recover' | 'bang' | 'silent' | 'speedmove'
   | 'trash' | 'trigger' | 'unblockable' | 'withdrawal';
 
 interface SoundManagerContextType {
@@ -60,7 +60,7 @@ export const SoundManagerProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const [purpleIncreasePlay, purpleIncreaseControls] = useSound('/sound/se/purple-increase.ogg', { volume: 0.25 });
   const [rebootPlay, rebootControls] = useSound('/sound/se/reboot.ogg', { volume: 0.25 });
   const [recoverPlay, recoverControls] = useSound('/sound/se/recover.ogg', { volume: 0.25 });
-  const [selectedPlay, selectedControls] = useSound('/sound/se/selected.ogg', { volume: 0.25 });
+  const [bangPlay, bangControls] = useSound('/sound/se/bang.ogg', { volume: 0.25 });
   const [silentPlay, silentControls] = useSound('/sound/se/silent.ogg', { volume: 0.25 });
   const [speedmovePlay, speedmoveControls] = useSound('/sound/se/speedmove.ogg', { volume: 0.25 });
   const [trashPlay, trashControls] = useSound('/sound/se/trash.ogg', { volume: 0.25 });
@@ -105,7 +105,7 @@ export const SoundManagerProvider: React.FC<{ children: React.ReactNode }> = ({ 
     'purple-increase': { play: purpleIncreasePlay, controls: purpleIncreaseControls },
     'reboot': { play: rebootPlay, controls: rebootControls },
     'recover': { play: recoverPlay, controls: recoverControls },
-    'selected': { play: selectedPlay, controls: selectedControls },
+    'bang': { play: bangPlay, controls: bangControls },
     'silent': { play: silentPlay, controls: silentControls },
     'speedmove': { play: speedmovePlay, controls: speedmoveControls },
     'trash': { play: trashPlay, controls: trashControls },
@@ -142,7 +142,7 @@ export const SoundManagerProvider: React.FC<{ children: React.ReactNode }> = ({ 
     purpleIncreasePlay, purpleIncreaseControls,
     rebootPlay, rebootControls,
     recoverPlay, recoverControls,
-    selectedPlay, selectedControls,
+    bangPlay, bangControls,
     silentPlay, silentControls,
     speedmovePlay, speedmoveControls,
     trashPlay, trashControls,

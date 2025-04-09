@@ -26,7 +26,7 @@ export const SystemContextProvider = ({ children }: { children: ReactNode }) => 
   const [selectedCard, setSelectedCard] = useState<ICard | undefined>(undefined);
   // ドラッグ中のカード
   const [activeCard, setActiveCard] = useState<Active | undefined>(undefined);
-  const [operable, setOperable] = useState(true); // Debug用. 本当は初期値 false
+  const [operable, setOperable] = useState(false);
   // カーソル周辺のヒットエリアサイズ（ピクセル）
   const [cursorCollisionSize, setCursorCollisionSize] = useState(15);
 
