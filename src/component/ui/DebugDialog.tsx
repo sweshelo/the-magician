@@ -53,37 +53,17 @@ export const DebugDialog = () => {
     });
   };
 
-  // New function to test the target button functionality
-  const handleShowTargetButton = async() => {
-    // Test with opponent's first unit if available
-    if (self.field.length > 0) {
-      console.log(await handleUnitSelection(self.field, 'target'));
-    }
-  };
-
-  // New function to test the intercept usage functionality
-  const handleTestInterceptButton = () => {
-    // Test with the first available intercept card in trigger zone (if any)
-    const interceptCards = self.trigger.filter(card => {
-      if (!card) return false;
-      const catalog = master.get(card.catalogId);
-      return catalog?.type === 'intercept' || catalog?.type === 'trigger';
-    });
-
-    if (interceptCards.length > 0) {
-      // Set the first intercept card as available with a 10 second time limit
-      setAvailableIntercepts([interceptCards[0]], 10);
-      console.log('Set intercept available:', interceptCards[0]);
-    } else {
-      console.log('No intercept cards in trigger zone to test with');
-    }
-  };
-
-  // Function to clear available intercepts for testing
-  const handleClearInterceptsButton = () => {
-    clearAvailableIntercepts();
-    console.log('Cleared available intercepts');
-  };
+  const handleTurnEndClick = () => {
+    send({
+      action: {
+        handler: 'core',
+        type: 'event'
+      },
+      payload: {
+        type: 'TurnEnd',
+      }
+    })
+  }
 
   // カーソル周辺のヒットエリアサイズを増減する
   const increaseCursorSize = () => {
@@ -112,31 +92,11 @@ export const DebugDialog = () => {
             Draw
           </button>
           <button
-            onClick={() => openCardsSelector(self.deck as ICard[], 'Select Cards (5秒)', 2, { timeLimit: 5 }).then(selected => console.log('Timed selection:', selected))}
-            className={`px-3 py-1 rounded ${colorTable.ui.border} bg-slate-600 hover:bg-red-500 transition-colors`}
+            onClick={handleTurnEndClick}
+            className={`px-3 py-1 rounded ${colorTable.ui.border} bg-lime-600 hover:bg-lime-500 transition-colors`}
           >
-            Timed Select
+            Turn End
           </button>
-          <button
-            onClick={handleShowTargetButton}
-            className={`px-3 py-1 rounded ${colorTable.ui.border} bg-red-500 text-white hover:bg-red-600 transition-colors`}
-          >
-            Show ターゲット
-          </button>
-          <button
-            onClick={handleTestInterceptButton}
-            className={`px-3 py-1 rounded ${colorTable.ui.border} bg-green-500 text-white hover:bg-green-600 transition-colors`}
-          >
-            Enable Intercept
-          </button>
-
-          <button
-            onClick={handleClearInterceptsButton}
-            className={`px-3 py-1 rounded ${colorTable.ui.border} bg-slate-600 hover:bg-slate-500 transition-colors`}
-          >
-            Clear Intercepts
-          </button>
-
           <div className="mt-2 border-t pt-2 border-gray-700">
             <div className="text-sm mb-1">カーソル判定サイズ: {cursorCollisionSize}px</div>
             <div className="flex gap-2">
@@ -155,39 +115,6 @@ export const DebugDialog = () => {
             </div>
           </div>
 
-          {/* Unit Icon Effect Test Section */}
-          <div className="mt-4 border-t pt-4 border-gray-700">
-            <div className={`text-sm font-bold mb-2 ${colorTable.ui.text.primary}`}>
-              アニメーションエフェクト
-            </div>
-
-            {/* Sample Unit for testing animation */}
-            <div className="flex justify-center mb-4">
-              <div className="relative">
-                <UnitView
-                  unit={sampleUnit}
-                  showEffect={showEffect}
-                  onEffectComplete={handleAnimationComplete}
-                />
-              </div>
-            </div>
-
-            {/* Controls */}
-            <div className="flex flex-col gap-2">
-              <button
-                onClick={() => {
-                  console.log('Animation trigger button clicked');
-                  triggerEffect();
-                  console.log('Animation state after trigger:', { showEffect, isAnimating });
-                }}
-                disabled={isAnimating}
-                className={`px-3 py-1 rounded ${colorTable.ui.border} ${isAnimating ? 'bg-gray-500 cursor-not-allowed' : 'bg-purple-600 hover:bg-purple-500'
-                  } text-white transition-colors`}
-              >
-                {isAnimating ? 'アニメーション中...' : 'エフェクト実行'}
-              </button>
-            </div>
-          </div>
         </div>
       </div>
     </div>
