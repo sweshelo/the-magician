@@ -13,12 +13,10 @@ interface UnitViewProps {
   unit: IUnit
   backImage?: string
   isOwnUnit?: boolean
-  showEffect?: boolean
-  onEffectComplete?: () => void
 }
 
-export const UnitView = ({ unit, isOwnUnit = false, showEffect = false, onEffectComplete }: UnitViewProps) => {
-  const { setActiveUnit, candidate } = useUnitSelection();
+export const UnitView = ({ unit, isOwnUnit = false }: UnitViewProps) => {
+  const { setActiveUnit, candidate, animationUnit, setAnimationUnit } = useUnitSelection();
   const { setSelectedCard } = useSystemContext();
 
   const color: string = ({
@@ -46,8 +44,8 @@ export const UnitView = ({ unit, isOwnUnit = false, showEffect = false, onEffect
         {/* Animation effect layer (highest z-index) */}
         <div className="absolute inset-0 z-10 pointer-events-none">
           <UnitIconEffect
-            show={showEffect}
-            onComplete={onEffectComplete}
+            show={animationUnit === unit.id}
+            onComplete={() => setAnimationUnit(undefined)}
           />
         </div>
 

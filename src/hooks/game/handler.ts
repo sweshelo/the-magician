@@ -12,7 +12,7 @@ export const useHandler = () => {
   const { setAll } = useGame();
   const { continueGame, choose } = useWebSocketGame();
   const { showDialog } = useCardEffectDialog();
-  const { setAvailableUnits, setCandidate } = useUnitSelection()
+  const { setAvailableUnits, setCandidate, setAnimationUnit } = useUnitSelection()
   const { openCardsSelector } = useCardsDialog();
   const { setAvailableIntercepts } = useInterceptUsage();
   const { play } = useSoundEffect()
@@ -34,6 +34,7 @@ export const useHandler = () => {
       // カード効果表示
       case 'DisplayEffect': {
         play('effect')
+        setAnimationUnit(payload.unitId);
         await showDialog(payload.title, payload.message);
         continueGame({ promptId: payload.promptId });
         break;

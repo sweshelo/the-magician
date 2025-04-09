@@ -15,6 +15,10 @@ export interface UnitSelectionContextType {
   setAvailableUnits: (units: IUnit[], onSelected: (unitId: IUnit['id']) => void, mode: SelectionMode) => void;
   activeUnit: IUnit | undefined;
   setActiveUnit: Dispatch<SetStateAction<IUnit | undefined>>;
+
+  // 効果発動アニメーション
+  animationUnit: IUnit['id'] | undefined,
+  setAnimationUnit: Dispatch<SetStateAction<IUnit['id'] | undefined>>;
 }
 
 export const UnitSelectionContext = createContext<UnitSelectionContextType | undefined>(undefined);
@@ -29,6 +33,7 @@ export const UnitSelectionProvider = ({ children }: UnitSelectionProviderProps) 
   const [selectionMode, setSelectionMode] = useState<SelectionMode>('target');
   const [handleSelected, setHandleSelected] = useState<((unit: IUnit['id']) => void) | undefined>(undefined);
   const [activeUnit, setActiveUnit] = useState<IUnit | undefined>(undefined);
+  const [animationUnit, setAnimationUnit] = useState<IUnit['id']>()
 
   const setAvailableUnits = useCallback((units: IUnit[], onSelected: (unit: IUnit['id']) => void, mode: SelectionMode = 'target') => {
     setCandidate(units)
@@ -48,6 +53,8 @@ export const UnitSelectionProvider = ({ children }: UnitSelectionProviderProps) 
         setAvailableUnits,
         activeUnit,
         setActiveUnit,
+        animationUnit,
+        setAnimationUnit,
       }}
     >
       {children}
