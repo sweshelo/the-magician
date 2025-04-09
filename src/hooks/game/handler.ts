@@ -1,17 +1,23 @@
-import { ICard, Message } from "@/submodule/suit/types"
+import { ICard, IUnit, Message } from "@/submodule/suit/types"
 import { useGame } from "./hooks";
 import { GameState } from "./reducer";
 import { useCardEffectDialog } from "@/hooks/card-effect-dialog";
 import { useWebSocketGame } from "./websocket";
 import { useCardsDialog } from "../cards-dialog";
 import { useInterceptUsage } from "../intercept-usage";
+import { useSoundEffect } from "../sound";
+import { SelectionMode, useUnitSelection } from "../unit-selection";
+import { useSystemContext } from "../system/hooks";
 
 export const useHandler = () => {
   const { setAll } = useGame();
   const { continueGame, choose } = useWebSocketGame();
   const { showDialog } = useCardEffectDialog();
+  const { setAvailableUnits, setCandidate, setAnimationUnit } = useUnitSelection()
   const { openCardsSelector } = useCardsDialog();
   const { setAvailableIntercepts } = useInterceptUsage();
+  const { play } = useSoundEffect()
+  const { setOperable } = useSystemContext()
 
   const handle = async (message: Message) => {
     const { payload } = message;
@@ -20,8 +26,7 @@ export const useHandler = () => {
     switch (payload.type) {
       case 'Sync': {
         const game: GameState = {
-          ...payload.body.game,
-          players: payload.body.players
+          ...payload.body,
         }
         setAll(game);
         break;
@@ -29,6 +34,8 @@ export const useHandler = () => {
 
       // カード効果表示
       case 'DisplayEffect': {
+        play('effect')
+        setAnimationUnit(payload.unitId);
         await showDialog(payload.title, payload.message);
         continueGame({ promptId: payload.promptId });
         break;
@@ -54,6 +61,36 @@ export const useHandler = () => {
             choice: selectedCard ? [selectedCard.id] : []
           });
         }
+
+        if (choices.type === 'unit') {
+          const selectedUnit = await handleUnitSelection(choices.items);
+          choose({
+            promptId: payload.promptId,
+            choice: [selectedUnit]
+          })
+        }
+
+        break;
+      }
+
+      // エフェクト通知
+      case 'SoundEffect': {
+        console.log('handling %s', payload.soundId)
+        play(payload.soundId)
+        break;
+      }
+
+      // 操作権限
+      case 'Operation': {
+        switch(payload.action){
+          case 'defrost':
+            setOperable(true);
+            break;
+          case 'freeze':
+            setOperable(false);
+            break;
+        };
+        break;
       }
     }
   }
@@ -75,5 +112,18 @@ export const useHandler = () => {
     });
   };
 
-  return { handle, showDialog, handleInterceptSelection }
+  const handleUnitSelection = (units: IUnit[], mode: SelectionMode = 'target'): Promise<IUnit['id']> => {
+    return new Promise((resolve) => {
+      // Setup handler functions that resolve the promise
+      const handleSelect = (unit: IUnit['id']) => {
+        resolve(unit);
+        setCandidate(undefined);
+      };
+
+      // Set available intercepts and provide the handlers
+      setAvailableUnits(units, handleSelect, mode);
+    });
+  };
+
+  return { handle, showDialog, handleInterceptSelection, handleUnitSelection }
 }

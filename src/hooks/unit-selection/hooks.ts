@@ -11,22 +11,7 @@ export const useUnitSelection = () => {
     throw new Error("useUnitSelection must be used within a UnitSelectionProvider");
   }
 
-  return {
-    // Current state
-    selectedUnitId: context.selectedUnitId,
-    actionButtonUnitId: context.actionButtonUnitId,
-    selectionMode: context.selectionMode,
-    
-    // User actions
-    selectUnit: context.selectUnit,
-    showActionButtons: context.showActionButtons,
-    hideActionButtons: context.hideActionButtons,
-    
-    // System actions
-    showSelectionButton: context.showSelectionButton,
-    setSelectionMode: context.setSelectionMode,
-    setOnUnitSelected: context.setOnUnitSelected,
-  };
+  return context
 };
 
 // Utility function to check if a unit is owned by the current player

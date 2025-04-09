@@ -4,6 +4,7 @@ import { UnitIconView } from "./UnitIconView";
 import { UnitActivatedView } from "./UnitActivatedView";
 import { UnitActionButtons } from "./UnitActionButtons";
 import { UnitSelectionButton } from "./UnitSelectionButton";
+import { UnitIconEffect } from "./UnitIconEffect";
 import { useUnitSelection } from "@/hooks/unit-selection";
 import catalog from "@/submodule/suit/catalog/catalog";
 import { useSystemContext } from "@/hooks/system/hooks";
@@ -15,8 +16,8 @@ interface UnitViewProps {
 }
 
 export const UnitView = ({ unit, isOwnUnit = false }: UnitViewProps) => {
-  const { showActionButtons } = useUnitSelection();
-  const { setSelectedCard } = useSystemContext();
+  const { setActiveUnit, candidate, animationUnit, setAnimationUnit } = useUnitSelection();
+  const { setSelectedCard, operable } = useSystemContext();
 
   const color: string = ({
     1: 'orangered',
@@ -28,8 +29,8 @@ export const UnitView = ({ unit, isOwnUnit = false }: UnitViewProps) => {
 
   // Handle unit click to show action buttons
   const handleUnitClick = () => {
-    if (isOwnUnit) {
-      showActionButtons(unit.id);
+    if (isOwnUnit && !candidate && operable) {
+      setActiveUnit((prev) => prev?.id !== unit.id ? unit : undefined);
     }
     setSelectedCard(prev => prev?.catalogId === unit.catalogId ? undefined : unit)
   };
@@ -40,6 +41,14 @@ export const UnitView = ({ unit, isOwnUnit = false }: UnitViewProps) => {
         className="relative w-32 h-32 unit-wrapper"
         onClick={isOwnUnit ? handleUnitClick : undefined}
       >
+        {/* Animation effect layer (highest z-index) */}
+        <div className="absolute inset-0 z-10 pointer-events-none">
+          <UnitIconEffect
+            show={animationUnit === unit.id}
+            onComplete={() => setAnimationUnit(undefined)}
+          />
+        </div>
+
         {/* Position components to layer correctly */}
         <div className="absolute inset-0 z-1">
           <UnitIconView
@@ -66,7 +75,7 @@ export const UnitView = ({ unit, isOwnUnit = false }: UnitViewProps) => {
         <UnitSelectionButton unitId={unit.id} />
       </div>
       <div className="-mt-2">
-        <BPView bp={unit.bp.base + unit.bp.diff} lv={unit.lv} />
+        <BPView bp={unit.bp.base + unit.bp.diff - unit.bp.damage} diff={unit.bp.diff - unit.bp.damage} lv={unit.lv} />
       </div>
     </div>
   );

@@ -13,7 +13,7 @@ export const UnitActivatedView = ({ color, active = true }: { color: string, act
     const endY = 60 + outerRadius * Math.sin(radians);
 
     return (
-      <line
+      <line suppressHydrationWarning
         key={i}
         x1={startX}
         y1={startY}

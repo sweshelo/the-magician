@@ -9,11 +9,13 @@ import { useSystemContext } from "@/hooks/system/hooks"
 import { BsTrash3Fill } from "react-icons/bs"
 import { useCardsDialog } from "@/hooks/cards-dialog"
 import { MyTriggerZone } from "../MyTriggerZone"
+import { useMyArea } from "./hooks"
 
 export const MyArea = () => {
   const { self } = useGame()
   const { activeCard } = useSystemContext()
   const { openCardsDialog } = useCardsDialog();
+  useMyArea();
 
   return (
     <div className="flex-col p-4 min-h-[250px]">

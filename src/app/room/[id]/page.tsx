@@ -1,5 +1,6 @@
 import { Game } from "@/feature/Game";
 import { GameProvider } from "@/hooks/game";
+import { UnitSelectionProvider } from "@/hooks/unit-selection";
 
 export default async function Page({
   params,
@@ -10,7 +11,9 @@ export default async function Page({
   return (
     <>
       <GameProvider>
-        <Game id={id} />
+        <UnitSelectionProvider>
+          <Game id={id} />
+        </UnitSelectionProvider>
       </GameProvider>
     </>
   )

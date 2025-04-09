@@ -6,13 +6,13 @@ import { useInterceptUsage } from "@/hooks/intercept-usage"
 import master from "@/submodule/suit/catalog/catalog"
 
 export const MyTriggerZoneBody = () => {
-  const { self } = useGame()
+  const { self, rule } = useGame()
   const { availableIntercepts, activateIntercept } = useInterceptUsage()
 
   return (
     <div className="flex gap-1">
       {
-        [...Array(4)].map((_, index) => {
+        [...Array(rule.player.max.trigger)].map((_, index) => {
           const card = self.trigger[index]
           const catalog = card ? master.get(card.catalogId) : undefined
           const isUnit = catalog?.type === 'unit' || catalog?.type === 'advanced_unit'

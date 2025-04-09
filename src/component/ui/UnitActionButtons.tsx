@@ -15,37 +15,36 @@ export const UnitActionButtons = ({
   canBoot = true,
   canWithdraw = true
 }: UnitActionButtonsProps) => {
-  const { actionButtonUnitId, hideActionButtons } = useUnitSelection();
+  const { activeUnit, setActiveUnit, candidate } = useUnitSelection();
   const { withdrawal } = useWebSocketGame()
 
   // Don't render buttons if not showing for this unit
   // We only pass this component when rendering units in player's field, so no need to check ownership
-  if (actionButtonUnitId !== unit.id) {
+  if (activeUnit !== unit || candidate) {
     return null;
   }
 
   // Handle action button clicks
   const handleAttack = () => {
     console.log(`Unit ${unit.id} attacking`);
-    // Implement attack logic here
-    hideActionButtons();
+    setActiveUnit(undefined);
   };
 
   const handleWithdrawal = () => {
     console.log(`Unit ${unit.id} withdrawing`);
     // Implement withdrawal logic here
-    hideActionButtons();
+    setActiveUnit(undefined)
     withdrawal({ target: unit })
   };
 
   const handleBoot = () => {
     console.log(`Unit ${unit.id} booting`);
     // Implement boot logic here
-    hideActionButtons();
+    setActiveUnit(undefined)
   };
 
   return (
-    <div className="absolute inset-0 pointer-events-auto z-20 flex flex-col justify-between px-2 py-1">
+    <div className="absolute inset-0 pointer-events-auto z-5 flex flex-col justify-between px-2 py-1">
       {/* Attack Button (top) */}
       {canAttack ? (
         <button

@@ -1,12 +1,15 @@
-import { IPlayer } from "@/submodule/suit/types";
+import { IPlayer, Rule } from "@/submodule/suit/types";
 
 // ステートの型定義
 export interface GameState {
   players?: {
     [key: string]: IPlayer
   };
-  turn: number;
-  round: number;
+  game: {
+    turn: number;
+    round: number;
+  };
+  rule: Rule;
 };
 
 // アクションの型定義
@@ -17,7 +20,7 @@ export type GameAction =
   | { type: 'SET_ALL'; game: GameState };
 
 // Reducer関数
-export function gameReducer (state: GameState, action: GameAction): GameState {
+export function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
     case 'SET_PLAYER':
       return {
@@ -28,9 +31,9 @@ export function gameReducer (state: GameState, action: GameAction): GameState {
         }
       }
     case 'SET_TURN':
-      return { ...state, turn: action.turn }
+      return { ...state, game: { ...state.game, turn: action.turn } }
     case 'SET_ROUND':
-      return { ...state, round: action.round };
+      return { ...state, game: { ...state.game, round: action.round } };
     case 'SET_ALL':
       return { ...action.game }
     default:

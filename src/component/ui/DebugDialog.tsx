@@ -6,18 +6,34 @@ import { useGame, useWebSocketGame } from '@/hooks/game';
 import { useInterceptUsage } from '@/hooks/intercept-usage';
 import { useSoundEffect } from '@/hooks/sound/hooks';
 import { useSystemContext } from '@/hooks/system/hooks';
-import { useUnitSelection } from '@/hooks/unit-selection';
+import { useUnitIconEffect } from '@/hooks/unit-icon-effect';
 import master from '@/submodule/suit/catalog/catalog';
-import { ICard } from '@/submodule/suit/types';
+import { ICard, IUnit } from '@/submodule/suit/types';
+import { UnitView } from './UnitView';
+import { useHandler } from '@/hooks/game/handler';
 
 export const DebugDialog = () => {
   const { self, opponent } = useGame();
   const { send } = useWebSocketGame();
   const { draw } = useSoundEffect();
   const { openCardsSelector } = useCardsDialog();
-  const { showSelectionButton } = useUnitSelection();
   const { cursorCollisionSize, setCursorCollisionSize } = useSystemContext();
   const { setAvailableIntercepts, clearAvailableIntercepts } = useInterceptUsage();
+  const { showEffect, isAnimating, triggerEffect, handleAnimationComplete } = useUnitIconEffect();
+  const { handleUnitSelection } = useHandler()
+
+  // Sample unit for testing animation effect
+  const sampleUnit: IUnit = {
+    id: 'sample-unit',
+    catalogId: 'unit01',
+    lv: 1,
+    bp: {
+      base: 1000,
+      diff: 0,
+      damage: 0
+    },
+    active: true
+  };
 
   const handleDebugButtonClick = () => {
     console.log('self: ', self, '\nopponent: ', opponent);
@@ -37,53 +53,17 @@ export const DebugDialog = () => {
     });
   };
 
-  // New function to test the selection button functionality
-  const handleShowSelectButton = () => {
-    // Find the first unit in the player's field to test with
-    if (self.field.length > 0) {
-      showSelectionButton(self.field[0].id, 'select');
-    }
-  };
-
-  // New function to test the target button functionality
-  const handleShowTargetButton = () => {
-    // Test with opponent's first unit if available
-    if (opponent.field.length > 0) {
-      showSelectionButton(opponent.field[0].id, 'target');
-    }
-  };
-
-  // New function to test the block button functionality
-  const handleShowBlockButton = () => {
-    // Test with player's first unit if available
-    if (self.field.length > 0) {
-      showSelectionButton(self.field[0].id, 'block');
-    }
-  };
-
-  // New function to test the intercept usage functionality
-  const handleTestInterceptButton = () => {
-    // Test with the first available intercept card in trigger zone (if any)
-    const interceptCards = self.trigger.filter(card => {
-      if (!card) return false;
-      const catalog = master.get(card.catalogId);
-      return catalog?.type === 'intercept' || catalog?.type === 'trigger';
-    });
-
-    if (interceptCards.length > 0) {
-      // Set the first intercept card as available with a 10 second time limit
-      setAvailableIntercepts([interceptCards[0]], 10);
-      console.log('Set intercept available:', interceptCards[0]);
-    } else {
-      console.log('No intercept cards in trigger zone to test with');
-    }
-  };
-
-  // Function to clear available intercepts for testing
-  const handleClearInterceptsButton = () => {
-    clearAvailableIntercepts();
-    console.log('Cleared available intercepts');
-  };
+  const handleTurnEndClick = () => {
+    send({
+      action: {
+        handler: 'core',
+        type: 'event'
+      },
+      payload: {
+        type: 'TurnEnd',
+      }
+    })
+  }
 
   // カーソル周辺のヒットエリアサイズを増減する
   const increaseCursorSize = () => {
@@ -112,44 +92,11 @@ export const DebugDialog = () => {
             Draw
           </button>
           <button
-            onClick={() => openCardsSelector(self.deck as ICard[], 'Select Cards (5秒)', 2, { timeLimit: 5 }).then(selected => console.log('Timed selection:', selected))}
-            className={`px-3 py-1 rounded ${colorTable.ui.border} bg-slate-600 hover:bg-red-500 transition-colors`}
+            onClick={handleTurnEndClick}
+            className={`px-3 py-1 rounded ${colorTable.ui.border} bg-lime-600 hover:bg-lime-500 transition-colors`}
           >
-            Timed Select
+            Turn End
           </button>
-          <button
-            onClick={handleShowSelectButton}
-            className={`px-3 py-1 rounded ${colorTable.ui.border} bg-white text-black hover:bg-gray-200 transition-colors`}
-          >
-            Show 選択
-          </button>
-          <button
-            onClick={handleShowTargetButton}
-            className={`px-3 py-1 rounded ${colorTable.ui.border} bg-red-500 text-white hover:bg-red-600 transition-colors`}
-          >
-            Show ターゲット
-          </button>
-          <button
-            onClick={handleShowBlockButton}
-            className={`px-3 py-1 rounded ${colorTable.ui.border} bg-blue-500 text-white hover:bg-blue-600 transition-colors`}
-          >
-            Show ブロック
-          </button>
-          
-          <button
-            onClick={handleTestInterceptButton}
-            className={`px-3 py-1 rounded ${colorTable.ui.border} bg-green-500 text-white hover:bg-green-600 transition-colors`}
-          >
-            Enable Intercept
-          </button>
-          
-          <button
-            onClick={handleClearInterceptsButton}
-            className={`px-3 py-1 rounded ${colorTable.ui.border} bg-slate-600 hover:bg-slate-500 transition-colors`}
-          >
-            Clear Intercepts
-          </button>
-
           <div className="mt-2 border-t pt-2 border-gray-700">
             <div className="text-sm mb-1">カーソル判定サイズ: {cursorCollisionSize}px</div>
             <div className="flex gap-2">
@@ -167,6 +114,7 @@ export const DebugDialog = () => {
               </button>
             </div>
           </div>
+
         </div>
       </div>
     </div>

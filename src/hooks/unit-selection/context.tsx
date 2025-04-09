@@ -1,42 +1,27 @@
-import { createContext, useCallback, useEffect, useState } from "react";
+'use client';
+
+import { IUnit } from "@/submodule/suit/types";
+import { createContext, Dispatch, SetStateAction, useCallback, useState } from "react";
 
 export type SelectionMode = 'select' | 'target' | 'block';
 
 export interface UnitSelectionContextType {
-  // Selected unit ID
-  selectedUnitId: string | null;
-  // Unit ID with action buttons displayed
-  actionButtonUnitId: string | null;
-  // Selection mode
+  candidate: IUnit[] | undefined;
+  setCandidate: (unit: IUnit[] | undefined) => void;
   selectionMode: SelectionMode;
-
-  // Actions
-  selectUnit: (unitId: string) => void;
-  showActionButtons: (unitId: string) => void;
-  hideActionButtons: () => void;
   setSelectionMode: (mode: SelectionMode) => void;
+  handleSelected: ((unit: IUnit['id']) => void) | undefined;
+  setHandleSelected: (callback: (unit: IUnit['id']) => void) => void;
+  setAvailableUnits: (units: IUnit[], onSelected: (unitId: IUnit['id']) => void, mode: SelectionMode) => void;
+  activeUnit: IUnit | undefined;
+  setActiveUnit: Dispatch<SetStateAction<IUnit | undefined>>;
 
-  // System functions
-  showSelectionButton: (unitId: string, mode: SelectionMode) => void;
-
-  // Events
-  onUnitSelected?: (unitId: string) => void;
-  setOnUnitSelected: (callback: ((unitId: string) => void) | undefined) => void;
+  // 効果発動アニメーション
+  animationUnit: IUnit['id'] | undefined,
+  setAnimationUnit: Dispatch<SetStateAction<IUnit['id'] | undefined>>;
 }
 
-export const UnitSelectionContext = createContext<UnitSelectionContextType>({
-  selectedUnitId: null,
-  actionButtonUnitId: null,
-  selectionMode: 'select',
-
-  selectUnit: () => { },
-  showActionButtons: () => { },
-  hideActionButtons: () => { },
-  setSelectionMode: () => { },
-
-  showSelectionButton: () => { },
-  setOnUnitSelected: () => { },
-});
+export const UnitSelectionContext = createContext<UnitSelectionContextType | undefined>(undefined);
 
 export interface UnitSelectionProviderProps {
   children: React.ReactNode;
@@ -44,73 +29,32 @@ export interface UnitSelectionProviderProps {
 
 export const UnitSelectionProvider = ({ children }: UnitSelectionProviderProps) => {
   // State
-  const [selectedUnitId, setSelectedUnitId] = useState<string | null>(null);
-  const [actionButtonUnitId, setActionButtonUnitId] = useState<string | null>(null);
-  const [selectionMode, setSelectionMode] = useState<SelectionMode>('select');
-  const [onUnitSelected, setOnUnitSelectedCallback] = useState<((unitId: string) => void) | undefined>(undefined);
+  const [candidate, setCandidate] = useState<IUnit[]>();
+  const [selectionMode, setSelectionMode] = useState<SelectionMode>('target');
+  const [handleSelected, setHandleSelected] = useState<((unit: IUnit['id']) => void) | undefined>(undefined);
+  const [activeUnit, setActiveUnit] = useState<IUnit | undefined>(undefined);
+  const [animationUnit, setAnimationUnit] = useState<IUnit['id']>()
 
-  // Actions
-  const selectUnit = useCallback((unitId: string) => {
-    setSelectedUnitId(unitId);
-    if (onUnitSelected) {
-      onUnitSelected(unitId);
-    }
-    setSelectedUnitId(null); // Reset selection after callback
-  }, [onUnitSelected]);
-
-  const hideActionButtons = useCallback(() => {
-    setActionButtonUnitId(null);
-  }, []);
-
-  const showActionButtons = useCallback((unitId: string) => {
-    // Hide any currently shown action buttons
-    hideActionButtons();
-    // Show action buttons for this unit
-    setActionButtonUnitId(unitId);
-  }, [hideActionButtons]);
-
-  // Handle global click to hide action buttons
-  useEffect(() => {
-    const handleGlobalClick = (e: MouseEvent) => {
-      // Check if click was on a unit or action button
-      const target = e.target as HTMLElement;
-      const isUnitOrButton = target.closest('.unit-wrapper') || target.closest('.action-button') || target.closest('.selection-button');
-
-      if (!isUnitOrButton && actionButtonUnitId) {
-        hideActionButtons();
-      }
-    };
-
-    document.addEventListener('mousedown', handleGlobalClick);
-    return () => {
-      document.removeEventListener('mousedown', handleGlobalClick);
-    };
-  }, [actionButtonUnitId, hideActionButtons]);
-
-  const showSelectionButton = useCallback((unitId: string, mode: SelectionMode) => {
-    setSelectedUnitId(unitId);
-    setSelectionMode(mode);
-  }, []);
-
-  const setOnUnitSelected = useCallback((callback: ((unitId: string) => void) | undefined) => {
-    setOnUnitSelectedCallback(callback);
+  const setAvailableUnits = useCallback((units: IUnit[], onSelected: (unit: IUnit['id']) => void, mode: SelectionMode = 'target') => {
+    setCandidate(units)
+    setSelectionMode(mode)
+    setHandleSelected(() => onSelected)
   }, []);
 
   return (
     <UnitSelectionContext.Provider
       value={{
-        selectedUnitId,
-        actionButtonUnitId,
+        candidate,
         selectionMode,
-
-        selectUnit,
-        showActionButtons,
-        hideActionButtons,
         setSelectionMode,
-
-        showSelectionButton,
-        onUnitSelected,
-        setOnUnitSelected,
+        setCandidate,
+        handleSelected,
+        setHandleSelected,
+        setAvailableUnits,
+        activeUnit,
+        setActiveUnit,
+        animationUnit,
+        setAnimationUnit,
       }}
     >
       {children}

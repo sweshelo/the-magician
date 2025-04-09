@@ -10,14 +10,14 @@ interface MyFieldWrapperProps {
 
 export const MyFieldWrapper = ({ children }: MyFieldWrapperProps) => {
   const { activeCard } = useSystemContext()
-  const { self } = useGame();
+  const { self, rule } = useGame();
   const { isOver, setNodeRef } = useDroppable({
     id: 'field',
     data: {
       type: 'field',
       accepts: ['card']
     },
-    disabled: self.field.length >= 5 || catalog.get(activeCard?.data.current?.type)?.type !== 'unit',
+    disabled: self.field.length >= rule.player.max.field || catalog.get(activeCard?.data.current?.type)?.type !== 'unit',
   })
 
   return (
