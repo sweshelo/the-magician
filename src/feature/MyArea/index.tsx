@@ -64,7 +64,9 @@ export const MyArea = () => {
       </div>
 
       {/* 自分の手札エリア */}
-      <HandArea hand={self.hand} />
+      <div className="flex justify-center">
+        <HandArea hand={self.hand} />
+      </div>
     </div>
   )
 }
