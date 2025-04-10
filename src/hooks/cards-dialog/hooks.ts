@@ -1,19 +1,24 @@
-'use client';
+"use client";
 
-import { useContext } from 'react';
-import { CardsDialogContext, CardsDialogContextType } from './context';
-import { ICard } from '@/submodule/suit/types';
-import { useSoundEffect } from '../sound/hooks';
+import { useContext } from "react";
+import { CardsDialogContext, CardsDialogContextType } from "./context";
+import { ICard } from "@/submodule/suit/types";
+import { useSoundEffect } from "../sound/hooks";
 
 export const useCardsDialog = (): CardsDialogContextType & {
   openCardsDialog: (cards: ICard[], title: string) => void;
-  openCardsSelector: (cards: ICard[], title: string, count: number, options?: { timeLimit?: number }) => Promise<string[]>;
+  openCardsSelector: (
+    cards: ICard[],
+    title: string,
+    count: number,
+    options?: { timeLimit?: number },
+  ) => Promise<string[]>;
   closeCardsDialog: () => void;
   confirmSelection: (result?: string[]) => void;
 } => {
   const context = useContext(CardsDialogContext);
   if (context === undefined) {
-    throw new Error('useCardsDialog must be used within a CardsDialogProvider');
+    throw new Error("useCardsDialog must be used within a CardsDialogProvider");
   }
 
   const { open } = useSoundEffect();
@@ -35,7 +40,7 @@ export const useCardsDialog = (): CardsDialogContextType & {
     cards: ICard[],
     title: string,
     count: number,
-    options?: { timeLimit?: number }
+    options?: { timeLimit?: number },
   ): Promise<string[]> => {
     context.setSelection([]);
     context.setCards(cards);

@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { ICard } from "@/submodule/suit/types";
 import { createContext, ReactNode, useState } from "react";
@@ -16,12 +16,16 @@ export type CardsDialogContextType = {
   selection: string[];
   setSelection: React.Dispatch<React.SetStateAction<string[]>>;
   resolvePromise: ((value: string[]) => void) | null;
-  setResolvePromise: React.Dispatch<React.SetStateAction<((value: string[]) => void) | null>>;
+  setResolvePromise: React.Dispatch<
+    React.SetStateAction<((value: string[]) => void) | null>
+  >;
   timeLimit: number | null;
   setTimeLimit: React.Dispatch<React.SetStateAction<number | null>>;
-}
+};
 
-export const CardsDialogContext = createContext<CardsDialogContextType | undefined>(undefined);
+export const CardsDialogContext = createContext<
+  CardsDialogContextType | undefined
+>(undefined);
 
 export const CardsDialogProvider = ({ children }: { children: ReactNode }) => {
   const [cards, setCards] = useState<ICard[] | undefined>(undefined);
@@ -29,31 +33,35 @@ export const CardsDialogProvider = ({ children }: { children: ReactNode }) => {
   const [isSelector, setIsSelector] = useState<boolean>(true);
   const [count, setCount] = useState(1);
   const [selection, setSelection] = useState<string[]>([]);
-  const [resolvePromise, setResolvePromise] = useState<((value: string[]) => void) | null>(null);
+  const [resolvePromise, setResolvePromise] = useState<
+    ((value: string[]) => void) | null
+  >(null);
   const [timeLimit, setTimeLimit] = useState<number | null>(null);
 
   // Dialog is open when there are cards to display
   const isOpen = cards !== undefined;
 
   return (
-    <CardsDialogContext.Provider value={{
-      cards,
-      setCards,
-      dialogTitle,
-      setDialogTitle,
-      isOpen,
-      isSelector,
-      setIsSelector,
-      count,
-      setCount,
-      selection,
-      setSelection,
-      resolvePromise,
-      setResolvePromise,
-      timeLimit,
-      setTimeLimit,
-    }}>
+    <CardsDialogContext.Provider
+      value={{
+        cards,
+        setCards,
+        dialogTitle,
+        setDialogTitle,
+        isOpen,
+        isSelector,
+        setIsSelector,
+        count,
+        setCount,
+        selection,
+        setSelection,
+        resolvePromise,
+        setResolvePromise,
+        timeLimit,
+        setTimeLimit,
+      }}
+    >
       {children}
     </CardsDialogContext.Provider>
-  )
-}
+  );
+};

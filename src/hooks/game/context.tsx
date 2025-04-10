@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { createContext, ReactNode, useReducer, useMemo } from "react";
 import { GameAction, gameReducer, GameState } from "./reducer";
@@ -9,7 +9,9 @@ export type GameContextType = {
   dispatch: React.Dispatch<GameAction>;
 };
 
-export const GameContext = createContext<GameContextType | undefined>(undefined);
+export const GameContext = createContext<GameContextType | undefined>(
+  undefined,
+);
 
 // 初期状態
 const initialState: GameState = {
@@ -54,8 +56,6 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
   const contextValue = useMemo(() => ({ state, dispatch }), [state]);
 
   return (
-    <GameContext.Provider value={contextValue} >
-      {children}
-    </GameContext.Provider>
+    <GameContext.Provider value={contextValue}>{children}</GameContext.Provider>
   );
 };

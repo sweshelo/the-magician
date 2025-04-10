@@ -1,13 +1,13 @@
 import { useRef, useEffect } from "react";
 
 type ProgressConfirmButtonProps = {
-  timeLimit?: number;                // Time limit in seconds (optional)
-  buttonText: string;                // Text to display on the button
-  onConfirm: () => void;             // Action to perform on confirmation
-  onTimeExpire?: () => void;         // Action to perform when time expires (optional)
-  disabled?: boolean;                // Whether the button is disabled
-  className?: string;                // Additional styling
-  isRunning?: boolean;               // Whether the timer is running
+  timeLimit?: number; // Time limit in seconds (optional)
+  buttonText: string; // Text to display on the button
+  onConfirm: () => void; // Action to perform on confirmation
+  onTimeExpire?: () => void; // Action to perform when time expires (optional)
+  disabled?: boolean; // Whether the button is disabled
+  className?: string; // Additional styling
+  isRunning?: boolean; // Whether the timer is running
 };
 
 export const ProgressConfirmButton = ({
@@ -17,7 +17,7 @@ export const ProgressConfirmButton = ({
   onTimeExpire,
   disabled = false,
   className = "",
-  isRunning = true
+  isRunning = true,
 }: ProgressConfirmButtonProps) => {
   const animationKey = useRef(0);
   const progressBarRef = useRef<HTMLDivElement | null>(null);
@@ -38,9 +38,9 @@ export const ProgressConfirmButton = ({
             key={animationKey.current}
             className="h-full bg-red-700"
             style={{
-              width: '100%',
+              width: "100%",
               animation: `countdown ${timeLimit}s linear forwards`,
-              animationPlayState: isRunning ? 'running' : 'paused'
+              animationPlayState: isRunning ? "running" : "paused",
             }}
             onAnimationEnd={onTimeExpire}
           />
@@ -61,14 +61,16 @@ export const ProgressConfirmButton = ({
           {buttonText}
         </button>
       )}
-      <style dangerouslySetInnerHTML={{
-        __html: `
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
           @keyframes countdown {
             0% { width: 100%; }
             100% { width: 0%; }
           }
-        `
-      }} />
+        `,
+        }}
+      />
     </div>
   );
 };

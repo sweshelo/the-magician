@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { ICard } from "@/submodule/suit/types";
 import { createContext, ReactNode, useState, useCallback, useRef } from "react";
@@ -14,7 +14,7 @@ export interface InterceptUsageContextType {
     intercepts: ICard[],
     timeLimit?: number,
     onActivate?: (card: ICard) => void,
-    onCancel?: () => void
+    onCancel?: () => void,
   ) => void;
 
   // Function to clear the available intercepts
@@ -31,12 +31,20 @@ export interface InterceptUsageContextType {
 }
 
 // Create the context with undefined default
-export const InterceptUsageContext = createContext<InterceptUsageContextType | undefined>(undefined);
+export const InterceptUsageContext = createContext<
+  InterceptUsageContextType | undefined
+>(undefined);
 
 // Provider component that wraps the application or relevant part of it
-export const InterceptUsageProvider = ({ children }: { children: ReactNode }) => {
+export const InterceptUsageProvider = ({
+  children,
+}: {
+  children: ReactNode;
+}) => {
   const [availableIntercepts, setAvailableIntercepts] = useState<ICard[]>([]);
-  const [interceptTimeLimit, setInterceptTimeLimit] = useState<number | null>(null);
+  const [interceptTimeLimit, setInterceptTimeLimit] = useState<number | null>(
+    null,
+  );
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const onActivateRef = useRef<((card: ICard) => void) | undefined>(undefined);
   const onCancelRef = useRef<(() => void) | undefined>(undefined);
@@ -53,33 +61,36 @@ export const InterceptUsageProvider = ({ children }: { children: ReactNode }) =>
   }, []);
 
   // Function to set available intercepts with optional time limit and callbacks
-  const handleSetAvailableIntercepts = useCallback((
-    intercepts: ICard[],
-    timeLimit?: number,
-    onActivate?: (card: ICard) => void,
-    onCancel?: () => void
-  ) => {
-    // Store callback refs
-    onActivateRef.current = onActivate;
-    onCancelRef.current = onCancel;
-    setAvailableIntercepts(intercepts);
+  const handleSetAvailableIntercepts = useCallback(
+    (
+      intercepts: ICard[],
+      timeLimit?: number,
+      onActivate?: (card: ICard) => void,
+      onCancel?: () => void,
+    ) => {
+      // Store callback refs
+      onActivateRef.current = onActivate;
+      onCancelRef.current = onCancel;
+      setAvailableIntercepts(intercepts);
 
-    if (timeLimit) {
-      setInterceptTimeLimit(timeLimit);
+      if (timeLimit) {
+        setInterceptTimeLimit(timeLimit);
 
-      // Set timeout to auto-cancel after time limit
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
+        // Set timeout to auto-cancel after time limit
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current);
+        }
 
-      timeoutRef.current = setTimeout(() => {
-        clearAvailableIntercepts();
+        timeoutRef.current = setTimeout(() => {
+          clearAvailableIntercepts();
+          setInterceptTimeLimit(null);
+        }, timeLimit * 1000);
+      } else {
         setInterceptTimeLimit(null);
-      }, timeLimit * 1000);
-    } else {
-      setInterceptTimeLimit(null);
-    }
-  }, [clearAvailableIntercepts]);
+      }
+    },
+    [clearAvailableIntercepts],
+  );
 
   // Function to cancel intercept selection
   const cancelInterceptSelection = useCallback(() => {
@@ -93,18 +104,23 @@ export const InterceptUsageProvider = ({ children }: { children: ReactNode }) =>
   }, [clearAvailableIntercepts]);
 
   // Function to activate a specific intercept and call the provided callback
-  const activateIntercept = useCallback((interceptId: string) => {
-    // Find the selected card
-    const selectedCard = availableIntercepts.find(card => card.id === interceptId);
+  const activateIntercept = useCallback(
+    (interceptId: string) => {
+      // Find the selected card
+      const selectedCard = availableIntercepts.find(
+        (card) => card.id === interceptId,
+      );
 
-    // Call the activate callback if provided with the selected card
-    if (selectedCard && onActivateRef.current) {
-      onActivateRef.current(selectedCard);
-    }
+      // Call the activate callback if provided with the selected card
+      if (selectedCard && onActivateRef.current) {
+        onActivateRef.current(selectedCard);
+      }
 
-    // Clear the available intercepts after activation
-    clearAvailableIntercepts();
-  }, [availableIntercepts, clearAvailableIntercepts]);
+      // Clear the available intercepts after activation
+      clearAvailableIntercepts();
+    },
+    [availableIntercepts, clearAvailableIntercepts],
+  );
 
   // The value to be provided by the context
   const contextValue: InterceptUsageContextType = {

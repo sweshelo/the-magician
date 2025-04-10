@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { colorTable } from '@/helper/color';
-import { useCardEffectDialog } from '@/hooks/card-effect-dialog';
+import { colorTable } from "@/helper/color";
+import { useCardEffectDialog } from "@/hooks/card-effect-dialog";
 
 export const CardEffectDialog = () => {
   const { state } = useCardEffectDialog();
@@ -23,12 +23,16 @@ export const CardEffectDialog = () => {
       >
         <div className="flex flex-col">
           {/* Title - 1 line */}
-          <div className={`text-xl font-bold mb-2 ${colorTable.ui.text.primary} text-center`}>
+          <div
+            className={`text-xl font-bold mb-2 ${colorTable.ui.text.primary} text-center`}
+          >
             {title}
           </div>
 
           {/* Message - up to 4 lines */}
-          <div className={`${colorTable.ui.text.secondary} whitespace-pre-line text-center border-t-2 pt-3`}>
+          <div
+            className={`${colorTable.ui.text.secondary} whitespace-pre-line text-center border-t-2 pt-3`}
+          >
             {message}
           </div>
         </div>
