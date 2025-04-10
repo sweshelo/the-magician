@@ -9,14 +9,14 @@ interface MyTriggerZoneWrapperProps {
 
 export const MyTriggerZoneWrapper = ({ children }: MyTriggerZoneWrapperProps) => {
   const { activeCard } = useSystemContext()
-  const { self } = useGame();
+  const { self, rule } = useGame();
   const { isOver, setNodeRef } = useDroppable({
     id: 'trigger-zone',
     data: {
       type: 'trigger-zone',
       accepts: ['card']
     },
-    disabled: self.trigger.length >= 4,
+    disabled: self.trigger.length >= rule.player.max.trigger,
   })
 
   return (
