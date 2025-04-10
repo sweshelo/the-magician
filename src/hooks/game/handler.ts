@@ -8,6 +8,8 @@ import { useInterceptUsage } from "../intercept-usage";
 import { useSoundEffect } from "../sound";
 import { SelectionMode, useUnitSelection } from "../unit-selection";
 import { useSystemContext } from "../system/hooks";
+import { useCardUsageEffect } from "../card-usage-effect";
+import { LocalStorageHelper } from "@/service/local-storage";
 
 export const useHandler = () => {
   const { setAll } = useGame();
@@ -16,6 +18,7 @@ export const useHandler = () => {
   const { setAvailableUnits, setCandidate, setAnimationUnit } = useUnitSelection()
   const { openCardsSelector } = useCardsDialog();
   const { setAvailableIntercepts } = useInterceptUsage();
+  const { showCardUsageEffect } = useCardUsageEffect()
   const { play } = useSoundEffect()
   const { setOperable } = useSystemContext()
 
@@ -80,9 +83,27 @@ export const useHandler = () => {
         break;
       }
 
+      // ヴィジュアルエフェクト通知
+      case 'VisualEffect': {
+        switch (payload.body.effect) {
+          case 'drive': {
+            const position = payload.body.type === 'UNIT'
+              ? payload.body.player === LocalStorageHelper.playerId() ? 'right' : 'left'
+              : 'center'
+            showCardUsageEffect({
+              image: payload.body.image,
+              type: payload.body.type,
+              position,
+            });
+            break;
+          }
+        }
+        break;
+      }
+
       // 操作権限
       case 'Operation': {
-        switch(payload.action){
+        switch (payload.action) {
           case 'defrost':
             setOperable(true);
             break;

@@ -2,6 +2,7 @@
 
 import { CardDetailWindow } from '@/component/ui/CardDetailWindow';
 import { CardEffectDialog } from '@/component/ui/CardEffectDialog';
+import { CardUsageEffect } from '@/component/ui/CardUsageEffect';
 import { CPView } from '@/component/ui/CPView';
 import { DebugDialog } from '@/component/ui/DebugDialog';
 import { InterceptSelectionOverlay } from '@/component/ui/InterceptSelectionOverlay';
@@ -94,6 +95,9 @@ export const Game = ({ id }: RoomProps) => {
 
           {/* カード効果表示ダイアログ */}
           <CardEffectDialog />
+
+          {/* カード使用エフェクト */}
+          <CardUsageEffect />
 
           {/* インターセプト選択オーバーレイ */}
           <InterceptSelectionOverlay />
