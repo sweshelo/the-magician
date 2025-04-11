@@ -1,12 +1,12 @@
-import { UnitIconEffect } from './UnitIconEffect';
+import { UnitIconEffect } from "./UnitIconEffect";
 
 interface UnitViewProps {
-  color: string
-  image?: string
-  backImage?: string
-  reversed?: boolean
-  showEffect?: boolean
-  onEffectComplete?: () => void
+  color: string;
+  image?: string;
+  backImage?: string;
+  reversed?: boolean;
+  showEffect?: boolean;
+  onEffectComplete?: () => void;
 }
 
 export const UnitIconView = ({
@@ -15,29 +15,26 @@ export const UnitIconView = ({
   backImage,
   reversed = false,
   showEffect = false,
-  onEffectComplete
+  onEffectComplete,
 }: UnitViewProps) => {
   return (
     <div className="flex items-center justify-center relative w-32 h-32 select-none perspective">
       {/* Animation effect layer */}
-      <UnitIconEffect
-        show={showEffect}
-        onComplete={onEffectComplete}
-      />
+      <UnitIconEffect show={showEffect} onComplete={onEffectComplete} />
 
       {/* 3D perspective container for flip animation */}
       <div
         className="w-full h-full relative transition-transform duration-600"
         style={{
-          transformStyle: 'preserve-3d',
-          transform: reversed ? 'rotateY(180deg)' : 'rotateY(0deg)',
-          transition: 'transform 0.6s'
+          transformStyle: "preserve-3d",
+          transform: reversed ? "rotateY(180deg)" : "rotateY(0deg)",
+          transition: "transform 0.6s",
         }}
       >
         {/* Front face */}
         <div
           className="absolute w-full h-full"
-          style={{ backfaceVisibility: 'hidden' }}
+          style={{ backfaceVisibility: "hidden" }}
         >
           <svg
             viewBox="0 0 100 120"
@@ -90,8 +87,8 @@ export const UnitIconView = ({
         <div
           className="absolute w-full h-full"
           style={{
-            backfaceVisibility: 'hidden',
-            transform: 'rotateY(180deg)'
+            backfaceVisibility: "hidden",
+            transform: "rotateY(180deg)",
           }}
         >
           <svg
@@ -142,5 +139,5 @@ export const UnitIconView = ({
         </div>
       </div>
     </div>
-  )
-}
+  );
+};

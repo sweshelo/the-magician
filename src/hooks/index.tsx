@@ -1,14 +1,15 @@
-import { ReactNode } from "react"
-import { WebSocketProvider } from "./websocket"
-import { SystemContextProvider } from "./system"
-import { GameProvider } from "./game"
-import { CardsDialogProvider } from "./cards-dialog"
-import { SoundManagerProvider } from "./sound/context"
-import { CardEffectDialogProvider } from "./card-effect-dialog"
-import { InterceptUsageProvider } from "./intercept-usage"
+import { ReactNode } from "react";
+import { WebSocketProvider } from "./websocket";
+import { SystemContextProvider } from "./system";
+import { GameProvider } from "./game";
+import { CardsDialogProvider } from "./cards-dialog";
+import { SoundManagerProvider } from "./sound/context";
+import { CardEffectDialogProvider } from "./card-effect-dialog";
+import { InterceptUsageProvider } from "./intercept-usage";
+import { CardUsageEffectProvider } from "./card-usage-effect";
 
 interface Props {
-  children: ReactNode
+  children: ReactNode;
 }
 
 export const GlobalContextProvider = ({ children }: Props) => {
@@ -19,14 +20,14 @@ export const GlobalContextProvider = ({ children }: Props) => {
           <SoundManagerProvider>
             <CardsDialogProvider>
               <CardEffectDialogProvider>
-                <InterceptUsageProvider>
-                  {children}
-                </InterceptUsageProvider>
+                <CardUsageEffectProvider>
+                  <InterceptUsageProvider>{children}</InterceptUsageProvider>
+                </CardUsageEffectProvider>
               </CardEffectDialogProvider>
             </CardsDialogProvider>
           </SoundManagerProvider>
         </GameProvider>
       </SystemContextProvider>
     </WebSocketProvider>
-  )
-}
+  );
+};

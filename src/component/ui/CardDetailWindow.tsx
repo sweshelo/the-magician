@@ -11,48 +11,64 @@ interface LevelProps {
 }
 export const Level = ({ bp, lv, active }: LevelProps) => {
   return (
-    <div className={classNames("flex rounded h-6 flex-1 items-center justify-center text-xs font-bold mr-1 px-4", {
-      'bg-red-700': active,
-      'bg-slate-600': !active,
-    })}>
+    <div
+      className={classNames(
+        "flex rounded h-6 flex-1 items-center justify-center text-xs font-bold mr-1 px-4",
+        {
+          "bg-red-700": active,
+          "bg-slate-600": !active,
+        },
+      )}
+    >
       <div className="flex-1">Lv.{lv}</div>
       <div className="flex-1 text-right text-xl">{bp}</div>
     </div>
-  )
-}
+  );
+};
 
 export const CardDetailWindow = () => {
   const { selectedCard, setSelectedCard } = useSystemContext();
-  const catalog = selectedCard?.catalogId && master.get(selectedCard?.catalogId)
+  const catalog =
+    selectedCard?.catalogId && master.get(selectedCard?.catalogId);
 
   const cardType = {
-    'unit': 'ユニットカード',
-    'advanced_unit': '進化カード',
-    'trigger': 'トリガーカード',
-    'intercept': 'インターセプトカード'
-}
+    unit: "ユニットカード",
+    advanced_unit: "進化カード",
+    trigger: "トリガーカード",
+    intercept: "インターセプトカード",
+  };
 
   return (
-    selectedCard && catalog && (
-      <div className={`absolute left-4 bottom-2 transform w-100 ${colorTable.ui.playerInfoBackground} rounded-lg shadow-lg z-3 border ${colorTable.ui.border} overflow-hidden`}>
+    selectedCard &&
+    catalog && (
+      <div
+        className={`absolute left-4 bottom-2 transform w-100 ${colorTable.ui.playerInfoBackground} rounded-lg shadow-lg z-3 border ${colorTable.ui.border} overflow-hidden`}
+      >
         {/* ウィンドウヘッダー */}
         <div
           className={`flex justify-between items-center p-3 h-20 ${colorTable.ui.background}`}
           style={{
             backgroundImage: `url(https://coj.sega.jp/player/img/${catalog.img})`,
-            backgroundSize: 'cover',
-            backgroundPosition: '0% -140px'
+            backgroundSize: "cover",
+            backgroundPosition: "0% -140px",
           }}
         >
           <div className="rounded-sm border-3 border-gray">
-            <div className={`w-6 h-6 flex items-center justify-center font-bold ${getColorCode(catalog.color)}`}>
+            <div
+              className={`w-6 h-6 flex items-center justify-center font-bold ${getColorCode(catalog.color)}`}
+            >
               {catalog.cost}
             </div>
           </div>
           <h3 className="font-bold bg-black/50 px-6 py-2 flex flex-col items-center justify-center">
             <div className="flex items-center justify-center">
               <span className="mr-2">{catalog.name}</span>
-              <Image src={`https://coj.sega.jp/player/images/common/card/r_${catalog.rarity}.png`} alt={catalog.rarity} width={32} height={32} />
+              <Image
+                src={`https://coj.sega.jp/player/images/common/card/r_${catalog.rarity}.png`}
+                alt={catalog.rarity}
+                width={32}
+                height={32}
+              />
             </div>
             <span className="text-xs mt-1">{`${cardType[catalog.type]} - ${catalog.id}`}</span>
           </h3>
@@ -66,10 +82,11 @@ export const CardDetailWindow = () => {
 
         {/* カード情報 */}
         <div className="p-4">
-
           {/* 効果 */}
           <div className="mb-3">
-            <p className={`text-sm rounded whitespace-pre-wrap min-h-40`}>{catalog.ability}</p>
+            <p className={`text-sm rounded whitespace-pre-wrap min-h-40`}>
+              {catalog.ability}
+            </p>
           </div>
 
           {/* BP */}
@@ -83,5 +100,5 @@ export const CardDetailWindow = () => {
         </div>
       </div>
     )
-  )
-}
+  );
+};

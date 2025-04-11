@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { Button } from "@/component/interface/button";
 import { useRouter } from "next/navigation";
@@ -6,14 +6,20 @@ import { useCallback, useState } from "react";
 
 export const RoomEntrance = () => {
   const [id, setId] = useState<string>();
-  const router = useRouter()
-  const handleSubmit = useCallback(() => router.push(`/room/${id}`), [id, router])
+  const router = useRouter();
+  const handleSubmit = useCallback(
+    () => router.push(`/room/${id}`),
+    [id, router],
+  );
 
   return (
     <div className="p-4 bg-white rounded-lg shadow-md max-w-md mx-auto">
       <p className="text-center">ルームに参加する</p>
       <form onSubmit={handleSubmit} className="space-y-4">
-        <label htmlFor="roomName" className="block text-sm font-medium text-gray-700 mb-1">
+        <label
+          htmlFor="roomName"
+          className="block text-sm font-medium text-gray-700 mb-1"
+        >
           ルームID
         </label>
         <input
@@ -27,5 +33,5 @@ export const RoomEntrance = () => {
         <Button>参加</Button>
       </form>
     </div>
-  )
-}
+  );
+};

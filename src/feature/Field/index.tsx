@@ -1,9 +1,9 @@
-import { UnitView } from "@/component/ui/UnitView"
-import { IUnit } from "@/submodule/suit/types"
+import { UnitView } from "@/component/ui/UnitView";
+import { IUnit } from "@/submodule/suit/types";
 
 interface FieldProps {
-  units: IUnit[] | undefined
-  isOwnField?: boolean
+  units: IUnit[] | undefined;
+  isOwnField?: boolean;
 }
 
 export const Field = ({ units, isOwnField = false }: FieldProps) => {
@@ -13,5 +13,5 @@ export const Field = ({ units, isOwnField = false }: FieldProps) => {
         <UnitView unit={unit} key={i} isOwnUnit={isOwnField} />
       ))}
     </div>
-  )
-}
+  );
+};

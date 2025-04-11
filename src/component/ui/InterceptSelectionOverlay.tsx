@@ -2,11 +2,8 @@ import { useInterceptUsage } from "@/hooks/intercept-usage";
 import { ProgressConfirmButton } from "./ProgressConfirmButton";
 
 export const InterceptSelectionOverlay = () => {
-  const {
-    availableIntercepts,
-    interceptTimeLimit,
-    cancelInterceptSelection
-  } = useInterceptUsage();
+  const { availableIntercepts, interceptTimeLimit, cancelInterceptSelection } =
+    useInterceptUsage();
 
   if (availableIntercepts.length === 0) return null;
 

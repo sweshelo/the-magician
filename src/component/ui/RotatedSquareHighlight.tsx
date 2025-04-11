@@ -9,7 +9,6 @@ export const RotatedSquareHighlight: React.FC<RotatedSquareHighlightProps> = ({
   children,
   onClick,
 }) => {
-
   return (
     <div className="relative" onClick={onClick}>
       {children}
@@ -18,7 +17,7 @@ export const RotatedSquareHighlight: React.FC<RotatedSquareHighlightProps> = ({
           <div
             className="w-19 h-19 border border-white shadow-[0_0_5px_rgba(255,255,255,0.7)]"
             style={{
-              animation: `highlightAppear 0.5s ease-out, squareRotateAndScale 4s linear infinite`
+              animation: `highlightAppear 0.5s ease-out, squareRotateAndScale 4s linear infinite`,
             }}
           >
             {/* Corner decorations */}

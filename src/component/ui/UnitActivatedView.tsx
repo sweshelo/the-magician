@@ -1,4 +1,10 @@
-export const UnitActivatedView = ({ color, active = true }: { color: string, active: boolean }) => {
+export const UnitActivatedView = ({
+  color,
+  active = true,
+}: {
+  color: string;
+  active: boolean;
+}) => {
   // Generate tick marks for the clock effect
   const tickMarks = Array.from({ length: 60 }).map((_, i) => {
     const angle = (i * 360) / 60;
@@ -13,13 +19,14 @@ export const UnitActivatedView = ({ color, active = true }: { color: string, act
     const endY = 60 + outerRadius * Math.sin(radians);
 
     return (
-      <line suppressHydrationWarning
+      <line
+        suppressHydrationWarning
         key={i}
         x1={startX}
         y1={startY}
         x2={endX}
         y2={endY}
-        stroke={'white'}
+        stroke={"white"}
         strokeWidth={1}
       />
     );
@@ -34,7 +41,7 @@ export const UnitActivatedView = ({ color, active = true }: { color: string, act
         style={{
           animation: `rotate ${15}s linear infinite`,
           opacity: active ? 1 : 0,
-          transition: 'opacity 0.3s ease-in-out'
+          transition: "opacity 0.3s ease-in-out",
         }}
       >
         {/* White outline */}
@@ -43,7 +50,7 @@ export const UnitActivatedView = ({ color, active = true }: { color: string, act
           cy="60"
           r="52"
           fill="none"
-          stroke='white'
+          stroke="white"
           strokeWidth="2"
         />
         {/* Semi-transparent colored circle */}
@@ -59,5 +66,5 @@ export const UnitActivatedView = ({ color, active = true }: { color: string, act
         {tickMarks}
       </svg>
     </div>
-  )
-}
+  );
+};
