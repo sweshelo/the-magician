@@ -80,6 +80,7 @@ export const MyArea = () => {
       {/* 自分の手札エリア */}
       <div className="flex justify-center">
         <HandArea hand={self.hand} />
+        {/*
         <div className="flex gap-2">
           <HandView
             key={`hand-card-jk1`}
@@ -90,6 +91,7 @@ export const MyArea = () => {
             card={{ id: "jk2", catalogId: "", lv: 1 }}
           />
         </div>
+        */}
       </div>
     </div>
   );

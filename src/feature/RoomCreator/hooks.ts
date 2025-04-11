@@ -28,12 +28,6 @@ export const useRoomCreator = (): Response => {
 
       // Extract the room name
       const roomName = formValues.name as string;
-
-      if (!roomName) {
-        alert("ルーム名は必須です");
-        return;
-      }
-
       console.log("Form values:", formValues);
 
       try {
@@ -49,33 +43,54 @@ export const useRoomCreator = (): Response => {
             type: "RoomOpenRequest",
             requestId: LocalStorageHelper.playerId(),
             name: roomName,
-            // If backend API supports rule settings, uncomment and implement:
-            // rule: {
-            //   system: {
-            //     round: Number(formValues['max.round']),
-            //     draw: {
-            //       top: Number(formValues['draw.top']),
-            //       override: Number(formValues['draw.override']),
-            //     },
-            //     handicap: {
-            //       draw: Boolean(formValues['handicap.draw']),
-            //       cp: Boolean(formValues['handicap.cp']),
-            //     },
-            //     cp: {
-            //       init: Number(formValues['cp.init']),
-            //       increase: Number(formValues['cp.increase']),
-            //     },
-            //   },
-            //   player: {
-            //     max: {
-            //       life: Number(formValues['player.life']),
-            //       hand: Number(formValues['player.hand']),
-            //       trigger: Number(formValues['player.trigger']),
-            //       field: Number(formValues['max.field']),
-            //       cp: Number(formValues['cp.ceil']),
-            //     },
-            //   },
-            // },
+            rule: {
+              system: {
+                round: Number(formValues['rule.system.round']),
+                draw: {
+                  top: Number(formValues['rule.system.draw.top']),
+                  override: Number(formValues['rule.system.draw.override']),
+                  mulligan: Number(formValues['rule.system.draw.mulligan']),
+                },
+                handicap: {
+                  draw: formValues['rule.system.handicap.draw'] === 'on',
+                  cp: formValues['rule.system.handicap.cp'] === 'on',
+                  attack: formValues['rule.system.handicap.attack'] === 'on',
+                },
+                cp: {
+                  init: Number(formValues['rule.system.cp.init']),
+                  increase: Number(formValues['rule.system.cp.increase']),
+                  max: Number(formValues['rule.system.cp.max']),
+                  ceil: Number(formValues['rule.system.cp.ceil']),
+                  carryover: formValues['rule.system.cp.carryover'] === 'on',
+                },
+              },
+              player: {
+                max: {
+                  life: Number(formValues['rule.player.max.life']),
+                  hand: Number(formValues['rule.player.max.hand']),
+                  trigger: Number(formValues['rule.player.max.trigger']),
+                  field: Number(formValues['rule.player.max.field']),
+                },
+              },
+              misc: {
+                strictOverride: formValues['rule.misc.strictOverride'] === 'on',
+                suicideJoker: formValues['rule.misc.suicideJoker'] === 'on',
+              },
+              debug: {
+                enable: formValues['relu.debug.enable'] === 'on',
+                reveal: {
+                  opponent: {
+                    deck: formValues['rule.debug.reveal.opponent.deck'] === 'on',
+                    hand: formValues['rule.debug.reveal.opponent.hand'] === 'on',
+                    trigger: formValues['rule.debug.reveal.opponent.trigger'] === 'on',
+                    trash: formValues['rule.debug.reveal.opponent.trash'] === 'on',
+                  },
+                  self: {
+                    deck: formValues['rule.debug.reveal.self.deck'] === 'on',
+                  },
+                },
+              },
+            }
           },
         } satisfies Message<RoomOpenRequestPayload>);
 

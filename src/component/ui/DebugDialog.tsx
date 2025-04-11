@@ -9,7 +9,7 @@ export const DebugDialog = () => {
   const { self, opponent } = useGame();
   const { send } = useWebSocketGame();
   const { draw } = useSoundEffect();
-  const { cursorCollisionSize, setCursorCollisionSize } = useSystemContext();
+  const { cursorCollisionSize, setCursorCollisionSize, setOperable } = useSystemContext();
 
   const handleDebugButtonClick = () => {
     console.log("self: ", self, "\nopponent: ", opponent);
@@ -76,6 +76,12 @@ export const DebugDialog = () => {
             className={`px-3 py-1 rounded ${colorTable.ui.border} bg-lime-600 hover:bg-lime-500 transition-colors`}
           >
             Turn End
+          </button>
+          <button
+            onClick={() => setOperable(true)}
+            className={`px-3 py-1 rounded ${colorTable.ui.border} bg-slate-600 hover:bg-slate-500 transition-colors`}
+          >
+            操作権を得る
           </button>
           <div className="mt-2 border-t pt-2 border-gray-700">
             <div className="text-sm mb-1">

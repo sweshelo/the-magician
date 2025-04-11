@@ -3,10 +3,10 @@
 import { SettingsGroup } from "@/app/component/interface/settingsGroup";
 import { Toggle } from "@/app/component/interface/toggle";
 import { UseFormRegister } from "react-hook-form";
-import { RoomCreatePayload } from "../types";
+import { RoomCreatorFormParams } from "../type";
 
 interface MiscSettingsProps {
-  register: UseFormRegister<RoomCreatePayload>;
+  register: UseFormRegister<RoomCreatorFormParams>;
 }
 
 export const MiscSettings: React.FC<MiscSettingsProps> = ({ register }) => {
@@ -16,11 +16,11 @@ export const MiscSettings: React.FC<MiscSettingsProps> = ({ register }) => {
         label="ストリクトオーバーライド"
         description="カード名だけでなく、バージョン名もチェック対象とする"
         tooltipId="strict-override"
-        registration={register("misc.strictOverride")}
+        registration={register("rule.misc.strictOverride")}
       />
       <Toggle
         label="自傷ダメージでもジョーカーゲージを増加させる"
-        registration={register("misc.suicideJoker")}
+        registration={register("rule.misc.suicideJoker")}
       />
     </SettingsGroup>
   );

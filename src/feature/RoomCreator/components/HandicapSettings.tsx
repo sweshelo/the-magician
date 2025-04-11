@@ -3,11 +3,10 @@
 import { SettingsGroup } from "@/app/component/interface/settingsGroup";
 import { Toggle } from "@/app/component/interface/toggle";
 import { UseFormRegister } from "react-hook-form";
-import { RoomCreatePayload } from "../types";
-import { FirstPlayerDrawToggle } from "./FirstPlayerDrawToggle";
+import { RoomCreatorFormParams } from "../type";
 
 interface HandicapSettingsProps {
-  register: UseFormRegister<RoomCreatePayload>;
+  register: UseFormRegister<RoomCreatorFormParams>;
 }
 
 export const HandicapSettings: React.FC<HandicapSettingsProps> = ({
@@ -15,14 +14,17 @@ export const HandicapSettings: React.FC<HandicapSettingsProps> = ({
 }) => {
   return (
     <SettingsGroup title="ハンディキャップ設定">
-      <FirstPlayerDrawToggle registration={register("handicap.draw")} />
+      <Toggle
+        label="先攻1ターン目のドローを無効にする"
+        registration={register("rule.system.handicap.draw")}
+      />
       <Toggle
         label="先攻1ターン目の攻撃を禁止する"
-        registration={register("handicap.attack")}
+        registration={register("rule.system.handicap.attack")}
       />
       <Toggle
         label="先攻1ターン目のCP増加を無効にする"
-        registration={register("handicap.cp")}
+        registration={register("rule.system.handicap.cp")}
       />
     </SettingsGroup>
   );

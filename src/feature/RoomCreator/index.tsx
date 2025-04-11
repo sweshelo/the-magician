@@ -4,7 +4,6 @@ import { Button } from "@/component/interface/button";
 import { useForm } from "react-hook-form";
 import { Tooltip } from "react-tooltip";
 import { useRoomCreator } from "./hooks";
-import { RoomCreatePayload } from "./types";
 
 // Import components
 import { HandicapSettings } from "./components/HandicapSettings";
@@ -14,6 +13,7 @@ import { CpSettings } from "./components/CpSettings";
 import { PlayerSettings } from "./components/PlayerSettings";
 import { DebugSettings } from "./components/DebugSettings";
 import { MiscSettings } from "./components/MiscSettings";
+import { RoomCreatorFormParams } from "./type";
 
 export const RoomCreator = () => {
   const { handleSubmit: handleRoomSubmit } = useRoomCreator();
@@ -21,50 +21,52 @@ export const RoomCreator = () => {
   const {
     register,
     formState: { errors },
-  } = useForm<RoomCreatePayload>({
+  } = useForm<RoomCreatorFormParams>({
     defaultValues: {
-      handicap: {
-        draw: true,
-        attack: true,
-        cp: true,
-      },
-      misc: {
-        strictOverride: false,
-        suicideJoker: false,
-      },
-      max: {
-        round: 10,
-        field: 5,
-      },
-      draw: {
-        top: 2,
-        override: 1,
-        mulligan: 4,
-      },
-      strictOverride: false,
-      cp: {
-        init: 2,
-        increase: 1,
-        max: 7,
-        ceil: 12,
-        carryover: false,
-      },
-      player: {
-        life: 8,
-        hand: 7,
-        trigger: 4,
-      },
-      debug: {
-        enable: false,
-        reveal: {
-          opponent: {
-            deck: true,
-            hand: true,
-            trigger: true,
-            trash: true,
+      name: '',
+      rule: {
+        system: {
+          round: 10,
+          draw: {
+            top: 2,
+            override: 1,
+            mulligan: 4,
           },
-          self: {
-            deck: true,
+          handicap: {
+            draw: true,
+            cp: true,
+            attack: true,
+          },
+          cp: {
+            init: 2,
+            increase: 1,
+            max: 7,
+            ceil: 12,
+          },
+        },
+        player: {
+          max: {
+            life: 8,
+            hand: 7,
+            trigger: 4,
+            field: 5,
+          },
+        },
+        misc: {
+          strictOverride: false,
+          suicideJoker: false,
+        },
+        debug: {
+          reveal: {
+            opponent: {
+              deck: true,
+              hand: true,
+              trigger: true,
+              trash: true,
+            },
+            self: {
+              deck: true,
+            },
           },
         },
       },

@@ -28,7 +28,7 @@ export const SettingsGroup: React.FC<SettingsGroupProps> = ({
         <h3 className="text-sm font-medium text-gray-700">{title}</h3>
         <span className="text-gray-500">{isOpen ? "▲" : "▼"}</span>
       </summary>
-      {isOpen && <div className="pl-3 pt-2">{children}</div>}
+      <div className={`pl-3 pt-2 ${isOpen ? '' : 'hidden'}`}>{children}</div>
     </div>
   );
 };

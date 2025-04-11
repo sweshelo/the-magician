@@ -2,11 +2,11 @@
 
 import { SettingsGroup } from "@/app/component/interface/settingsGroup";
 import { Toggle } from "@/app/component/interface/toggle";
+import { Rule } from "@/submodule/suit/types";
 import { UseFormRegister } from "react-hook-form";
-import { RoomCreatePayload } from "../types";
 
 interface DebugSettingsProps {
-  register: UseFormRegister<RoomCreatePayload>;
+  register: UseFormRegister<{ rule: Rule, name: string }>;
 }
 
 export const DebugSettings: React.FC<DebugSettingsProps> = ({ register }) => {
@@ -15,7 +15,7 @@ export const DebugSettings: React.FC<DebugSettingsProps> = ({ register }) => {
       <Toggle
         label="デバッグモード"
         description="デバッグ機能を有効にする"
-        registration={register("debug.enable")}
+        registration={register("rule.debug.enable")}
       />
 
       <div className="mt-3 mb-1 text-sm font-medium text-gray-700">
@@ -32,15 +32,15 @@ export const DebugSettings: React.FC<DebugSettingsProps> = ({ register }) => {
         <div className="pl-3">
           <Toggle
             label="デッキを公開"
-            registration={register("debug.reveal.opponent.deck")}
+            registration={register("rule.debug.reveal.opponent.deck")}
           />
           <Toggle
             label="手札を公開"
-            registration={register("debug.reveal.opponent.hand")}
+            registration={register("rule.debug.reveal.opponent.hand")}
           />
           <Toggle
             label="トリガーゾーンを公開"
-            registration={register("debug.reveal.opponent.trigger")}
+            registration={register("rule.debug.reveal.opponent.trigger")}
           />
         </div>
 
@@ -48,7 +48,7 @@ export const DebugSettings: React.FC<DebugSettingsProps> = ({ register }) => {
         <div className="pl-3">
           <Toggle
             label="デッキを公開"
-            registration={register("debug.reveal.self.deck")}
+            registration={register("rule.debug.reveal.self.deck")}
           />
         </div>
       </div>

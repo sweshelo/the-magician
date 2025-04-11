@@ -3,10 +3,10 @@
 import { NumberInput } from "@/app/component/interface/numberInput";
 import { SettingsGroup } from "@/app/component/interface/settingsGroup";
 import { UseFormRegister } from "react-hook-form";
-import { RoomCreatePayload } from "../types";
+import { RoomCreatorFormParams } from "../type";
 
 interface MaxSettingsProps {
-  register: UseFormRegister<RoomCreatePayload>;
+  register: UseFormRegister<RoomCreatorFormParams>;
 }
 
 export const MaxSettings: React.FC<MaxSettingsProps> = ({ register }) => {
@@ -16,14 +16,7 @@ export const MaxSettings: React.FC<MaxSettingsProps> = ({ register }) => {
         label="最大ラウンド数"
         min={1}
         max={30}
-        registration={register("max.round", { valueAsNumber: true })}
-      />
-      <NumberInput
-        label="最大ユニット数"
-        description="フィールドに出すことが出来るユニットの最大数"
-        min={1}
-        max={10}
-        registration={register("max.field", { valueAsNumber: true })}
+        registration={register("rule.system.round", { valueAsNumber: true })}
       />
     </SettingsGroup>
   );
