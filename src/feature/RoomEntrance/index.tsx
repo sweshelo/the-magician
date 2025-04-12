@@ -8,8 +8,20 @@ export const RoomEntrance = () => {
   const [id, setId] = useState<string>();
   const router = useRouter();
   const handleSubmit = useCallback(
-    () => router.push(`/room/${id}`),
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      router.push(`/room/${id}`);
+    },
     [id, router],
+  );
+
+  return (
+    <div className="p-4 bg-white rounded-lg shadow-md max-w-md mx-auto">
+      <p className="text-center">ルームに参加する</p>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {/* form fields go here */}
+      </form>
+    </div>
   );
 
   return (
