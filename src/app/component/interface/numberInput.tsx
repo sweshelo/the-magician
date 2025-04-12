@@ -30,42 +30,96 @@ export const NumberInput: React.FC<NumberInputProps> = ({
   const rangeRef = useRef<HTMLInputElement>(null);
   const numberRef = useRef<HTMLInputElement>(null);
 
-  // Synchronize range and number inputs
-  useEffect(() => {
-    const handleRangeChange = (e: Event) => {
-      const value = (e.target as HTMLInputElement).value;
-      if (numberRef.current) {
-        numberRef.current.value = value;
-      }
-    };
+// (Assuming other necessary imports are present)
+import React, { useState } from "react";
 
-    const handleNumberChange = (e: Event) => {
-      const value = (e.target as HTMLInputElement).value;
-      if (rangeRef.current) {
-        rangeRef.current.value = value;
-      }
-    };
+function NumberInput({ min, max, step, registration }) {
+  // Remove the refs for the inputs
+-  // const rangeRef = useRef<HTMLInputElement>(null);
+-  // const numberRef = useRef<HTMLInputElement>(null);
++  const [value, setValue] = useState<string>("");
 
-    const rangeElement = rangeRef.current;
-    const numberElement = numberRef.current;
+-  // Synchronize range and number inputs
+-  useEffect(() => {
+-    const handleRangeChange = (e: Event) => {
+-      const value = (e.target as HTMLInputElement).value;
+-      if (numberRef.current) {
+-        numberRef.current.value = value;
+-      }
+-    };
+-
+-    const handleNumberChange = (e: Event) => {
+-      const value = (e.target as HTMLInputElement).value;
+-      if (rangeRef.current) {
+-        rangeRef.current.value = value;
+-      }
+-    };
+-
+-    const rangeElement = rangeRef.current;
+-    const numberElement = numberRef.current;
+-
+-    if (rangeElement) {
+-      rangeElement.addEventListener("input", handleRangeChange);
+-    }
+-
+-    if (numberElement) {
+-      numberElement.addEventListener("input", handleNumberChange);
+-    }
+-
+-    return () => {
+-      if (rangeElement) {
+-        rangeElement.removeEventListener("input", handleRangeChange);
+-      }
+-      if (numberElement) {
+-        numberElement.removeEventListener("input", handleNumberChange);
+-      }
+-    };
+-  }, []);
++  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
++    setValue(e.target.value);
++  };
 
-    if (rangeElement) {
-      rangeElement.addEventListener("input", handleRangeChange);
-    }
+  return (
+    <div>
+      <input
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        className="w-full"
+        {...registration}
+-        ref={(e) => {
+-          rangeRef.current = e;
+-          if (typeof registration.ref === "function") {
+-            registration.ref(e);
+-          }
+-        }}
++        value={value}
++        onChange={handleChange}
++        ref={registration.ref}
+      />
+      <input
+        type="number"
+        min={min}
+        max={max}
+        step={step}
+        className="w-16 px-2 py-1 border border-gray-300 rounded-md text-center"
+        {...registration}
+-        ref={(e) => {
+-          numberRef.current = e;
+-          if (typeof registration.ref === "function") {
+-            registration.ref(e);
+-          }
+-        }}
++        value={value}
++        onChange={handleChange}
++        ref={registration.ref}
+      />
+    </div>
+  );
+}
 
-    if (numberElement) {
-      numberElement.addEventListener("input", handleNumberChange);
-    }
-
-    return () => {
-      if (rangeElement) {
-        rangeElement.removeEventListener("input", handleRangeChange);
-      }
-      if (numberElement) {
-        numberElement.removeEventListener("input", handleNumberChange);
-      }
-    };
-  }, []);
+export default NumberInput;
 
   return (
     <div className={`mb-3 ${className || ""}`}>
