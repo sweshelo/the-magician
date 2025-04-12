@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
+import { useRef } from "react";
 import { Tooltip } from "react-tooltip";
 import { UseFormRegisterReturn } from "react-hook-form";
 
@@ -14,6 +15,7 @@ interface NumberInputProps {
   tooltipContent?: string;
   registration: UseFormRegisterReturn;
   className?: string;
+  defaultValue?: number | string;
 }
 
 export const NumberInput: React.FC<NumberInputProps> = ({
@@ -26,100 +28,26 @@ export const NumberInput: React.FC<NumberInputProps> = ({
   tooltipContent,
   registration,
   className,
+  defaultValue,
 }) => {
   const rangeRef = useRef<HTMLInputElement>(null);
   const numberRef = useRef<HTMLInputElement>(null);
+  
+  // Initialize with defaultValue if provided, otherwise use min
+  const initialValue = defaultValue !== undefined ? String(defaultValue) : String(min);
+  const [value, setValue] = useState<string>(initialValue);
+  
+  // Update value when defaultValue changes externally
+  useEffect(() => {
+    if (defaultValue !== undefined) {
+      setValue(String(defaultValue));
+    }
+  }, [defaultValue]);
 
-// (Assuming other necessary imports are present)
-import React, { useState } from "react";
-
-function NumberInput({ min, max, step, registration }) {
-  // Remove the refs for the inputs
--  // const rangeRef = useRef<HTMLInputElement>(null);
--  // const numberRef = useRef<HTMLInputElement>(null);
-+  const [value, setValue] = useState<string>("");
-
--  // Synchronize range and number inputs
--  useEffect(() => {
--    const handleRangeChange = (e: Event) => {
--      const value = (e.target as HTMLInputElement).value;
--      if (numberRef.current) {
--        numberRef.current.value = value;
--      }
--    };
--
--    const handleNumberChange = (e: Event) => {
--      const value = (e.target as HTMLInputElement).value;
--      if (rangeRef.current) {
--        rangeRef.current.value = value;
--      }
--    };
--
--    const rangeElement = rangeRef.current;
--    const numberElement = numberRef.current;
--
--    if (rangeElement) {
--      rangeElement.addEventListener("input", handleRangeChange);
--    }
--
--    if (numberElement) {
--      numberElement.addEventListener("input", handleNumberChange);
--    }
--
--    return () => {
--      if (rangeElement) {
--        rangeElement.removeEventListener("input", handleRangeChange);
--      }
--      if (numberElement) {
--        numberElement.removeEventListener("input", handleNumberChange);
--      }
--    };
--  }, []);
-+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-+    setValue(e.target.value);
-+  };
-
-  return (
-    <div>
-      <input
-        type="range"
-        min={min}
-        max={max}
-        step={step}
-        className="w-full"
-        {...registration}
--        ref={(e) => {
--          rangeRef.current = e;
--          if (typeof registration.ref === "function") {
--            registration.ref(e);
--          }
--        }}
-+        value={value}
-+        onChange={handleChange}
-+        ref={registration.ref}
-      />
-      <input
-        type="number"
-        min={min}
-        max={max}
-        step={step}
-        className="w-16 px-2 py-1 border border-gray-300 rounded-md text-center"
-        {...registration}
--        ref={(e) => {
--          numberRef.current = e;
--          if (typeof registration.ref === "function") {
--            registration.ref(e);
--          }
--        }}
-+        value={value}
-+        onChange={handleChange}
-+        ref={registration.ref}
-      />
-    </div>
-  );
-}
-
-export default NumberInput;
+  // Handle changes from either input
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setValue(e.target.value);
+  };
 
   return (
     <div className={`mb-3 ${className || ""}`}>
@@ -137,20 +65,21 @@ export default NumberInput;
       {description && (
         <div className="text-xs text-gray-500 mb-2">{description}</div>
       )}
-      <div className="flex items-center space-x-2">
+      <div className="flex items-center space-x-2 relative">
         <input
           type="range"
           min={min}
           max={max}
           step={step}
           className="w-full"
-          {...registration}
-          ref={(e) => {
-            rangeRef.current = e;
-            if (typeof registration.ref === "function") {
-              registration.ref(e);
-            }
+          name={registration.name}
+          onChange={(e) => {
+            handleChange(e);
+            registration.onChange(e);
           }}
+          onBlur={registration.onBlur}
+          ref={rangeRef}
+          value={value}
         />
         <input
           type="number"
@@ -158,13 +87,19 @@ export default NumberInput;
           max={max}
           step={step}
           className="w-16 px-2 py-1 border border-gray-300 rounded-md text-center"
-          {...registration}
+          name={registration.name}
+          onChange={(e) => {
+            handleChange(e);
+            registration.onChange(e);
+          }}
+          onBlur={registration.onBlur}
           ref={(e) => {
             numberRef.current = e;
             if (typeof registration.ref === "function") {
               registration.ref(e);
             }
           }}
+          value={value}
         />
       </div>
       {tooltipId && tooltipContent && (

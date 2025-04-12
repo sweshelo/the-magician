@@ -16,16 +16,7 @@ export const RoomEntrance = () => {
   );
 
   return (
-    <div className="p-4 bg-white rounded-lg shadow-md max-w-md mx-auto">
-      <p className="text-center">ルームに参加する</p>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {/* form fields go here */}
-      </form>
-    </div>
-  );
-
-  return (
-    <div className="p-4 bg-white rounded-lg shadow-md max-w-md mx-auto">
+    <div className="p-4 bg-white rounded-lg shadow-md max-w-lg mx-auto">
       <p className="text-center">ルームに参加する</p>
       <form onSubmit={handleSubmit} className="space-y-4">
         <label

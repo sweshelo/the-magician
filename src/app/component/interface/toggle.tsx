@@ -8,6 +8,7 @@ interface ToggleProps {
   tooltipId?: string;
   registration: UseFormRegisterReturn;
   className?: string;
+  defaultChecked?: boolean;
 }
 
 export const Toggle: React.FC<ToggleProps> = ({
@@ -16,6 +17,7 @@ export const Toggle: React.FC<ToggleProps> = ({
   tooltipId,
   registration,
   className,
+  defaultChecked,
 }) => {
   return (
     <div className={`mb-3 ${className || ""}`}>
@@ -33,6 +35,7 @@ export const Toggle: React.FC<ToggleProps> = ({
           <input
             type="checkbox"
             className="form-checkbox h-5 w-5 text-indigo-600"
+            defaultChecked={defaultChecked}
             {...registration}
           />
           <span className="ml-2 text-sm text-gray-500">有効</span>

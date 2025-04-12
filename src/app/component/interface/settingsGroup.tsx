@@ -7,6 +7,7 @@ interface SettingsGroupProps {
   children: ReactNode;
   defaultOpen?: boolean;
   className?: string;
+  extra?: ReactNode;
 }
 
 export const SettingsGroup: React.FC<SettingsGroupProps> = ({
@@ -14,6 +15,7 @@ export const SettingsGroup: React.FC<SettingsGroupProps> = ({
   children,
   defaultOpen = false,
   className = "",
+  extra,
 }) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
@@ -25,8 +27,13 @@ export const SettingsGroup: React.FC<SettingsGroupProps> = ({
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center justify-between cursor-pointer py-1"
       >
-        <h3 className="text-sm font-medium text-gray-700">{title}</h3>
-        <span className="text-gray-500">{isOpen ? "▲" : "▼"}</span>
+        <div className="flex items-center justify-between w-full">
+          <h3 className="text-sm font-medium text-gray-700">{title}</h3>
+          <div className="flex items-center">
+            {extra}
+            <span className="text-gray-500 ml-2">{isOpen ? "▲" : "▼"}</span>
+          </div>
+        </div>
       </summary>
       <div className={`pl-3 pt-2 ${isOpen ? '' : 'hidden'}`}>{children}</div>
     </div>

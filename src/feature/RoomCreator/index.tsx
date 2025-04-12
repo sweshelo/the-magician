@@ -2,6 +2,7 @@
 
 import { Button } from "@/component/interface/button";
 import { useForm } from "react-hook-form";
+import { useState } from "react";
 import { Tooltip } from "react-tooltip";
 import { useRoomCreator } from "./hooks";
 
@@ -14,69 +15,25 @@ import { PlayerSettings } from "./components/PlayerSettings";
 import { DebugSettings } from "./components/DebugSettings";
 import { MiscSettings } from "./components/MiscSettings";
 import { RoomCreatorFormParams } from "./type";
+import { DEFAULT_ROOM_SETTINGS } from "./constants";
 
 export const RoomCreator = () => {
-  const { handleSubmit: handleRoomSubmit } = useRoomCreator();
+  const { handleSubmit: oldHandleSubmit } = useRoomCreator();
+  // Use a key to force re-render NumberInput components when form is reset
+  const [resetKey, setResetKey] = useState(0);
 
   const {
     register,
     formState: { errors },
+    reset,
   } = useForm<RoomCreatorFormParams>({
-    defaultValues: {
-      name: '',
-      rule: {
-        system: {
-          round: 10,
-          draw: {
-            top: 2,
-            override: 1,
-            mulligan: 4,
-          },
-          handicap: {
-            draw: true,
-            cp: true,
-            attack: true,
-          },
-          cp: {
-            init: 2,
-            increase: 1,
-            max: 7,
-            ceil: 12,
-          },
-        },
-        player: {
-          max: {
-            life: 8,
-            hand: 7,
-            trigger: 4,
-            field: 5,
-          },
-        },
-        misc: {
-          strictOverride: false,
-          suicideJoker: false,
-        },
-        debug: {
-          reveal: {
-            opponent: {
-              deck: true,
-              hand: true,
-              trigger: true,
-              trash: true,
-            },
-            self: {
-              deck: true,
-            },
-          },
-        },
-      },
-    },
+    defaultValues: DEFAULT_ROOM_SETTINGS,
   });
 
   return (
     <div className="p-4 bg-white rounded-lg shadow-md max-w-lg mx-auto">
       <h2 className="text-center text-xl font-bold mb-4">ルームを作成する</h2>
-      <form onSubmit={handleRoomSubmit} className="space-y-4">
+      <form onSubmit={oldHandleSubmit} className="space-y-4">
         <div className="mb-4">
           <label
             htmlFor="roomName"
@@ -95,15 +52,30 @@ export const RoomCreator = () => {
           )}
         </div>
 
-        <HandicapSettings register={register} />
-        <MaxSettings register={register} />
-        <DrawSettings register={register} />
-        <CpSettings register={register} />
-        <PlayerSettings register={register} />
-        <MiscSettings register={register} />
-        <DebugSettings register={register} />
+        <div key={resetKey}>
+          <HandicapSettings register={register} />
+          <MaxSettings register={register} />
+          <DrawSettings register={register} />
+          <CpSettings register={register} />
+          <PlayerSettings register={register} />
+          <MiscSettings register={register} />
+          <DebugSettings register={register} />
+        </div>
 
-        <Button>作成</Button>
+        <div className="flex justify-between">
+          <Button 
+            type="button" 
+            variant="secondary" 
+            onClick={() => {
+              reset(DEFAULT_ROOM_SETTINGS);
+              // Increment key to force re-render the NumberInput components
+              setResetKey(prev => prev + 1);
+            }}
+          >
+            すべて初期設定にリセット
+          </Button>
+          <Button>作成</Button>
+        </div>
       </form>
       <Tooltip id="strict-override">
         <span>
