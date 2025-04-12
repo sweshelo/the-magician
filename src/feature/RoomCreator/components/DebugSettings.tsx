@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { SettingsGroup } from "@/app/component/interface/settingsGroup";
-import { Toggle } from "@/app/component/interface/toggle";
-import { UseFormRegister } from "react-hook-form";
-import { RoomCreatorFormParams } from "../type";
-import { DEFAULT_ROOM_SETTINGS } from "../constants";
+import { SettingsGroup } from '@/app/component/interface/settingsGroup';
+import { Toggle } from '@/app/component/interface/toggle';
+import { UseFormRegister } from 'react-hook-form';
+import { RoomCreatorFormParams } from '../type';
+import { DEFAULT_ROOM_SETTINGS } from '../../../constants/room';
 
 interface DebugSettingsProps {
   register: UseFormRegister<RoomCreatorFormParams>;
@@ -16,13 +16,11 @@ export const DebugSettings: React.FC<DebugSettingsProps> = ({ register }) => {
       <Toggle
         label="デバッグモード"
         description="デバッグ機能を有効にする"
-        registration={register("rule.debug.enable")}
+        registration={register('rule.debug.enable')}
         defaultChecked={DEFAULT_ROOM_SETTINGS.rule.debug.enable}
       />
 
-      <div className="mt-3 mb-1 text-sm font-medium text-gray-700">
-        カード情報の表示
-      </div>
+      <div className="mt-3 mb-1 text-sm font-medium text-gray-700">カード情報の表示</div>
 
       <div className="pl-3 border-l-2 border-gray-200 mb-3">
         <div className="mb-2 text-sm font-medium text-gray-700">相手の情報</div>
@@ -34,17 +32,17 @@ export const DebugSettings: React.FC<DebugSettingsProps> = ({ register }) => {
         <div className="pl-3">
           <Toggle
             label="デッキを公開"
-            registration={register("rule.debug.reveal.opponent.deck")}
+            registration={register('rule.debug.reveal.opponent.deck')}
             defaultChecked={DEFAULT_ROOM_SETTINGS.rule.debug.reveal.opponent.deck}
           />
           <Toggle
             label="手札を公開"
-            registration={register("rule.debug.reveal.opponent.hand")}
+            registration={register('rule.debug.reveal.opponent.hand')}
             defaultChecked={DEFAULT_ROOM_SETTINGS.rule.debug.reveal.opponent.hand}
           />
           <Toggle
             label="トリガーゾーンを公開"
-            registration={register("rule.debug.reveal.opponent.trigger")}
+            registration={register('rule.debug.reveal.opponent.trigger')}
             defaultChecked={DEFAULT_ROOM_SETTINGS.rule.debug.reveal.opponent.trigger}
           />
         </div>
@@ -53,7 +51,7 @@ export const DebugSettings: React.FC<DebugSettingsProps> = ({ register }) => {
         <div className="pl-3">
           <Toggle
             label="デッキを公開"
-            registration={register("rule.debug.reveal.self.deck")}
+            registration={register('rule.debug.reveal.self.deck')}
             defaultChecked={DEFAULT_ROOM_SETTINGS.rule.debug.reveal.self.deck}
           />
         </div>

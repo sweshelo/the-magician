@@ -10,6 +10,6 @@ export interface CardEffect {
 
 // カード効果のペイロード型
 export interface CardEffectPayload {
-  type: "CardEffect";
+  type: 'CardEffect';
   effect: CardEffect;
 }

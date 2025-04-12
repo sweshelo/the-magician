@@ -1,7 +1,8 @@
-"use client";
+'use client';
 
-import { createContext, ReactNode, useReducer, useMemo } from "react";
-import { GameAction, gameReducer, GameState } from "./reducer";
+import { createContext, ReactNode, useReducer, useMemo } from 'react';
+import { GameAction, gameReducer, GameState } from './reducer';
+import { DEFAULT_ROOM_SETTINGS } from '@/constants/room';
 
 // Context用の型定義：stateとdispatchを公開
 export type GameContextType = {
@@ -9,9 +10,7 @@ export type GameContextType = {
   dispatch: React.Dispatch<GameAction>;
 };
 
-export const GameContext = createContext<GameContextType | undefined>(
-  undefined,
-);
+export const GameContext = createContext<GameContextType | undefined>(undefined);
 
 // 初期状態
 const initialState: GameState = {
@@ -20,32 +19,7 @@ const initialState: GameState = {
     turn: 0,
     round: 0,
   },
-  rule: {
-    player: {
-      max: {
-        field: 5,
-        hand: 7,
-        life: 3,
-        trigger: 4,
-        cp: 12,
-      },
-    },
-    system: {
-      round: 3,
-      draw: {
-        top: 2,
-        override: 1,
-      },
-      handicap: {
-        cp: true,
-        draw: true,
-      },
-      cp: {
-        increase: 1,
-        init: 2,
-      },
-    },
-  },
+  rule: DEFAULT_ROOM_SETTINGS.rule,
 };
 
 // Providerコンポーネント：useReducerを利用して状態管理を行い、Contextに値を渡します
@@ -55,7 +29,5 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
   // valueの再生成を防ぐためuseMemoを利用
   const contextValue = useMemo(() => ({ state, dispatch }), [state]);
 
-  return (
-    <GameContext.Provider value={contextValue}>{children}</GameContext.Provider>
-  );
+  return <GameContext.Provider value={contextValue}>{children}</GameContext.Provider>;
 };

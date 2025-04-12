@@ -1,4 +1,4 @@
-import { Rule } from "@/submodule/suit/types";
+import { Rule } from '@/submodule/suit/types';
 
 // Extend the Rule type to include the debug.enable property
 export type ExtendedRule = Rule & {
@@ -18,4 +18,4 @@ export type ExtendedRule = Rule & {
   };
 };
 
-export type RoomCreatorFormParams = { name: string, rule: ExtendedRule };
+export type RoomCreatorFormParams = { name: string; rule: ExtendedRule };

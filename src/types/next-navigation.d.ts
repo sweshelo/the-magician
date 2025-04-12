@@ -1,5 +1,5 @@
 // Type definitions for next/navigation
-declare module "next/navigation" {
+declare module 'next/navigation' {
   export interface NavigateOptions {
     scroll?: boolean;
   }

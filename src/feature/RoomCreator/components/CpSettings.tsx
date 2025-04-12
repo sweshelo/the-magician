@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import { NumberInput } from "@/app/component/interface/numberInput";
-import { SettingsGroup } from "@/app/component/interface/settingsGroup";
-import { Toggle } from "@/app/component/interface/toggle";
-import { UseFormRegister } from "react-hook-form";
-import { RoomCreatorFormParams } from "../type";
-import { DEFAULT_ROOM_SETTINGS } from "../constants";
+import { NumberInput } from '@/app/component/interface/numberInput';
+import { SettingsGroup } from '@/app/component/interface/settingsGroup';
+import { Toggle } from '@/app/component/interface/toggle';
+import { UseFormRegister } from 'react-hook-form';
+import { RoomCreatorFormParams } from '../type';
+import { DEFAULT_ROOM_SETTINGS } from '../../../constants/room';
 
 interface CpSettingsProps {
   register: UseFormRegister<RoomCreatorFormParams>;
@@ -20,7 +20,7 @@ export const CpSettings: React.FC<CpSettingsProps> = ({ register }) => {
         min={0}
         max={10}
         defaultValue={DEFAULT_ROOM_SETTINGS.rule.system.cp.init}
-        registration={register("rule.system.cp.init", { valueAsNumber: true })}
+        registration={register('rule.system.cp.init', { valueAsNumber: true })}
       />
       <NumberInput
         label="ターンごとのCP増加量"
@@ -28,7 +28,7 @@ export const CpSettings: React.FC<CpSettingsProps> = ({ register }) => {
         min={0}
         max={5}
         defaultValue={DEFAULT_ROOM_SETTINGS.rule.system.cp.increase}
-        registration={register("rule.system.cp.increase", { valueAsNumber: true })}
+        registration={register('rule.system.cp.increase', { valueAsNumber: true })}
       />
       <NumberInput
         label="CP最大値"
@@ -36,7 +36,7 @@ export const CpSettings: React.FC<CpSettingsProps> = ({ register }) => {
         min={1}
         max={20}
         defaultValue={DEFAULT_ROOM_SETTINGS.rule.system.cp.max}
-        registration={register("rule.system.cp.max", { valueAsNumber: true })}
+        registration={register('rule.system.cp.max', { valueAsNumber: true })}
       />
       <NumberInput
         label="CP上限"
@@ -44,12 +44,12 @@ export const CpSettings: React.FC<CpSettingsProps> = ({ register }) => {
         min={1}
         max={20}
         defaultValue={DEFAULT_ROOM_SETTINGS.rule.system.cp.ceil}
-        registration={register("rule.system.cp.ceil", { valueAsNumber: true })}
+        registration={register('rule.system.cp.ceil', { valueAsNumber: true })}
       />
       <Toggle
         label="CPの持ち越し"
         description="未使用のCPを次のラウンドに持ち越せるようにする"
-        registration={register("rule.system.cp.carryover")}
+        registration={register('rule.system.cp.carryover')}
         defaultChecked={DEFAULT_ROOM_SETTINGS.rule.system.cp.carryover}
       />
     </SettingsGroup>

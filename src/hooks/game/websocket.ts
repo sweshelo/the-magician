@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { useCallback } from "react";
-import { useWebSocket } from "../websocket/hooks";
+import { useCallback } from 'react';
+import { useWebSocket } from '../websocket/hooks';
 import {
   ContinuePayload,
   createMessage,
@@ -10,8 +10,8 @@ import {
   Message,
   OverridePayload,
   UnitDrivePayload,
-} from "@/submodule/suit/types";
-import { LocalStorageHelper } from "@/service/local-storage";
+} from '@/submodule/suit/types';
+import { LocalStorageHelper } from '@/service/local-storage';
 
 export const useWebSocketGame = () => {
   const { websocket } = useWebSocket();
@@ -21,10 +21,10 @@ export const useWebSocketGame = () => {
       if (websocket) {
         websocket?.send(message);
       } else {
-        console.error("WebSocket接続確立前に send が呼び出されました。");
+        console.error('WebSocket接続確立前に send が呼び出されました。');
       }
     },
-    [websocket],
+    [websocket]
   );
 
   interface OverrideProps {
@@ -35,11 +35,11 @@ export const useWebSocketGame = () => {
     ({ target, parent }: OverrideProps) => {
       const message: Message<OverridePayload> = {
         action: {
-          type: "game",
-          handler: "core",
+          type: 'game',
+          handler: 'core',
         },
         payload: {
-          type: "Override",
+          type: 'Override',
           parent: { id: parent },
           target: { id: target },
           player: LocalStorageHelper.playerId(),
@@ -47,7 +47,7 @@ export const useWebSocketGame = () => {
       };
       send(message);
     },
-    [send],
+    [send]
   );
 
   interface UnitDriveProps {
@@ -57,18 +57,18 @@ export const useWebSocketGame = () => {
     ({ target }: UnitDriveProps) => {
       const message: Message<UnitDrivePayload> = {
         action: {
-          type: "game",
-          handler: "core",
+          type: 'game',
+          handler: 'core',
         },
         payload: {
-          type: "UnitDrive",
+          type: 'UnitDrive',
           target: { id: target },
           player: LocalStorageHelper.playerId(),
         },
       };
       send(message);
     },
-    [send],
+    [send]
   );
 
   interface ContinueProps {
@@ -78,36 +78,36 @@ export const useWebSocketGame = () => {
     ({ promptId }: ContinueProps) => {
       const message: Message<ContinuePayload> = {
         action: {
-          type: "game",
-          handler: "core",
+          type: 'game',
+          handler: 'core',
         },
         payload: {
-          type: "Continue",
+          type: 'Continue',
           promptId,
           player: LocalStorageHelper.playerId(),
         },
       };
       send(message);
     },
-    [send],
+    [send]
   );
 
   const choose = useCallback(
     ({ promptId, choice }: { promptId: string; choice: string[] }) => {
       const message: Message = {
         action: {
-          type: "game",
-          handler: "core",
+          type: 'game',
+          handler: 'core',
         },
         payload: {
-          type: "Choose",
+          type: 'Choose',
           promptId,
           choice,
         },
       };
       send(message);
     },
-    [send],
+    [send]
   );
 
   interface WithdrawalProps {
@@ -117,18 +117,18 @@ export const useWebSocketGame = () => {
     ({ target }: WithdrawalProps) => {
       const message: Message = createMessage({
         action: {
-          type: "game",
-          handler: "core",
+          type: 'game',
+          handler: 'core',
         },
         payload: {
-          type: "Withdrawal",
+          type: 'Withdrawal',
           target,
           player: LocalStorageHelper.playerId(),
         },
       });
       send(message);
     },
-    [send],
+    [send]
   );
 
   interface SetTriggerProps {
@@ -138,18 +138,18 @@ export const useWebSocketGame = () => {
     ({ target }: SetTriggerProps) => {
       const message: Message = createMessage({
         action: {
-          type: "game",
-          handler: "core",
+          type: 'game',
+          handler: 'core',
         },
         payload: {
-          type: "TriggerSet",
+          type: 'TriggerSet',
           target,
           player: LocalStorageHelper.playerId(),
         },
       });
       send(message);
     },
-    [send],
+    [send]
   );
 
   return {

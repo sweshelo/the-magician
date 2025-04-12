@@ -1,21 +1,21 @@
-"use client";
+'use client';
 
-import { Button } from "@/component/interface/button";
-import { useForm } from "react-hook-form";
-import { useState } from "react";
-import { Tooltip } from "react-tooltip";
-import { useRoomCreator } from "./hooks";
+import { Button } from '@/component/interface/button';
+import { useForm } from 'react-hook-form';
+import { useState } from 'react';
+import { Tooltip } from 'react-tooltip';
+import { useRoomCreator } from './hooks';
 
 // Import components
-import { HandicapSettings } from "./components/HandicapSettings";
-import { MaxSettings } from "./components/MaxSettings";
-import { DrawSettings } from "./components/DrawSettings";
-import { CpSettings } from "./components/CpSettings";
-import { PlayerSettings } from "./components/PlayerSettings";
-import { DebugSettings } from "./components/DebugSettings";
-import { MiscSettings } from "./components/MiscSettings";
-import { RoomCreatorFormParams } from "./type";
-import { DEFAULT_ROOM_SETTINGS } from "./constants";
+import { HandicapSettings } from './components/HandicapSettings';
+import { MaxSettings } from './components/MaxSettings';
+import { DrawSettings } from './components/DrawSettings';
+import { CpSettings } from './components/CpSettings';
+import { PlayerSettings } from './components/PlayerSettings';
+import { DebugSettings } from './components/DebugSettings';
+import { MiscSettings } from './components/MiscSettings';
+import { RoomCreatorFormParams } from './type';
+import { DEFAULT_ROOM_SETTINGS } from '../../constants/room';
 
 export const RoomCreator = () => {
   const { handleSubmit: oldHandleSubmit } = useRoomCreator();
@@ -35,21 +35,16 @@ export const RoomCreator = () => {
       <h2 className="text-center text-xl font-bold mb-4">ルームを作成する</h2>
       <form onSubmit={oldHandleSubmit} className="space-y-4">
         <div className="mb-4">
-          <label
-            htmlFor="roomName"
-            className="block text-sm font-medium text-gray-700 mb-1"
-          >
+          <label htmlFor="roomName" className="block text-sm font-medium text-gray-700 mb-1">
             ルーム名
           </label>
           <input
             id="roomName"
             type="text"
-            {...register("name", { required: "ルーム名は必須です" })}
+            {...register('name', { required: 'ルーム名は必須です' })}
             className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
           />
-          {errors.name && (
-            <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
-          )}
+          {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>}
         </div>
 
         <div key={resetKey}>
@@ -63,9 +58,9 @@ export const RoomCreator = () => {
         </div>
 
         <div className="flex justify-between">
-          <Button 
-            type="button" 
-            variant="secondary" 
+          <Button
+            type="button"
+            variant="secondary"
             onClick={() => {
               reset(DEFAULT_ROOM_SETTINGS);
               // Increment key to force re-render the NumberInput components

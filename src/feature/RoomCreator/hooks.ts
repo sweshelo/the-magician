@@ -1,12 +1,8 @@
-import { useWebSocket } from "@/hooks/websocket/hooks";
-import { LocalStorageHelper } from "@/service/local-storage";
-import {
-  Message,
-  RoomOpenRequestPayload,
-  RoomOpenResponsePayload,
-} from "@/submodule/suit/types";
-import { useRouter } from "next/navigation";
-import { FormEvent, FormEventHandler, useCallback } from "react";
+import { useWebSocket } from '@/hooks/websocket/hooks';
+import { LocalStorageHelper } from '@/service/local-storage';
+import { Message, RoomOpenRequestPayload, RoomOpenResponsePayload } from '@/submodule/suit/types';
+import { useRouter } from 'next/navigation';
+import { FormEvent, FormEventHandler, useCallback } from 'react';
 
 interface Response {
   handleSubmit: FormEventHandler<HTMLFormElement>;
@@ -28,19 +24,16 @@ export const useRoomCreator = (): Response => {
 
       // Extract the room name
       const roomName = formValues.name as string;
-      console.log("Form values:", formValues);
+      console.log('Form values:', formValues);
 
       try {
-        const response = await websocket.request<
-          RoomOpenRequestPayload,
-          RoomOpenResponsePayload
-        >({
+        const response = await websocket.request<RoomOpenRequestPayload, RoomOpenResponsePayload>({
           action: {
-            handler: "server",
-            type: "open",
+            handler: 'server',
+            type: 'open',
           },
           payload: {
-            type: "RoomOpenRequest",
+            type: 'RoomOpenRequest',
             requestId: LocalStorageHelper.playerId(),
             name: roomName,
             rule: {
@@ -90,17 +83,17 @@ export const useRoomCreator = (): Response => {
                   },
                 },
               },
-            }
+            },
           },
         } satisfies Message<RoomOpenRequestPayload>);
 
         router.push(`/room/${response.payload.roomId}`);
       } catch (error) {
-        console.error("Error creating room:", error);
-        alert("ルームの作成に失敗しました。");
+        console.error('Error creating room:', error);
+        alert('ルームの作成に失敗しました。');
       }
     },
-    [router, websocket],
+    [router, websocket]
   );
 
   return { handleSubmit };
