@@ -77,7 +77,7 @@ export const useRoomCreator = (): Response => {
                 suicideJoker: formValues['rule.misc.suicideJoker'] === 'on',
               },
               debug: {
-                enable: formValues['relu.debug.enable'] === 'on',
+                enable: formValues['rule.debug.enable'] === 'on',
                 reveal: {
                   opponent: {
                     deck: formValues['rule.debug.reveal.opponent.deck'] === 'on',
