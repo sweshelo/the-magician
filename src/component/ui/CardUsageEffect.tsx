@@ -62,7 +62,7 @@ export const CardUsageEffect = () => {
             opacity: phase === "phase3" ? 0 : 1,
           }}
         >
-          <div className="flex items-center justify-center gap-2 bg-black/70 px-4 py-5 px-10 rounded text-white text-3xl font-bold">
+          <div className="flex items-center justify-center gap-2 bg-black/70 py-5 px-10 rounded text-white text-3xl font-bold">
             <span className="text-yellow-400">{type}</span>
             <span>DRIVE</span>
           </div>
