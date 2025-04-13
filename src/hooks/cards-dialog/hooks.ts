@@ -74,6 +74,7 @@ export const useCardsDialog = (): CardsDialogContextType & {
     }
     context.setCards(undefined);
     context.setSelection([]);
+    play('close');
   };
 
   return {

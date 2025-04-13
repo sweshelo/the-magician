@@ -152,6 +152,27 @@ export const useWebSocketGame = () => {
     [send]
   );
 
+  interface DiscardProps {
+    target: ICard;
+  }
+  const discard = useCallback(
+    ({ target }: DiscardProps) => {
+      const message: Message = createMessage({
+        action: {
+          type: 'game',
+          handler: 'core',
+        },
+        payload: {
+          type: 'Discard',
+          target,
+          player: LocalStorageHelper.playerId(),
+        },
+      });
+      send(message);
+    },
+    [send]
+  );
+
   return {
     send,
     override,
@@ -160,5 +181,6 @@ export const useWebSocketGame = () => {
     choose,
     withdrawal,
     setTrigger,
+    discard,
   };
 };

@@ -4,32 +4,22 @@ import { LifeView } from '@/component/ui/LifeView';
 import { colorTable } from '@/helper/color';
 import { useGame } from '@/hooks/game';
 import { HandArea } from '../Hand';
-import { GiCardDiscard, GiCardDraw } from 'react-icons/gi';
-import { useSystemContext } from '@/hooks/system/hooks';
-import { BsTrash3Fill } from 'react-icons/bs';
+import { GiCardDraw } from 'react-icons/gi';
 import { useCardsDialog } from '@/hooks/cards-dialog';
 import { MyTriggerZone } from '../MyTriggerZone';
 import { useMyArea } from './hooks';
 import { useCallback } from 'react';
+import { MyTrash } from '../MyTrash';
 
 export const MyArea = () => {
   const { self } = useGame();
-  const { activeCard } = useSystemContext();
   const { openCardsDialog } = useCardsDialog();
-  useMyArea();
-
-  // メモ化されたイベントハンドラ
   const handleDeckClick = useCallback(() => {
     if (self?.deck) {
       openCardsDialog(self.deck, 'あなたのデッキ');
     }
   }, [openCardsDialog, self?.deck]);
-
-  const handleTrashClick = useCallback(() => {
-    if (self?.trash) {
-      openCardsDialog(self.trash, 'あなたの捨札');
-    }
-  }, [openCardsDialog, self?.trash]);
+  useMyArea();
 
   return (
     <div className="flex-col p-4 min-h-[250px]">
@@ -53,20 +43,7 @@ export const MyArea = () => {
               </div>
             </CardsCountView>
           )}
-          {self?.trash && (
-            <CardsCountView count={self.trash.length}>
-              <div
-                className="flex justify-center items-center cursor-pointer w-full h-full"
-                onClick={handleTrashClick}
-              >
-                {activeCard ? (
-                  <GiCardDiscard color="yellowgreen" size={40} />
-                ) : (
-                  <BsTrash3Fill color="yellowgreen" size={32} />
-                )}
-              </div>
-            </CardsCountView>
-          )}
+          <MyTrash />
         </div>
 
         <MyTriggerZone />

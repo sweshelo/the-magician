@@ -5,7 +5,7 @@ import { useDndMonitor, DragStartEvent, DragEndEvent } from '@dnd-kit/core';
 
 export const useMyArea = () => {
   const { activeCard, setActiveCard } = useSystemContext();
-  const { override, unitDrive, setTrigger } = useWebSocketGame();
+  const { override, unitDrive, setTrigger, discard } = useWebSocketGame();
   useDndMonitor({
     onDragStart(e: DragStartEvent) {
       setActiveCard(e.active);
@@ -25,6 +25,9 @@ export const useMyArea = () => {
           break;
         case 'trigger-zone':
           setTrigger({ target: { id: activeCard?.id } as ICard });
+          break;
+        case 'trash':
+          discard({ target: { id: activeCard?.id } as ICard });
           break;
         default:
           break;

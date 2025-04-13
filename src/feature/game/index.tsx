@@ -168,7 +168,7 @@ export const Game = ({ id }: RoomProps) => {
                     <div
                       className="flex justify-center items-center cursor-pointer w-full h-full"
                       onClick={() => {
-                        openCardsDialog(opponent.trash as ICard[], '対戦相手の捨札');
+                        openCardsDialog([...opponent.trash.reverse()] as ICard[], '対戦相手の捨札');
                       }}
                     >
                       {<BsTrash3Fill color="yellowgreen" size={32} />}
@@ -194,7 +194,7 @@ export const Game = ({ id }: RoomProps) => {
             <div className={`border-b border-dashed ${colorTable.ui.borderDashed} h-1`} />
             {/* 自分のフィールド */}
             <MyFieldWrapper>
-              <Field units={self.field} isOwnField={true} />
+              <Field units={[...self.field].reverse()} isOwnField={true} />
             </MyFieldWrapper>
           </div>
 
