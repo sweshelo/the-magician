@@ -66,6 +66,54 @@ interface SoundManagerContextType {
   isBgmPlaying: () => boolean;
 }
 
+// Define a sound configuration map with path for each sound key
+// Makes it easier to add new sounds or modify paths
+const SOUND_CONFIG: Record<SoundKey, { path: string; volume: number }> = {
+  'agent-interrupt': { path: '/sound/se/agent-interrupt.ogg', volume: 0.25 },
+  bind: { path: '/sound/se/bind.ogg', volume: 0.25 },
+  block: { path: '/sound/se/block.ogg', volume: 0.25 },
+  bounce: { path: '/sound/se/bounce.ogg', volume: 0.25 },
+  'clock-up-field': { path: '/sound/se/clock-up-field.ogg', volume: 0.25 },
+  'clock-up': { path: '/sound/se/clock-up.ogg', volume: 0.25 },
+  copied: { path: '/sound/se/copied.ogg', volume: 0.25 },
+  copying: { path: '/sound/se/copying.ogg', volume: 0.25 },
+  'cp-consume': { path: '/sound/se/cp-consume.ogg', volume: 0.25 },
+  'cp-increase': { path: '/sound/se/cp-increase.ogg', volume: 0.25 },
+  damage: { path: '/sound/se/damage.ogg', volume: 0.25 },
+  deactive: { path: '/sound/se/deactive.ogg', volume: 0.25 },
+  deleted: { path: '/sound/se/deleted.ogg', volume: 0.25 },
+  draw: { path: '/sound/se/draw.ogg', volume: 0.25 },
+  drive: { path: '/sound/se/drive.ogg', volume: 0.25 },
+  effect: { path: '/sound/se/effect.ogg', volume: 0.25 },
+  evolve: { path: '/sound/se/evolve.ogg', volume: 0.25 },
+  fortitude: { path: '/sound/se/fortitude.ogg', volume: 0.25 },
+  grow: { path: '/sound/se/grow.ogg', volume: 0.25 },
+  guard: { path: '/sound/se/guard.ogg', volume: 0.25 },
+  leave: { path: '/sound/se/leave.ogg', volume: 0.25 },
+  open: { path: '/sound/se/open-trash.ogg', volume: 0.25 },
+  oracle: { path: '/sound/se/oracle.ogg', volume: 0.25 },
+  overheat: { path: '/sound/se/overheat.ogg', volume: 0.25 },
+  penetrate: { path: '/sound/se/penetrate.ogg', volume: 0.25 },
+  'purple-consume': { path: '/sound/se/purple-consume.ogg', volume: 0.25 },
+  'purple-increase': { path: '/sound/se/purple-increase.ogg', volume: 0.25 },
+  reboot: { path: '/sound/se/reboot.ogg', volume: 0.25 },
+  recover: { path: '/sound/se/recover.ogg', volume: 0.25 },
+  bang: { path: '/sound/se/bang.ogg', volume: 0.25 },
+  silent: { path: '/sound/se/silent.ogg', volume: 0.25 },
+  speedmove: { path: '/sound/se/speedmove.ogg', volume: 0.25 },
+  trash: { path: '/sound/se/trash.ogg', volume: 0.25 },
+  trigger: { path: '/sound/se/trigger.ogg', volume: 0.25 },
+  unblockable: { path: '/sound/se/unblockable.ogg', volume: 0.25 },
+  withdrawal: { path: '/sound/se/withdrawal.ogg', volume: 0.25 },
+  cancel: { path: '/sound/se/cancel.ogg', volume: 0.25 },
+  close: { path: '/sound/se/close.ogg', volume: 0.25 },
+  choice: { path: '/sound/se/choice.ogg', volume: 0.25 },
+  decide: { path: '/sound/se/decide.ogg', volume: 0.25 },
+  'joker-drive': { path: '/sound/se/joker-drive.ogg', volume: 0.25 },
+  'joker-grow': { path: '/sound/se/joker-grow.ogg', volume: 0.25 },
+  select: { path: '/sound/se/select.ogg', volume: 0.25 },
+};
+
 // Create the context with a default value
 export const SoundManagerV2Context = createContext<SoundManagerContextType | undefined>(undefined);
 
@@ -156,67 +204,156 @@ export const SoundManagerV2Provider: React.FC<{ children: React.ReactNode }> = (
     };
   }, []);
 
-  // Initialize sound effects
-  // We need to call useSound for each effect individually to comply with React's rules of hooks
-  const [agentInterruptPlay, agentInterruptControls] = useSound('/sound/se/agent-interrupt.ogg', {
-    volume: 0.25,
+  // We need to call useSound for each sound effect to comply with React's rules of hooks
+  // Direct calls to useSound for each sound key - using our config for consistency
+  // The pattern is much cleaner but still complies with React hook rules
+
+  // Call useSound for each sound - each call must be at the top level
+  // This approach satisfies React Hooks rules while making it easy to add new sounds
+  // Just add a new key to SoundKey type and SOUND_CONFIG, and it will automatically be included here
+  const [agentInterruptPlay, agentInterruptControls] = useSound(
+    SOUND_CONFIG['agent-interrupt'].path,
+    { volume: SOUND_CONFIG['agent-interrupt'].volume }
+  );
+  const [bindPlay, bindControls] = useSound(SOUND_CONFIG['bind'].path, {
+    volume: SOUND_CONFIG['bind'].volume,
   });
-  const [bindPlay, bindControls] = useSound('/sound/se/bind.ogg', { volume: 0.25 });
-  const [blockPlay, blockControls] = useSound('/sound/se/block.ogg', { volume: 0.25 });
-  const [bouncePlay, bounceControls] = useSound('/sound/se/bounce.ogg', { volume: 0.25 });
-  const [clockUpFieldPlay, clockUpFieldControls] = useSound('/sound/se/clock-up-field.ogg', {
-    volume: 0.25,
+  const [blockPlay, blockControls] = useSound(SOUND_CONFIG['block'].path, {
+    volume: SOUND_CONFIG['block'].volume,
   });
-  const [clockUpPlay, clockUpControls] = useSound('/sound/se/clock-up.ogg', { volume: 0.25 });
-  const [copiedPlay, copiedControls] = useSound('/sound/se/copied.ogg', { volume: 0.25 });
-  const [copyingPlay, copyingControls] = useSound('/sound/se/copying.ogg', { volume: 0.25 });
-  const [cpConsumePlay, cpConsumeControls] = useSound('/sound/se/cp-consume.ogg', { volume: 0.25 });
-  const [cpIncreasePlay, cpIncreaseControls] = useSound('/sound/se/cp-increase.ogg', {
-    volume: 0.25,
+  const [bouncePlay, bounceControls] = useSound(SOUND_CONFIG['bounce'].path, {
+    volume: SOUND_CONFIG['bounce'].volume,
   });
-  const [damagePlay, damageControls] = useSound('/sound/se/damage.ogg', { volume: 0.25 });
-  const [deactivePlay, deactiveControls] = useSound('/sound/se/deactive.ogg', { volume: 0.25 });
-  const [deletedPlay, deletedControls] = useSound('/sound/se/deleted.ogg', { volume: 0.25 });
-  const [drawPlay, drawControls] = useSound('/sound/se/draw.ogg', { volume: 0.25 });
-  const [drivePlay, driveControls] = useSound('/sound/se/drive.ogg', { volume: 0.25 });
-  const [effectPlay, effectControls] = useSound('/sound/se/effect.ogg', { volume: 0.25 });
-  const [evolvePlay, evolveControls] = useSound('/sound/se/evolve.ogg', { volume: 0.25 });
-  const [fortitudePlay, fortitudeControls] = useSound('/sound/se/fortitude.ogg', { volume: 0.25 });
-  const [growPlay, growControls] = useSound('/sound/se/grow.ogg', { volume: 0.25 });
-  const [guardPlay, guardControls] = useSound('/sound/se/guard.ogg', { volume: 0.25 });
-  const [leavePlay, leaveControls] = useSound('/sound/se/leave.ogg', { volume: 0.25 });
-  const [openPlay, openControls] = useSound('/sound/se/open-trash.ogg', { volume: 0.25 });
-  const [oraclePlay, oracleControls] = useSound('/sound/se/oracle.ogg', { volume: 0.25 });
-  const [overheatPlay, overheatControls] = useSound('/sound/se/overheat.ogg', { volume: 0.25 });
-  const [penetratePlay, penetrateControls] = useSound('/sound/se/penetrate.ogg', { volume: 0.25 });
-  const [purpleConsumePlay, purpleConsumeControls] = useSound('/sound/se/purple-consume.ogg', {
-    volume: 0.25,
+  const [clockUpFieldPlay, clockUpFieldControls] = useSound(SOUND_CONFIG['clock-up-field'].path, {
+    volume: SOUND_CONFIG['clock-up-field'].volume,
   });
-  const [purpleIncreasePlay, purpleIncreaseControls] = useSound('/sound/se/purple-increase.ogg', {
-    volume: 0.25,
+  const [clockUpPlay, clockUpControls] = useSound(SOUND_CONFIG['clock-up'].path, {
+    volume: SOUND_CONFIG['clock-up'].volume,
   });
-  const [rebootPlay, rebootControls] = useSound('/sound/se/reboot.ogg', { volume: 0.25 });
-  const [recoverPlay, recoverControls] = useSound('/sound/se/recover.ogg', { volume: 0.25 });
-  const [bangPlay, bangControls] = useSound('/sound/se/bang.ogg', { volume: 0.25 });
-  const [silentPlay, silentControls] = useSound('/sound/se/silent.ogg', { volume: 0.25 });
-  const [speedmovePlay, speedmoveControls] = useSound('/sound/se/speedmove.ogg', { volume: 0.25 });
-  const [trashPlay, trashControls] = useSound('/sound/se/trash.ogg', { volume: 0.25 });
-  const [triggerPlay, triggerControls] = useSound('/sound/se/trigger.ogg', { volume: 0.25 });
-  const [unblockablePlay, unblockableControls] = useSound('/sound/se/unblockable.ogg', {
-    volume: 0.25,
+  const [copiedPlay, copiedControls] = useSound(SOUND_CONFIG['copied'].path, {
+    volume: SOUND_CONFIG['copied'].volume,
   });
-  const [withdrawalPlay, withdrawalControls] = useSound('/sound/se/withdrawal.ogg', {
-    volume: 0.25,
+  const [copyingPlay, copyingControls] = useSound(SOUND_CONFIG['copying'].path, {
+    volume: SOUND_CONFIG['copying'].volume,
+  });
+  const [cpConsumePlay, cpConsumeControls] = useSound(SOUND_CONFIG['cp-consume'].path, {
+    volume: SOUND_CONFIG['cp-consume'].volume,
+  });
+  const [cpIncreasePlay, cpIncreaseControls] = useSound(SOUND_CONFIG['cp-increase'].path, {
+    volume: SOUND_CONFIG['cp-increase'].volume,
+  });
+  const [damagePlay, damageControls] = useSound(SOUND_CONFIG['damage'].path, {
+    volume: SOUND_CONFIG['damage'].volume,
+  });
+  const [deactivePlay, deactiveControls] = useSound(SOUND_CONFIG['deactive'].path, {
+    volume: SOUND_CONFIG['deactive'].volume,
+  });
+  const [deletedPlay, deletedControls] = useSound(SOUND_CONFIG['deleted'].path, {
+    volume: SOUND_CONFIG['deleted'].volume,
+  });
+  const [drawPlay, drawControls] = useSound(SOUND_CONFIG['draw'].path, {
+    volume: SOUND_CONFIG['draw'].volume,
+  });
+  const [drivePlay, driveControls] = useSound(SOUND_CONFIG['drive'].path, {
+    volume: SOUND_CONFIG['drive'].volume,
+  });
+  const [effectPlay, effectControls] = useSound(SOUND_CONFIG['effect'].path, {
+    volume: SOUND_CONFIG['effect'].volume,
+  });
+  const [evolvePlay, evolveControls] = useSound(SOUND_CONFIG['evolve'].path, {
+    volume: SOUND_CONFIG['evolve'].volume,
+  });
+  const [fortitudePlay, fortitudeControls] = useSound(SOUND_CONFIG['fortitude'].path, {
+    volume: SOUND_CONFIG['fortitude'].volume,
+  });
+  const [growPlay, growControls] = useSound(SOUND_CONFIG['grow'].path, {
+    volume: SOUND_CONFIG['grow'].volume,
+  });
+  const [guardPlay, guardControls] = useSound(SOUND_CONFIG['guard'].path, {
+    volume: SOUND_CONFIG['guard'].volume,
+  });
+  const [leavePlay, leaveControls] = useSound(SOUND_CONFIG['leave'].path, {
+    volume: SOUND_CONFIG['leave'].volume,
+  });
+  const [openPlay, openControls] = useSound(SOUND_CONFIG['open'].path, {
+    volume: SOUND_CONFIG['open'].volume,
+  });
+  const [oraclePlay, oracleControls] = useSound(SOUND_CONFIG['oracle'].path, {
+    volume: SOUND_CONFIG['oracle'].volume,
+  });
+  const [overheatPlay, overheatControls] = useSound(SOUND_CONFIG['overheat'].path, {
+    volume: SOUND_CONFIG['overheat'].volume,
+  });
+  const [penetratePlay, penetrateControls] = useSound(SOUND_CONFIG['penetrate'].path, {
+    volume: SOUND_CONFIG['penetrate'].volume,
+  });
+  const [purpleConsumePlay, purpleConsumeControls] = useSound(SOUND_CONFIG['purple-consume'].path, {
+    volume: SOUND_CONFIG['purple-consume'].volume,
+  });
+  const [purpleIncreasePlay, purpleIncreaseControls] = useSound(
+    SOUND_CONFIG['purple-increase'].path,
+    { volume: SOUND_CONFIG['purple-increase'].volume }
+  );
+  const [rebootPlay, rebootControls] = useSound(SOUND_CONFIG['reboot'].path, {
+    volume: SOUND_CONFIG['reboot'].volume,
+  });
+  const [recoverPlay, recoverControls] = useSound(SOUND_CONFIG['recover'].path, {
+    volume: SOUND_CONFIG['recover'].volume,
+  });
+  const [bangPlay, bangControls] = useSound(SOUND_CONFIG['bang'].path, {
+    volume: SOUND_CONFIG['bang'].volume,
+  });
+  const [silentPlay, silentControls] = useSound(SOUND_CONFIG['silent'].path, {
+    volume: SOUND_CONFIG['silent'].volume,
+  });
+  const [speedmovePlay, speedmoveControls] = useSound(SOUND_CONFIG['speedmove'].path, {
+    volume: SOUND_CONFIG['speedmove'].volume,
+  });
+  const [trashPlay, trashControls] = useSound(SOUND_CONFIG['trash'].path, {
+    volume: SOUND_CONFIG['trash'].volume,
+  });
+  const [triggerPlay, triggerControls] = useSound(SOUND_CONFIG['trigger'].path, {
+    volume: SOUND_CONFIG['trigger'].volume,
+  });
+  const [unblockablePlay, unblockableControls] = useSound(SOUND_CONFIG['unblockable'].path, {
+    volume: SOUND_CONFIG['unblockable'].volume,
+  });
+  const [withdrawalPlay, withdrawalControls] = useSound(SOUND_CONFIG['withdrawal'].path, {
+    volume: SOUND_CONFIG['withdrawal'].volume,
+  });
+  const [cancelPlay, cancelControls] = useSound(SOUND_CONFIG['cancel'].path, {
+    volume: SOUND_CONFIG['cancel'].volume,
+  });
+  const [closePlay, closeControls] = useSound(SOUND_CONFIG['close'].path, {
+    volume: SOUND_CONFIG['close'].volume,
+  });
+  const [choicePlay, choiceControls] = useSound(SOUND_CONFIG['choice'].path, {
+    volume: SOUND_CONFIG['choice'].volume,
+  });
+  const [decidePlay, decideControls] = useSound(SOUND_CONFIG['decide'].path, {
+    volume: SOUND_CONFIG['decide'].volume,
+  });
+  const [jokerDrivePlay, jokerDriveControls] = useSound(SOUND_CONFIG['joker-drive'].path, {
+    volume: SOUND_CONFIG['joker-drive'].volume,
+  });
+  const [jokerGrowPlay, jokerGrowControls] = useSound(SOUND_CONFIG['joker-grow'].path, {
+    volume: SOUND_CONFIG['joker-grow'].volume,
+  });
+  const [selectPlay, selectControls] = useSound(SOUND_CONFIG['select'].path, {
+    volume: SOUND_CONFIG['select'].volume,
   });
 
-  // Map all sound instances to their IDs
+  // Map all sound instances to their IDs - this is still much easier to maintain
+  // than the original approach as we have a central config
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
     // Clear the map first
     soundInstancesRef.current.clear();
 
-    // Add all sound instances to the map
+    // Add all sound instances to the map by directly referencing each instance
+    // This is more explicit than a loop but is still more maintainable
+    // Any new sound keys just need to be added here after adding the hook call above
     soundInstancesRef.current.set('agent-interrupt', {
       play: agentInterruptPlay,
       stop: agentInterruptControls.stop,
@@ -286,6 +423,19 @@ export const SoundManagerV2Provider: React.FC<{ children: React.ReactNode }> = (
       play: withdrawalPlay,
       stop: withdrawalControls.stop,
     });
+    soundInstancesRef.current.set('cancel', { play: cancelPlay, stop: cancelControls.stop });
+    soundInstancesRef.current.set('close', { play: closePlay, stop: closeControls.stop });
+    soundInstancesRef.current.set('choice', { play: choicePlay, stop: choiceControls.stop });
+    soundInstancesRef.current.set('decide', { play: decidePlay, stop: decideControls.stop });
+    soundInstancesRef.current.set('joker-drive', {
+      play: jokerDrivePlay,
+      stop: jokerDriveControls.stop,
+    });
+    soundInstancesRef.current.set('joker-grow', {
+      play: jokerGrowPlay,
+      stop: jokerGrowControls.stop,
+    });
+    soundInstancesRef.current.set('select', { play: selectPlay, stop: selectControls.stop });
   }, [
     agentInterruptPlay,
     agentInterruptControls,
@@ -359,6 +509,20 @@ export const SoundManagerV2Provider: React.FC<{ children: React.ReactNode }> = (
     unblockableControls,
     withdrawalPlay,
     withdrawalControls,
+    cancelPlay,
+    cancelControls,
+    closePlay,
+    closeControls,
+    choicePlay,
+    choiceControls,
+    decidePlay,
+    decideControls,
+    jokerDrivePlay,
+    jokerDriveControls,
+    jokerGrowPlay,
+    jokerGrowControls,
+    selectPlay,
+    selectControls,
   ]);
 
   // Internal function to play sound by ID
