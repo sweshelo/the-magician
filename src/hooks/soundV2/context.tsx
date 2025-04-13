@@ -47,7 +47,14 @@ export type SoundKey =
   | 'trash'
   | 'trigger'
   | 'unblockable'
-  | 'withdrawal';
+  | 'withdrawal'
+  | 'cancel'
+  | 'close'
+  | 'choice'
+  | 'decide'
+  | 'joker-drive'
+  | 'joker-grow'
+  | 'select';
 
 interface SoundManagerContextType {
   play: (soundId: string) => void;
