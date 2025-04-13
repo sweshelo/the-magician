@@ -5,7 +5,7 @@ import { useCardEffectDialog } from '@/hooks/card-effect-dialog';
 import { useWebSocketGame } from './websocket';
 import { useCardsDialog } from '../cards-dialog';
 import { useInterceptUsage } from '../intercept-usage';
-import { useSoundEffect } from '../sound';
+import { useSoundV2 } from '../soundV2';
 import { SelectionMode, useUnitSelection } from '../unit-selection';
 import { useSystemContext } from '../system/hooks';
 import { useCardUsageEffect } from '../card-usage-effect';
@@ -19,7 +19,7 @@ export const useHandler = () => {
   const { openCardsSelector } = useCardsDialog();
   const { setAvailableIntercepts } = useInterceptUsage();
   const { showCardUsageEffect } = useCardUsageEffect();
-  const { play } = useSoundEffect();
+  const { play } = useSoundV2();
   const { setOperable } = useSystemContext();
 
   const handle = async (message: Message) => {

@@ -1,12 +1,12 @@
-import { ReactNode } from "react";
-import { WebSocketProvider } from "./websocket";
-import { SystemContextProvider } from "./system";
-import { GameProvider } from "./game";
-import { CardsDialogProvider } from "./cards-dialog";
-import { SoundManagerProvider } from "./sound/context";
-import { CardEffectDialogProvider } from "./card-effect-dialog";
-import { InterceptUsageProvider } from "./intercept-usage";
-import { CardUsageEffectProvider } from "./card-usage-effect";
+import { ReactNode } from 'react';
+import { WebSocketProvider } from './websocket';
+import { SystemContextProvider } from './system';
+import { GameProvider } from './game';
+import { CardsDialogProvider } from './cards-dialog';
+import { CardEffectDialogProvider } from './card-effect-dialog';
+import { InterceptUsageProvider } from './intercept-usage';
+import { CardUsageEffectProvider } from './card-usage-effect';
+import { SoundManagerV2Provider } from './soundV2';
 
 interface Props {
   children: ReactNode;
@@ -17,7 +17,7 @@ export const GlobalContextProvider = ({ children }: Props) => {
     <WebSocketProvider>
       <SystemContextProvider>
         <GameProvider>
-          <SoundManagerProvider>
+          <SoundManagerV2Provider>
             <CardsDialogProvider>
               <CardEffectDialogProvider>
                 <CardUsageEffectProvider>
@@ -25,7 +25,7 @@ export const GlobalContextProvider = ({ children }: Props) => {
                 </CardUsageEffectProvider>
               </CardEffectDialogProvider>
             </CardsDialogProvider>
-          </SoundManagerProvider>
+          </SoundManagerV2Provider>
         </GameProvider>
       </SystemContextProvider>
     </WebSocketProvider>
