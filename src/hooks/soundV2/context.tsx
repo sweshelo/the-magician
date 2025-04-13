@@ -56,6 +56,7 @@ interface SoundManagerContextType {
   isAudioReady: boolean;
   setBgmVolume: (volume: number) => void;
   getBgmVolume: () => number;
+  isBgmPlaying: () => boolean;
 }
 
 // Create the context with a default value
@@ -395,22 +396,48 @@ export const SoundManagerV2Provider: React.FC<{ children: React.ReactNode }> = (
 
   // Function to play BGM
   const playBgm = useCallback(async () => {
-    if (!audioContextRef.current) return;
+    console.log('PlayBgm called, checking audioContext...');
+    if (!audioContextRef.current) {
+      console.error('AudioContext not available');
+      try {
+        // Try creating an audio context if it doesn't exist
+        audioContextRef.current = new window.AudioContext();
+        console.log('Created new AudioContext');
+      } catch (err) {
+        console.error('Failed to create AudioContext:', err);
+        return;
+      }
+    }
 
     try {
+      console.log('AudioContext state:', audioContextRef.current.state);
+
       // Stop any currently playing BGM
       if (activeBgmRef.current) {
+        console.log('Stopping currently playing BGM');
         activeBgmRef.current.stop();
         activeBgmRef.current = null;
       }
 
       // Make sure audio context is resumed
       if (audioContextRef.current.state === 'suspended') {
+        console.log('Resuming suspended AudioContext');
         await audioContextRef.current.resume();
+        console.log('AudioContext resumed successfully');
       }
 
-      const buffer = await (await fetch('/sound/bgm/Quiet Madness.wav')).arrayBuffer();
+      console.log('Fetching BGM file...');
+      const fetchResponse = await fetch('/sound/bgm/Quiet Madness.wav');
+      if (!fetchResponse.ok) {
+        throw new Error(`Failed to fetch BGM: ${fetchResponse.status} ${fetchResponse.statusText}`);
+      }
+
+      const buffer = await fetchResponse.arrayBuffer();
+      console.log('BGM file fetched, decoding audio...');
+
       const audio = await audioContextRef.current.decodeAudioData(buffer);
+      console.log('Audio decoded successfully, creating source node');
+
       const source = audioContextRef.current.createBufferSource();
       source.buffer = audio;
       source.loop = true;
@@ -420,17 +447,22 @@ export const SoundManagerV2Provider: React.FC<{ children: React.ReactNode }> = (
       // Create gain node for volume control
       const gainNode = audioContextRef.current.createGain();
       gainNode.gain.value = bgmVolumeRef.current;
+      console.log('Setting BGM volume to:', bgmVolumeRef.current);
 
       // Connect source -> gainNode -> destination
       source.connect(gainNode);
       gainNode.connect(audioContextRef.current.destination);
+
+      console.log('Starting BGM playback');
       source.start();
 
       // Store references
       activeBgmRef.current = source;
       bgmGainNodeRef.current = gainNode;
+      console.log('BGM playback started successfully');
     } catch (error) {
       console.error('Error playing BGM:', error);
+      throw error; // Re-throw so callers can handle it
     }
   }, []);
 
@@ -439,8 +471,20 @@ export const SoundManagerV2Provider: React.FC<{ children: React.ReactNode }> = (
     if (activeBgmRef.current) {
       activeBgmRef.current.stop();
       activeBgmRef.current = null;
+    }
+
+    // Properly disconnect and clean up the gain node
+    if (bgmGainNodeRef.current) {
+      bgmGainNodeRef.current.disconnect();
       bgmGainNodeRef.current = null;
     }
+
+    console.log('BGM stopped and cleaned up');
+  }, []);
+
+  // Function to check if BGM is currently playing
+  const isBgmPlaying = useCallback(() => {
+    return activeBgmRef.current !== null;
   }, []);
 
   // Function to set BGM volume
@@ -475,8 +519,9 @@ export const SoundManagerV2Provider: React.FC<{ children: React.ReactNode }> = (
       isAudioReady,
       setBgmVolume,
       getBgmVolume,
+      isBgmPlaying,
     }),
-    [play, playBgm, stopBgm, isAudioReady, setBgmVolume, getBgmVolume]
+    [play, playBgm, stopBgm, isAudioReady, setBgmVolume, getBgmVolume, isBgmPlaying]
   );
 
   return <SoundManagerV2Context.Provider value={value}>{children}</SoundManagerV2Context.Provider>;

@@ -4,7 +4,8 @@ import { useCallback } from 'react';
 import { useSoundManagerV2, SoundKey } from './context';
 
 export const useSoundV2 = () => {
-  const { play, playBgm, stopBgm, isAudioReady, setBgmVolume, getBgmVolume } = useSoundManagerV2();
+  const { play, playBgm, stopBgm, isAudioReady, setBgmVolume, getBgmVolume, isBgmPlaying } =
+    useSoundManagerV2();
 
   // Simple play function to play a sound by key name
   // This is what users will primarily use
@@ -17,11 +18,18 @@ export const useSoundV2 = () => {
 
   // BGM control functions
   const bgm = useCallback(async () => {
-    await playBgm();
-    return {
-      start: playBgm, // Allow explicitly starting BGM
-      stop: stopBgm, // Allow stopping BGM
-    };
+    try {
+      console.log('Starting BGM from hook');
+      await playBgm();
+      console.log('BGM started successfully');
+      return {
+        start: playBgm, // Allow explicitly starting BGM
+        stop: stopBgm, // Allow stopping BGM
+      };
+    } catch (error) {
+      console.error('Error playing BGM:', error);
+      throw error;
+    }
   }, [playBgm, stopBgm]);
 
   // Volume control functions
@@ -36,12 +44,19 @@ export const useSoundV2 = () => {
     return getBgmVolume();
   }, [getBgmVolume]);
 
+  // Check if BGM is playing
+  const isPlaying = useCallback(() => {
+    return isBgmPlaying();
+  }, [isBgmPlaying]);
+
   return {
     // Main function for playing sounds
     play: playSound,
 
     // BGM controls
     bgm,
+    stopBgm,
+    isPlaying,
 
     // Volume controls
     setVolume,

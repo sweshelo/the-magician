@@ -30,8 +30,6 @@ import { useSystemContext } from '@/hooks/system/hooks';
 import { Field } from '../Field';
 import { MyFieldWrapper } from '../MyFieldWrapper';
 import { ICard } from '@/submodule/suit/types';
-import { useEffect } from 'react';
-import { useSoundV2 } from '@/hooks/soundV2';
 
 interface RoomProps {
   id: string;
@@ -42,11 +40,6 @@ export const Game = ({ id }: RoomProps) => {
   const { opponent, self, rule } = useGame();
   const { openCardsDialog } = useCardsDialog();
   const { cursorCollisionSize } = useSystemContext();
-  const { bgm } = useSoundV2();
-
-  useEffect(() => {
-    bgm();
-  }, [bgm]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {

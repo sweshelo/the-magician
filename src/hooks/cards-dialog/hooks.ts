@@ -48,7 +48,7 @@ export const useCardsDialog = (): CardsDialogContextType & {
     context.setIsSelector(true);
     context.setCount(count);
     context.setTimeLimit(options?.timeLimit || null);
-    open(); // Play the open sound effect
+    play('open'); // Play the open sound effect
 
     return new Promise<string[]>(resolve => {
       context.setResolvePromise(() => resolve);

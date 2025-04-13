@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { colorTable } from '@/helper/color';
 import { useGame, useWebSocketGame } from '@/hooks/game';
 import { useSoundV2 } from '@/hooks/soundV2/hooks';
@@ -9,9 +9,26 @@ import { useSystemContext } from '@/hooks/system/hooks';
 export const DebugDialog = () => {
   const { self, opponent } = useGame();
   const { send } = useWebSocketGame();
-  const { play, setVolume, getVolume } = useSoundV2();
+  const { play, setVolume, getVolume, bgm, stopBgm, isPlaying } = useSoundV2();
   const { cursorCollisionSize, setCursorCollisionSize, setOperable } = useSystemContext();
   const [bgmVolume, setBgmVolume] = useState(getVolume());
+  const [isBgmPlaying, setIsBgmPlaying] = useState(false);
+
+  // Check and update BGM playing status
+  useEffect(() => {
+    const checkBgmStatus = () => {
+      const playing = isPlaying();
+      setIsBgmPlaying(playing);
+    };
+
+    // Check initially
+    checkBgmStatus();
+
+    // Set up periodic checking
+    const intervalId = setInterval(checkBgmStatus, 1000);
+
+    return () => clearInterval(intervalId);
+  }, [isPlaying]);
 
   const handleDebugButtonClick = () => {
     console.log('self: ', self, '\nopponent: ', opponent);
@@ -63,6 +80,19 @@ export const DebugDialog = () => {
     const newVolume = Math.max(bgmVolume - 0.1, 0);
     setBgmVolume(newVolume);
     setVolume(newVolume);
+  };
+
+  // BGMの再生/停止を切り替える
+  const toggleBgm = async () => {
+    if (isBgmPlaying) {
+      stopBgm();
+      setIsBgmPlaying(false);
+    } else {
+      // Start BGM playback
+      await bgm();
+      console.log('BGM playback started');
+      setIsBgmPlaying(true);
+    }
   };
 
   return (
@@ -131,6 +161,21 @@ export const DebugDialog = () => {
                 className={`px-3 py-1 rounded ${colorTable.ui.border} bg-slate-600 hover:bg-slate-500 transition-colors`}
               >
                 +
+              </button>
+            </div>
+          </div>
+
+          {/* BGM再生コントロール */}
+          <div className="mt-2 border-t pt-2 border-gray-700">
+            <div className="text-sm mb-1">BGM再生: {isBgmPlaying ? '再生中' : '停止中'}</div>
+            <div className="flex gap-2">
+              <button
+                onClick={toggleBgm}
+                className={`px-3 py-1 rounded ${colorTable.ui.border} ${
+                  isBgmPlaying ? 'bg-red-600 hover:bg-red-500' : 'bg-green-600 hover:bg-green-500'
+                } transition-colors`}
+              >
+                {isBgmPlaying ? '停止' : '再生'}
               </button>
             </div>
           </div>
