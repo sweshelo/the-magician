@@ -147,13 +147,13 @@ export const UnitIconEffect = ({
     setRectangles(prevRectangles =>
       prevRectangles.map(rect => ({
         ...rect,
-        distance: circleRadius * 2.5, // Scatter outward
+        distance: circleRadius * 1.5, // Scatter outward
         opacity: 0, // Fade out
       }))
     );
 
     // Schedule hiding after scatter animation completes
-    const scatterDuration = 600; // 0.6 seconds for scattering
+    const scatterDuration = 300; // 0.6 seconds for scattering
     const hideTimeout = setTimeout(() => {
       console.log('Scatter complete, hiding elements');
       setPhase('hidden');
@@ -238,7 +238,7 @@ export const UnitIconEffect = ({
                   ? 'opacity 0.1s'
                   : phase === 'rotate'
                     ? 'left 1s, top 1s, transform 1s'
-                    : 'opacity 0.6s, left 0.6s, top 0.6s',
+                    : 'opacity 0.3s, left 0.3s, top 0.3s',
               borderRadius: '2px',
               boxShadow: '0 0 4px rgba(255, 255, 255, 0.8)',
             }}
