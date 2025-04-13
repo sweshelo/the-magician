@@ -30,6 +30,7 @@ import { useSystemContext } from '@/hooks/system/hooks';
 import { Field } from '../Field';
 import { MyFieldWrapper } from '../MyFieldWrapper';
 import { ICard } from '@/submodule/suit/types';
+import { Timer } from '../Timer';
 
 interface RoomProps {
   id: string;
@@ -188,7 +189,9 @@ export const Game = ({ id }: RoomProps) => {
           </div>
 
           {/* フィールドエリア */}
-          <div className={`flex flex-col p-x-6 ${colorTable.ui.fieldBackground} rounded-lg my-4`}>
+          <div
+            className={`relative flex flex-col p-x-6 ${colorTable.ui.fieldBackground} rounded-lg my-4`}
+          >
             {/* 対戦相手のフィールド */}
             <Field units={opponent.field} isOwnField={false} />
             <div className={`border-b border-dashed ${colorTable.ui.borderDashed} h-1`} />
@@ -196,6 +199,9 @@ export const Game = ({ id }: RoomProps) => {
             <MyFieldWrapper>
               <Field units={[...self.field].reverse()} isOwnField={true} />
             </MyFieldWrapper>
+            <div className="absolute right-0 top-1/2 transform -translate-y-1/2">
+              <Timer />
+            </div>
           </div>
 
           {/* 自分のエリア */}

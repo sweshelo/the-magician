@@ -7,6 +7,7 @@ import { CardEffectDialogProvider } from './card-effect-dialog';
 import { InterceptUsageProvider } from './intercept-usage';
 import { CardUsageEffectProvider } from './card-usage-effect';
 import { SoundManagerV2Provider } from './soundV2';
+import { TimerProvider } from '@/feature/Timer/context';
 
 interface Props {
   children: ReactNode;
@@ -21,7 +22,9 @@ export const GlobalContextProvider = ({ children }: Props) => {
             <CardsDialogProvider>
               <CardEffectDialogProvider>
                 <CardUsageEffectProvider>
-                  <InterceptUsageProvider>{children}</InterceptUsageProvider>
+                  <InterceptUsageProvider>
+                    <TimerProvider>{children}</TimerProvider>
+                  </InterceptUsageProvider>
                 </CardUsageEffectProvider>
               </CardEffectDialogProvider>
             </CardsDialogProvider>

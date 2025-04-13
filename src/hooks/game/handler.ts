@@ -10,6 +10,7 @@ import { SelectionMode, useUnitSelection } from '../unit-selection';
 import { useSystemContext } from '../system/hooks';
 import { useCardUsageEffect } from '../card-usage-effect';
 import { LocalStorageHelper } from '@/service/local-storage';
+import { useTimer } from '@/feature/Timer/hooks';
 
 export const useHandler = () => {
   const { setAll } = useGame();
@@ -21,6 +22,7 @@ export const useHandler = () => {
   const { showCardUsageEffect } = useCardUsageEffect();
   const { play } = useSoundV2();
   const { setOperable } = useSystemContext();
+  const { pauseTimer, resumeTimer } = useTimer();
 
   const handle = async (message: Message) => {
     const { payload } = message;
@@ -110,9 +112,11 @@ export const useHandler = () => {
       case 'Operation': {
         switch (payload.action) {
           case 'defrost':
+            resumeTimer();
             setOperable(true);
             break;
           case 'freeze':
+            pauseTimer();
             setOperable(false);
             break;
         }
