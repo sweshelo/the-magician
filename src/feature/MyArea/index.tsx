@@ -1,22 +1,35 @@
-import { CPView } from "@/component/ui/CPView";
-import { CardsCountView } from "@/component/ui/CardsCountView";
-import { LifeView } from "@/component/ui/LifeView";
-import { colorTable } from "@/helper/color";
-import { useGame } from "@/hooks/game";
-import { HandArea } from "../Hand";
-import { GiCardDiscard, GiCardDraw } from "react-icons/gi";
-import { useSystemContext } from "@/hooks/system/hooks";
-import { BsTrash3Fill } from "react-icons/bs";
-import { useCardsDialog } from "@/hooks/cards-dialog";
-import { MyTriggerZone } from "../MyTriggerZone";
-import { useMyArea } from "./hooks";
-import { HandView } from "@/component/ui/HandView";
+import { CPView } from '@/component/ui/CPView';
+import { CardsCountView } from '@/component/ui/CardsCountView';
+import { LifeView } from '@/component/ui/LifeView';
+import { colorTable } from '@/helper/color';
+import { useGame } from '@/hooks/game';
+import { HandArea } from '../Hand';
+import { GiCardDiscard, GiCardDraw } from 'react-icons/gi';
+import { useSystemContext } from '@/hooks/system/hooks';
+import { BsTrash3Fill } from 'react-icons/bs';
+import { useCardsDialog } from '@/hooks/cards-dialog';
+import { MyTriggerZone } from '../MyTriggerZone';
+import { useMyArea } from './hooks';
+import { useCallback } from 'react';
 
 export const MyArea = () => {
   const { self } = useGame();
   const { activeCard } = useSystemContext();
   const { openCardsDialog } = useCardsDialog();
   useMyArea();
+
+  // メモ化されたイベントハンドラ
+  const handleDeckClick = useCallback(() => {
+    if (self?.deck) {
+      openCardsDialog(self.deck, 'あなたのデッキ');
+    }
+  }, [openCardsDialog, self?.deck]);
+
+  const handleTrashClick = useCallback(() => {
+    if (self?.trash) {
+      openCardsDialog(self.trash, 'あなたの捨札');
+    }
+  }, [openCardsDialog, self?.trash]);
 
   return (
     <div className="flex-col p-4 min-h-[250px]">
@@ -25,10 +38,8 @@ export const MyArea = () => {
         className={`flex justify-between items-center p-2 ${colorTable.ui.playerInfoBackground} rounded-lg mb-4`}
       >
         <div className="player-identity">
-          <div className="font-bold text-lg">{self?.status.name || ""}</div>
-          <div className={`text-sm ${colorTable.ui.text.secondary}`}>
-            あなたのターン
-          </div>
+          <div className="font-bold text-lg">{self?.status.name || ''}</div>
+          <div className={`text-sm ${colorTable.ui.text.secondary}`}>あなたのターン</div>
         </div>
 
         <div className="flex gap-4">
@@ -36,9 +47,7 @@ export const MyArea = () => {
             <CardsCountView count={self.deck.length}>
               <div
                 className="flex justify-center items-center cursor-pointer w-full h-full"
-                onClick={() => {
-                  openCardsDialog(self.deck, "あなたのデッキ");
-                }}
+                onClick={handleDeckClick}
               >
                 {<GiCardDraw color="cyan" size={40} />}
               </div>
@@ -48,9 +57,7 @@ export const MyArea = () => {
             <CardsCountView count={self.trash.length}>
               <div
                 className="flex justify-center items-center cursor-pointer w-full h-full"
-                onClick={() => {
-                  openCardsDialog(self.trash, "あなたの捨札");
-                }}
+                onClick={handleTrashClick}
               >
                 {activeCard ? (
                   <GiCardDiscard color="yellowgreen" size={40} />
@@ -66,14 +73,9 @@ export const MyArea = () => {
 
         <div className="flex flex-col gap-2">
           {self?.status.life && (
-            <LifeView
-              current={self.status.life.current}
-              max={self.status.life.max}
-            />
+            <LifeView current={self.status.life.current} max={self.status.life.max} />
           )}
-          {self?.status.cp && (
-            <CPView current={self.status.cp.current} max={self.status.cp.max} />
-          )}
+          {self?.status.cp && <CPView current={self.status.cp.current} max={self.status.cp.max} />}
         </div>
       </div>
 

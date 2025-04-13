@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { ReactNode, useState } from "react";
+import { ReactNode } from 'react';
 
 interface SettingsGroupProps {
   title: string;
@@ -14,28 +14,21 @@ export const SettingsGroup: React.FC<SettingsGroupProps> = ({
   title,
   children,
   defaultOpen = false,
-  className = "",
+  className = '',
   extra,
 }) => {
-  const [isOpen, setIsOpen] = useState(defaultOpen);
-
   return (
-    <div
+    <details
       className={`border border-gray-300 shadow rounded-lg py-1 px-2 mb-4 ${className}`}
+      open={defaultOpen}
     >
-      <summary
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center justify-between cursor-pointer py-1"
-      >
+      <summary className="flex items-center justify-between cursor-pointer py-1">
         <div className="flex items-center justify-between w-full">
           <h3 className="text-sm font-medium text-gray-700">{title}</h3>
-          <div className="flex items-center">
-            {extra}
-            <span className="text-gray-500 ml-2">{isOpen ? "▲" : "▼"}</span>
-          </div>
+          <div className="flex items-center">{extra}</div>
         </div>
       </summary>
-      <div className={`pl-3 pt-2 ${isOpen ? '' : 'hidden'}`}>{children}</div>
-    </div>
+      <div className="pl-3 pt-2">{children}</div>
+    </details>
   );
 };

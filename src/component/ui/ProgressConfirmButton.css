@@ -1,0 +1,16 @@
+@keyframes countdown {
+  0% { width: 100%; }
+  100% { width: 0%; }
+}
+
+.countdown-animation {
+  animation: countdown linear forwards;
+}
+
+.countdown-animation-running {
+  animation-play-state: running;
+}
+
+.countdown-animation-paused {
+  animation-play-state: paused;
+}
