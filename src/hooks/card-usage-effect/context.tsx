@@ -87,8 +87,8 @@ export const CardUsageEffectProvider = ({ children }: { children: ReactNode }) =
 
   // タイミング設定 (ms単位)
   const timings = {
-    phase1: 50, // フェーズ1の表示時間（ほぼ即時遷移）
-    phase2: 600, // フェーズ2の表示時間
+    phase1: 10, // フェーズ1の表示時間（ほぼ即時遷移）
+    phase2: 500, // フェーズ2の表示時間
     phase3: 500, // フェーズ3の終了までの時間
   };
 
@@ -101,7 +101,6 @@ export const CardUsageEffectProvider = ({ children }: { children: ReactNode }) =
     dispatch({ type: 'SHOW_EFFECT', params });
 
     return new Promise(resolve => {
-      // スケジュールを配列として定義 (より宣言的なアプローチ)
       const schedule = [
         {
           delay: timings.phase1,
@@ -112,7 +111,7 @@ export const CardUsageEffectProvider = ({ children }: { children: ReactNode }) =
           action: () => dispatch({ type: 'SET_PHASE', phase: 'phase3' }),
         },
         {
-          delay: timings.phase1 + timings.phase2 + 500 + timings.phase3,
+          delay: timings.phase1 + timings.phase2 + timings.phase3 + 500,
           action: () => {
             dispatch({ type: 'HIDE_EFFECT' });
             resolve();
