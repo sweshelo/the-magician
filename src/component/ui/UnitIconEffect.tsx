@@ -17,10 +17,14 @@ export const UnitIconEffect = ({
   rectangleHeight = 24,
   circleRadius = 70,
   show,
-  onComplete
+  onComplete,
 }: UnitIconEffectProps) => {
-  const [phase, setPhase] = useState<'initial' | 'appear' | 'rotate' | 'scatter' | 'hidden'>('initial');
-  const [rectangles, setRectangles] = useState<{ angle: number; opacity: number; distance: number; rotation: number }[]>([]);
+  const [phase, setPhase] = useState<'initial' | 'appear' | 'rotate' | 'scatter' | 'hidden'>(
+    'initial'
+  );
+  const [rectangles, setRectangles] = useState<
+    { angle: number; opacity: number; distance: number; rotation: number }[]
+  >([]);
   const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
   const rectangleCount = 12;
 
@@ -36,7 +40,7 @@ export const UnitIconEffect = ({
       angle: (i * 360) / rectangleCount,
       opacity: 0,
       distance: circleRadius,
-      rotation: 0
+      rotation: 0,
     }));
     setRectangles(initialRectangles);
   }, [circleRadius, rectangleCount]);
@@ -78,7 +82,7 @@ export const UnitIconEffect = ({
           const newRectangles = [...prevRectangles];
           newRectangles[index] = {
             ...newRectangles[index],
-            opacity: 1
+            opacity: 1,
           };
           return newRectangles;
         });
@@ -143,13 +147,13 @@ export const UnitIconEffect = ({
     setRectangles(prevRectangles =>
       prevRectangles.map(rect => ({
         ...rect,
-        distance: circleRadius * 2.5, // Scatter outward
-        opacity: 0 // Fade out
+        distance: circleRadius * 1.5, // Scatter outward
+        opacity: 0, // Fade out
       }))
     );
 
     // Schedule hiding after scatter animation completes
-    const scatterDuration = 600; // 0.6 seconds for scattering
+    const scatterDuration = 300; // 0.6 seconds for scattering
     const hideTimeout = setTimeout(() => {
       console.log('Scatter complete, hiding elements');
       setPhase('hidden');
@@ -163,9 +167,7 @@ export const UnitIconEffect = ({
   // Add a new useEffect to specifically handle the completion callback when phase changes to hidden
   useEffect(() => {
     if (phase === 'hidden') {
-      console.log('Animation complete, calling completion handler');
       if (onComplete) {
-        console.log('Animation complete, calling completion handler');
         onComplete();
       }
 
@@ -177,7 +179,7 @@ export const UnitIconEffect = ({
             angle: (i * 360) / rectangleCount,
             opacity: 0,
             distance: circleRadius,
-            rotation: 0
+            rotation: 0,
           }))
         );
 
@@ -206,7 +208,7 @@ export const UnitIconEffect = ({
         top: '50%',
         left: '50%',
         transform: `translate(-50%, -50%) rotate(${containerRotation}deg)`,
-        transition: phase === 'rotate' ? 'transform 1s' : 'none'
+        transition: phase === 'rotate' ? 'transform 1s' : 'none',
       }}
     >
       {rectangles.map((rect, i) => {
@@ -231,13 +233,14 @@ export const UnitIconEffect = ({
               opacity: rect.opacity,
               backgroundColor: 'white',
               transform: `rotate(${rectRotation}deg)`,
-              transition: phase === 'appear'
-                ? 'opacity 0.1s'
-                : phase === 'rotate'
-                  ? 'left 1s, top 1s, transform 1s'
-                  : 'opacity 0.6s, left 0.6s, top 0.6s',
+              transition:
+                phase === 'appear'
+                  ? 'opacity 0.1s'
+                  : phase === 'rotate'
+                    ? 'left 1s, top 1s, transform 1s'
+                    : 'opacity 0.3s, left 0.3s, top 0.3s',
               borderRadius: '2px',
-              boxShadow: '0 0 4px rgba(255, 255, 255, 0.8)'
+              boxShadow: '0 0 4px rgba(255, 255, 255, 0.8)',
             }}
           />
         );

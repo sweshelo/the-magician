@@ -3,11 +3,16 @@
 import { useContext } from 'react';
 import { CardsDialogContext, CardsDialogContextType } from './context';
 import { ICard } from '@/submodule/suit/types';
-import { useSoundEffect } from '../sound/hooks';
+import { useSoundV2 } from '../soundV2/hooks';
 
 export const useCardsDialog = (): CardsDialogContextType & {
   openCardsDialog: (cards: ICard[], title: string) => void;
-  openCardsSelector: (cards: ICard[], title: string, count: number, options?: { timeLimit?: number }) => Promise<string[]>;
+  openCardsSelector: (
+    cards: ICard[],
+    title: string,
+    count: number,
+    options?: { timeLimit?: number }
+  ) => Promise<string[]>;
   closeCardsDialog: () => void;
   confirmSelection: (result?: string[]) => void;
 } => {
@@ -16,7 +21,7 @@ export const useCardsDialog = (): CardsDialogContextType & {
     throw new Error('useCardsDialog must be used within a CardsDialogProvider');
   }
 
-  const { open } = useSoundEffect();
+  const { play } = useSoundV2();
 
   // Function to open cards dialog with the provided cards and title (viewer mode)
   const openCardsDialog = (cards: ICard[], title: string) => {
@@ -27,7 +32,7 @@ export const useCardsDialog = (): CardsDialogContextType & {
     context.setIsSelector(false);
     context.setCount(0);
     context.setTimeLimit(null);
-    open(); // Play the open sound effect
+    play('open'); // Play the open sound effect
   };
 
   // Function to open cards selector and return a Promise that resolves with selected card IDs
@@ -43,9 +48,9 @@ export const useCardsDialog = (): CardsDialogContextType & {
     context.setIsSelector(true);
     context.setCount(count);
     context.setTimeLimit(options?.timeLimit || null);
-    open(); // Play the open sound effect
+    play('open'); // Play the open sound effect
 
-    return new Promise<string[]>((resolve) => {
+    return new Promise<string[]>(resolve => {
       context.setResolvePromise(() => resolve);
     });
   };
@@ -69,6 +74,7 @@ export const useCardsDialog = (): CardsDialogContextType & {
     }
     context.setCards(undefined);
     context.setSelection([]);
+    play('close');
   };
 
   return {

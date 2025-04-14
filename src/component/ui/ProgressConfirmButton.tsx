@@ -1,13 +1,14 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect } from 'react';
+import './ProgressConfirmButton.css';
 
 type ProgressConfirmButtonProps = {
-  timeLimit?: number;                // Time limit in seconds (optional)
-  buttonText: string;                // Text to display on the button
-  onConfirm: () => void;             // Action to perform on confirmation
-  onTimeExpire?: () => void;         // Action to perform when time expires (optional)
-  disabled?: boolean;                // Whether the button is disabled
-  className?: string;                // Additional styling
-  isRunning?: boolean;               // Whether the timer is running
+  timeLimit?: number; // Time limit in seconds (optional)
+  buttonText: string; // Text to display on the button
+  onConfirm: () => void; // Action to perform on confirmation
+  onTimeExpire?: () => void; // Action to perform when time expires (optional)
+  disabled?: boolean; // Whether the button is disabled
+  className?: string; // Additional styling
+  isRunning?: boolean; // Whether the timer is running
 };
 
 export const ProgressConfirmButton = ({
@@ -16,8 +17,8 @@ export const ProgressConfirmButton = ({
   onConfirm,
   onTimeExpire,
   disabled = false,
-  className = "",
-  isRunning = true
+  className = '',
+  isRunning = true,
 }: ProgressConfirmButtonProps) => {
   const animationKey = useRef(0);
   const progressBarRef = useRef<HTMLDivElement | null>(null);
@@ -36,11 +37,10 @@ export const ProgressConfirmButton = ({
           <div
             ref={progressBarRef}
             key={animationKey.current}
-            className="h-full bg-red-700"
+            className={`h-full bg-red-700 countdown-animation ${isRunning ? 'countdown-animation-running' : 'countdown-animation-paused'}`}
             style={{
               width: '100%',
-              animation: `countdown ${timeLimit}s linear forwards`,
-              animationPlayState: isRunning ? 'running' : 'paused'
+              animationDuration: `${timeLimit}s`,
             }}
             onAnimationEnd={onTimeExpire}
           />
@@ -61,14 +61,6 @@ export const ProgressConfirmButton = ({
           {buttonText}
         </button>
       )}
-      <style dangerouslySetInnerHTML={{
-        __html: `
-          @keyframes countdown {
-            0% { width: 100%; }
-            100% { width: 0%; }
-          }
-        `
-      }} />
     </div>
   );
 };

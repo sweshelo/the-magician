@@ -1,5 +1,5 @@
-import { MyTriggerZoneWrapper } from "./wrapper"
-import { MyTriggerZoneBody } from "./body"
+import { MyTriggerZoneWrapper } from "./wrapper";
+import { MyTriggerZoneBody } from "./body";
 
 export const MyTriggerZone = () => {
   return (
@@ -8,5 +8,5 @@ export const MyTriggerZone = () => {
         <MyTriggerZoneBody />
       </MyTriggerZoneWrapper>
     </div>
-  )
-}
+  );
+};

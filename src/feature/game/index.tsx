@@ -2,6 +2,7 @@
 
 import { CardDetailWindow } from '@/component/ui/CardDetailWindow';
 import { CardEffectDialog } from '@/component/ui/CardEffectDialog';
+import { CardUsageEffect } from '@/component/ui/CardUsageEffect';
 import { CPView } from '@/component/ui/CPView';
 import { DebugDialog } from '@/component/ui/DebugDialog';
 import { InterceptSelectionOverlay } from '@/component/ui/InterceptSelectionOverlay';
@@ -16,7 +17,7 @@ import {
   useSensors,
   CollisionDetection,
   rectIntersection,
-  ClientRect
+  ClientRect,
 } from '@dnd-kit/core';
 import { restrictToWindowEdges } from '@dnd-kit/modifiers';
 import { useGameComponentHook } from './hook';
@@ -29,24 +30,25 @@ import { useSystemContext } from '@/hooks/system/hooks';
 import { Field } from '../Field';
 import { MyFieldWrapper } from '../MyFieldWrapper';
 import { ICard } from '@/submodule/suit/types';
+import { Timer } from '../Timer';
 
 interface RoomProps {
-  id: string
+  id: string;
 }
 
 export const Game = ({ id }: RoomProps) => {
-  useGameComponentHook({ id })
-  const { opponent, self, rule } = useGame()
+  useGameComponentHook({ id });
+  const { opponent, self, rule } = useGame();
   const { openCardsDialog } = useCardsDialog();
   const { cursorCollisionSize } = useSystemContext();
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 5
-      }
+        distance: 5,
+      },
     })
-  )
+  );
 
   // Custom collision detection that uses mouse cursor position instead of entire draggable area
   const cursorCollisionDetection: CollisionDetection = ({
@@ -85,113 +87,130 @@ export const Game = ({ id }: RoomProps) => {
       collisionDetection={cursorCollisionDetection}
       modifiers={[restrictToWindowEdges]}
     >
-        <div className={`flex h-screen ${colorTable.ui.background} ${colorTable.ui.text.primary} relative overflow-hidden`}>
-          {/* カード詳細ウィンドウ */}
-          <CardDetailWindow />
+      <div
+        className={`flex h-screen ${colorTable.ui.background} ${colorTable.ui.text.primary} relative overflow-hidden`}
+      >
+        {/* カード詳細ウィンドウ */}
+        <CardDetailWindow />
 
-          {/* デバッグダイアログ */}
-          <DebugDialog />
+        {/* デバッグダイアログ */}
+        <DebugDialog />
 
-          {/* カード効果表示ダイアログ */}
-          <CardEffectDialog />
+        {/* カード効果表示ダイアログ */}
+        <CardEffectDialog />
 
-          {/* インターセプト選択オーバーレイ */}
-          <InterceptSelectionOverlay />
+        {/* カード使用エフェクト */}
+        <CardUsageEffect />
 
-          {/* メインゲームコンテナ */}
-          <div className="flex flex-col w-full h-full p-4">
-            {/* 対戦相手エリア */}
-            <div className={`flex-col p-4 border-b ${colorTable.ui.border}`}>
-              {/* 対戦相手情報 */}
-              <div className={`flex justify-between p-2 ${colorTable.ui.playerInfoBackground} rounded-lg mb-4`}>
-                <div className="player-identity">
-                  <div className="font-bold text-lg">{opponent?.status.name ?? '対戦相手 検索中…'}</div>
-                  <div className={`text-sm ${colorTable.ui.text.secondary}`}>オンライン</div>
+        {/* インターセプト選択オーバーレイ */}
+        <InterceptSelectionOverlay />
+
+        {/* メインゲームコンテナ */}
+        <div className="flex flex-col w-full h-full p-4">
+          {/* 対戦相手エリア */}
+          <div className={`flex-col p-4 border-b ${colorTable.ui.border}`}>
+            {/* 対戦相手情報 */}
+            <div
+              className={`flex justify-between p-2 ${colorTable.ui.playerInfoBackground} rounded-lg mb-4`}
+            >
+              <div className="player-identity">
+                <div className="font-bold text-lg">
+                  {opponent?.status.name ?? '対戦相手 検索中…'}
                 </div>
-                {/* 対戦相手の手札エリア */}
-                <div className="flex justify-center gap-2">
-                  {/* 対戦相手の手札は裏向きに表示 */}
-                  {opponent?.hand?.map((i) => (
-                    <div
-                      key={`opponent-card-${i.id}`}
-                      className={`w-8 h-12 ${colorTable.ui.opponentCardBackground} rounded flex justify-center items-center shadow-md ${colorTable.symbols.mana} text-2xl`}
-                    />
-                  ))}
-                </div>
-                <div className="flex">
-                  <div className="flex gap-1">
-                    {
-                      [...Array(rule.player.max.trigger)].map((_, index) => {
-                        const card = opponent.trigger[index]
-                        return card ? (
-                          <div
-                            className="w-10 h-13.5 border-1 border-white rounded-sm bg-gray-800"
-                            style={{
-                              backgroundImage: `url('/image/card/back/red.png')`,
-                              backgroundSize: 'cover',
-                            }}
-                            key={index}
-                          />
-                        ) : (
-                          <div className="w-10 h-13.5 border-1 border-white rounded-sm bg-gray-800" key={index} />
-                        )
-                      })
-                    }
-                  </div>
-                </div>
-                <div className="flex gap-4">
-                  {opponent?.deck && (
-                    <CardsCountView count={opponent.deck.length}>
-                      <div className="flex justify-center items-center cursor-pointer w-full h-full" onClick={() => {
-                        openCardsDialog(opponent.deck as ICard[], "対戦相手のデッキ");
-                      }}>
-                        {
-                          <GiCardDraw color="cyan" size={40} />
-                        }
-                      </div>
-                    </CardsCountView>
-                  )}
-                  {opponent?.trash && (
-                    <CardsCountView count={opponent.trash.length}>
-                      <div className="flex justify-center items-center cursor-pointer w-full h-full" onClick={() => {
-                        openCardsDialog(opponent.trash as ICard[], "対戦相手の捨札");
-                      }}>
-                        {
-                          <BsTrash3Fill color="yellowgreen" size={32} />
-                        }
-                      </div>
-                    </CardsCountView>
-                  )}
-                </div>
-                <div className="flex flex-col gap-2">
-                  {opponent?.status.life !== undefined && (
-                    <LifeView current={opponent.status.life.current} max={opponent.status.life.max} />
-                  )}
-                  {opponent?.status.cp !== undefined && (
-                    <CPView current={opponent.status.cp.current} max={opponent.status.cp.max} />
-                  )}
+                <div className={`text-sm ${colorTable.ui.text.secondary}`}>オンライン</div>
+              </div>
+              {/* 対戦相手の手札エリア */}
+              <div className="flex justify-center gap-2">
+                {/* 対戦相手の手札は裏向きに表示 */}
+                {opponent?.hand?.map(i => (
+                  <div
+                    key={`opponent-card-${i.id}`}
+                    className={`w-8 h-12 ${colorTable.ui.opponentCardBackground} rounded flex justify-center items-center shadow-md ${colorTable.symbols.mana} text-2xl`}
+                  />
+                ))}
+              </div>
+              <div className="flex">
+                <div className="flex gap-1">
+                  {[...Array(rule.player.max.trigger)].map((_, index) => {
+                    const card = opponent.trigger[index];
+                    return card ? (
+                      <div
+                        className="w-10 h-13.5 border-1 border-white rounded-sm bg-gray-800"
+                        style={{
+                          backgroundImage: `url('/image/card/back/red.png')`,
+                          backgroundSize: 'cover',
+                        }}
+                        key={index}
+                      />
+                    ) : (
+                      <div
+                        className="w-10 h-13.5 border-1 border-white rounded-sm bg-gray-800"
+                        key={index}
+                      />
+                    );
+                  })}
                 </div>
               </div>
+              <div className="flex gap-4">
+                {opponent?.deck && (
+                  <CardsCountView count={opponent.deck.length}>
+                    <div
+                      className="flex justify-center items-center cursor-pointer w-full h-full"
+                      onClick={() => {
+                        openCardsDialog(opponent.deck as ICard[], '対戦相手のデッキ');
+                      }}
+                    >
+                      {<GiCardDraw color="cyan" size={40} />}
+                    </div>
+                  </CardsCountView>
+                )}
+                {opponent?.trash && (
+                  <CardsCountView count={opponent.trash.length}>
+                    <div
+                      className="flex justify-center items-center cursor-pointer w-full h-full"
+                      onClick={() => {
+                        openCardsDialog([...opponent.trash].reverse() as ICard[], '対戦相手の捨札');
+                      }}
+                    >
+                      {<BsTrash3Fill color="yellowgreen" size={32} />}
+                    </div>
+                  </CardsCountView>
+                )}
+              </div>
+              <div className="flex flex-col gap-2">
+                {opponent?.status.life !== undefined && (
+                  <LifeView current={opponent.status.life.current} max={opponent.status.life.max} />
+                )}
+                {opponent?.status.cp !== undefined && (
+                  <CPView current={opponent.status.cp.current} max={opponent.status.cp.max} />
+                )}
+              </div>
             </div>
-
-            {/* フィールドエリア */}
-            <div className={`flex flex-col p-x-6 ${colorTable.ui.fieldBackground} rounded-lg my-4`}>
-              {/* 対戦相手のフィールド */}
-              <Field units={opponent.field} isOwnField={false} />
-              <div className={`border-b border-dashed ${colorTable.ui.borderDashed} h-1`} />
-              {/* 自分のフィールド */}
-              <MyFieldWrapper>
-                <Field units={self.field} isOwnField={true} />
-              </MyFieldWrapper>
-            </div>
-
-            {/* 自分のエリア */}
-            <MyArea />
-
-            {/* カード一覧 */}
-            <CardsDialog />
           </div>
+
+          {/* フィールドエリア */}
+          <div
+            className={`relative flex flex-col p-x-6 ${colorTable.ui.fieldBackground} rounded-lg my-4`}
+          >
+            {/* 対戦相手のフィールド */}
+            <Field units={opponent.field} isOwnField={false} />
+            <div className={`border-b border-dashed ${colorTable.ui.borderDashed} h-1`} />
+            {/* 自分のフィールド */}
+            <MyFieldWrapper>
+              <Field units={[...self.field].reverse()} isOwnField={true} />
+            </MyFieldWrapper>
+            <div className="absolute right-0 top-1/2 transform -translate-y-1/2">
+              <Timer />
+            </div>
+          </div>
+
+          {/* 自分のエリア */}
+          <MyArea />
+
+          {/* カード一覧 */}
+          <CardsDialog />
         </div>
+      </div>
     </DndContext>
   );
 };

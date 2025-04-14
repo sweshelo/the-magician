@@ -9,9 +9,11 @@ interface CostViewProps {
 export const CostView = ({ color, value, side = 8 }: CostViewProps) => {
   return (
     <div className="rounded-sm border-3 border-gray">
-      <div className={`w-${side} h-${side} flex items-center justify-center font-bold ${getColorCode(color)}`}>
+      <div
+        className={`w-${side} h-${side} flex items-center justify-center font-bold ${getColorCode(color)}`}
+      >
         {value}
       </div>
     </div>
-  )
-}
+  );
+};

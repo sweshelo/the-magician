@@ -4,7 +4,7 @@
 
 // カード効果の情報を表す型
 export interface CardEffect {
-  title: string;   // 効果のタイトル（1行）
+  title: string; // 効果のタイトル（1行）
   message: string; // 効果の説明（最大4行）
 }
 

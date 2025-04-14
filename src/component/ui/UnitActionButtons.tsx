@@ -13,10 +13,10 @@ export const UnitActionButtons = ({
   unit,
   canAttack = true,
   canBoot = true,
-  canWithdraw = true
+  canWithdraw = true,
 }: UnitActionButtonsProps) => {
   const { activeUnit, setActiveUnit, candidate } = useUnitSelection();
-  const { withdrawal } = useWebSocketGame()
+  const { withdrawal } = useWebSocketGame();
 
   // Don't render buttons if not showing for this unit
   // We only pass this component when rendering units in player's field, so no need to check ownership
@@ -33,14 +33,14 @@ export const UnitActionButtons = ({
   const handleWithdrawal = () => {
     console.log(`Unit ${unit.id} withdrawing`);
     // Implement withdrawal logic here
-    setActiveUnit(undefined)
-    withdrawal({ target: unit })
+    setActiveUnit(undefined);
+    withdrawal({ target: unit });
   };
 
   const handleBoot = () => {
     console.log(`Unit ${unit.id} booting`);
     // Implement boot logic here
-    setActiveUnit(undefined)
+    setActiveUnit(undefined);
   };
 
   return (

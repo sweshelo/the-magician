@@ -7,7 +7,7 @@ export const colorTable = {
     2: 'bg-yellow-500', // Yellow (lighter than before)
     3: 'bg-blue-500', // Blue
     4: 'bg-green-500', // Green (lighter than before)
-    5: 'bg-purple-600' // Purple (lighter than before)
+    5: 'bg-purple-600', // Purple (lighter than before)
   },
 
   // Game UI Colors
@@ -19,38 +19,42 @@ export const colorTable = {
     borderDashed: 'border-slate-500', // Dashed border color (was border-slate-600)
     text: {
       primary: 'text-white',
-      secondary: 'text-slate-300' // Lighter secondary text (was text-slate-400)
+      secondary: 'text-slate-300', // Lighter secondary text (was text-slate-400)
     },
-    opponentCardBackground: 'bg-gray-600'
+    opponentCardBackground: 'bg-gray-600',
   },
 
   // Symbol Colors
   symbols: {
     life: 'text-red-400',
     mana: 'text-blue-400',
-    cp: 'text-yellow-400'
-  }
-}
+    cp: 'text-yellow-400',
+  },
+};
 
 // Color mapping function for card colors
 export const getColorCode = (color: number) => {
-  return colorTable.cardColors[color as keyof typeof colorTable.cardColors] || 'bg-gray-400'
-}
+  return colorTable.cardColors[color as keyof typeof colorTable.cardColors] || 'bg-gray-400';
+};
 
 // Helper to get UI colors
 export const getUIColor = (colorPath: string): string | undefined => {
   // Split the path (e.g., "ui.background" -> ["ui", "background"])
-  const parts = colorPath.split('.')
+  const parts = colorPath.split('.');
 
   // Navigate through the colorTable object
-  let result: unknown = colorTable
+  let result: unknown = colorTable;
   for (const part of parts) {
-    if (result && typeof result === 'object' && Object.prototype.hasOwnProperty.call(result, part)) {
-      result = (result as Record<string, unknown>)[part]
+    if (
+      result &&
+      typeof result === 'object' &&
+      Object.prototype.hasOwnProperty.call(result, part)
+    ) {
+      result = (result as Record<string, unknown>)[part];
     } else {
-      return undefined
+      return undefined;
     }
   }
 
-  return typeof result === 'string' ? result : undefined
-}
+  return typeof result === 'string' ? result : undefined;
+};

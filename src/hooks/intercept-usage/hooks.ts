@@ -1,15 +1,15 @@
 'use client';
 
-import { ICard } from "@/submodule/suit/types";
-import { useContext, useCallback } from "react";
-import { InterceptUsageContext, InterceptUsageContextType } from "./context";
+import { ICard } from '@/submodule/suit/types';
+import { useContext, useCallback } from 'react';
+import { InterceptUsageContext, InterceptUsageContextType } from './context';
 
 // Main hook to access the intercept usage context
 export const useInterceptUsage = (): InterceptUsageContextType => {
   const context = useContext(InterceptUsageContext);
 
   if (!context) {
-    throw new Error("useInterceptUsage must be used within an InterceptUsageProvider");
+    throw new Error('useInterceptUsage must be used within an InterceptUsageProvider');
   }
 
   return context;
@@ -19,9 +19,12 @@ export const useInterceptUsage = (): InterceptUsageContextType => {
 export const useIsInterceptAvailable = () => {
   const { availableIntercepts } = useInterceptUsage();
 
-  return useCallback((card: ICard) => {
-    return availableIntercepts.some(intercept => intercept.id === card.id);
-  }, [availableIntercepts]);
+  return useCallback(
+    (card: ICard) => {
+      return availableIntercepts.some(intercept => intercept.id === card.id);
+    },
+    [availableIntercepts]
+  );
 };
 
 // Utility hook to check if there are any available intercepts

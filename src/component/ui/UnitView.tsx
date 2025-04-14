@@ -10,29 +10,33 @@ import catalog from "@/submodule/suit/catalog/catalog";
 import { useSystemContext } from "@/hooks/system/hooks";
 
 interface UnitViewProps {
-  unit: IUnit
-  backImage?: string
-  isOwnUnit?: boolean
+  unit: IUnit;
+  backImage?: string;
+  isOwnUnit?: boolean;
 }
 
 export const UnitView = ({ unit, isOwnUnit = false }: UnitViewProps) => {
-  const { setActiveUnit, candidate, animationUnit, setAnimationUnit } = useUnitSelection();
+  const { setActiveUnit, candidate, animationUnit, setAnimationUnit } =
+    useUnitSelection();
   const { setSelectedCard, operable } = useSystemContext();
 
-  const color: string = ({
-    1: 'orangered',
-    2: 'gold',
-    3: 'royalblue',
-    4: 'mediumseagreen',
-    5: 'darkviolet',
-  })[catalog.get(unit.catalogId)?.color ?? 0] ?? ''
+  const color: string =
+    {
+      1: "orangered",
+      2: "gold",
+      3: "royalblue",
+      4: "mediumseagreen",
+      5: "darkviolet",
+    }[catalog.get(unit.catalogId)?.color ?? 0] ?? "";
 
   // Handle unit click to show action buttons
   const handleUnitClick = () => {
     if (isOwnUnit && !candidate && operable) {
-      setActiveUnit((prev) => prev?.id !== unit.id ? unit : undefined);
+      setActiveUnit((prev) => (prev?.id !== unit.id ? unit : undefined));
     }
-    setSelectedCard(prev => prev?.catalogId === unit.catalogId ? undefined : unit)
+    setSelectedCard((prev) =>
+      prev?.catalogId === unit.catalogId ? undefined : unit,
+    );
   };
 
   return (
@@ -75,7 +79,11 @@ export const UnitView = ({ unit, isOwnUnit = false }: UnitViewProps) => {
         <UnitSelectionButton unitId={unit.id} />
       </div>
       <div className="-mt-2">
-        <BPView bp={unit.bp.base + unit.bp.diff - unit.bp.damage} diff={unit.bp.diff - unit.bp.damage} lv={unit.lv} />
+        <BPView
+          bp={unit.bp.base + unit.bp.diff - unit.bp.damage}
+          diff={unit.bp.diff - unit.bp.damage}
+          lv={unit.lv}
+        />
       </div>
     </div>
   );
