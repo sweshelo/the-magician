@@ -1,30 +1,26 @@
-import { HandView } from "@/component/ui/HandView";
-import { useGame } from "@/hooks/game";
-import { ICard } from "@/submodule/suit/types";
-import { useMemo } from "react";
+import { HandView } from '@/component/ui/HandView';
+import { useGameStore } from '@/hooks/game';
+import { useMemo } from 'react';
+import { ICard } from '@/submodule/suit/types';
 
 interface HandAreaProps {
-  hand?: ICard[];
+  playerId: string;
 }
 
-export const HandArea = ({ hand }: HandAreaProps) => {
-  const { rule } = useGame();
-  const handCards = hand || [];
+export const HandArea = ({ playerId }: HandAreaProps) => {
+  const rule = useGameStore.getState().rule;
+  const hand = (useGameStore.getState().players?.[playerId]?.hand ?? []) as ICard[];
 
   // Calculate the width needed for all placeholder slots
   const containerWidth = useMemo(() => {
     const cardWidth = 116;
     const gapWidth = 8;
-    const totalWidth =
-      cardWidth * rule.player.max.hand + gapWidth * (rule.player.max.hand - 1);
+    const totalWidth = cardWidth * rule.player.max.hand + gapWidth * (rule.player.max.hand - 1);
     return totalWidth;
   }, [rule.player.max.hand]);
 
   return (
-    <div
-      className="min-h-[180px] relative"
-      style={{ minWidth: `${containerWidth}px` }}
-    >
+    <div className="min-h-[180px] relative" style={{ minWidth: `${containerWidth}px` }}>
       {/* Placeholders - always display for all slots - left aligned */}
       <div className="flex justify-start gap-2 absolute inset-0 pointer-events-none">
         {[...Array(rule.player.max.hand)].map((_, index) => (
@@ -37,8 +33,8 @@ export const HandArea = ({ hand }: HandAreaProps) => {
 
       {/* Actual cards - left aligned */}
       <div className="flex justify-start gap-2 relative">
-        {handCards.map((card, index) => (
-          <HandView key={`hand-card-${index}`} card={card} />
+        {hand.map(card => (
+          <HandView key={`hand-card-${card.id}`} card={card} />
         ))}
       </div>
     </div>

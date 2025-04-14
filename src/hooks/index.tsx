@@ -1,7 +1,6 @@
 import { ReactNode } from 'react';
 import { WebSocketProvider } from './websocket';
 import { SystemContextProvider } from './system';
-import { GameProvider } from './game';
 import { CardsDialogProvider } from './cards-dialog';
 import { CardEffectDialogProvider } from './card-effect-dialog';
 import { InterceptUsageProvider } from './intercept-usage';
@@ -17,19 +16,17 @@ export const GlobalContextProvider = ({ children }: Props) => {
   return (
     <WebSocketProvider>
       <SystemContextProvider>
-        <GameProvider>
-          <SoundManagerV2Provider>
-            <CardsDialogProvider>
-              <CardEffectDialogProvider>
-                <CardUsageEffectProvider>
-                  <InterceptUsageProvider>
-                    <TimerProvider>{children}</TimerProvider>
-                  </InterceptUsageProvider>
-                </CardUsageEffectProvider>
-              </CardEffectDialogProvider>
-            </CardsDialogProvider>
-          </SoundManagerV2Provider>
-        </GameProvider>
+        <SoundManagerV2Provider>
+          <CardsDialogProvider>
+            <CardEffectDialogProvider>
+              <CardUsageEffectProvider>
+                <InterceptUsageProvider>
+                  <TimerProvider>{children}</TimerProvider>
+                </InterceptUsageProvider>
+              </CardUsageEffectProvider>
+            </CardEffectDialogProvider>
+          </CardsDialogProvider>
+        </SoundManagerV2Provider>
       </SystemContextProvider>
     </WebSocketProvider>
   );
