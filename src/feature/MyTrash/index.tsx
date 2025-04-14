@@ -16,7 +16,7 @@ export const MyTrash = () => {
   // メモ化されたイベントハンドラ
   const handleTrashClick = useCallback(() => {
     if (self?.trash) {
-      openCardsDialog([...self.trash.reverse()], 'あなたの捨札');
+      openCardsDialog([...self.trash].reverse(), 'あなたの捨札');
     }
   }, [openCardsDialog, self?.trash]);
 
