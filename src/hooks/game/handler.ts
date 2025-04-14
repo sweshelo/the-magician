@@ -22,6 +22,7 @@ export const useHandler = () => {
   const { play } = useSoundV2();
   const { setOperable } = useSystemContext();
   const { pauseTimer, resumeTimer } = useTimer();
+  const { closeCardsDialog } = useCardsDialog();
 
   const handle = async (message: Message) => {
     const { payload } = message;
@@ -47,6 +48,8 @@ export const useHandler = () => {
 
       // カード効果選択
       case 'Choices': {
+        closeCardsDialog();
+
         const { choices } = payload;
         if (choices.type === 'option') {
           // 知らん

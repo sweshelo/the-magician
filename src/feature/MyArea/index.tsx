@@ -16,14 +16,13 @@ import { useGameStore } from '@/hooks/game';
 export const MyArea = () => {
   const { openCardsDialog } = useCardsDialog();
   const playerId = LocalStorageHelper.playerId();
+
   const deck = (useGameStore.getState().players?.[playerId]?.deck ?? []) as ICard[];
   const self = useGameStore.getState().players?.[playerId];
 
   const handleDeckClick = useCallback(() => {
-    if (deck) {
-      openCardsDialog(deck, 'あなたのデッキ');
-    }
-  }, [openCardsDialog, deck]);
+    openCardsDialog(state => (state.players?.[playerId]?.deck ?? []) as ICard[], 'あなたのデッキ');
+  }, [openCardsDialog, playerId]);
   useMyArea();
 
   return (

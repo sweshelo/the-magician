@@ -6,7 +6,7 @@ import { ICard } from '@/submodule/suit/types';
 import { useSystemContext } from '@/hooks/system/hooks';
 import { LocalStorageHelper } from '@/service/local-storage';
 import { useDroppable } from '@dnd-kit/core';
-import { useCallback, useMemo } from 'react';
+import { useCallback } from 'react';
 import { BsTrash3Fill } from 'react-icons/bs';
 import { GiCardDiscard } from 'react-icons/gi';
 
@@ -14,17 +14,16 @@ export const MyTrash = () => {
   const { openCardsDialog } = useCardsDialog();
   const { activeCard } = useSystemContext();
   const playerId = LocalStorageHelper.playerId();
-  const trash = useMemo(
-    () => (useGameStore.getState().players?.[playerId]?.trash ?? []) as ICard[],
-    [playerId]
-  );
 
-  // メモ化されたイベントハンドラ
+  const trash = useGameStore.getState().players?.[playerId]?.trash ?? ([] as ICard[]);
+
+  // メモ化されたイベントハンドラ - Zustandセレクタを使用して捨札を購読
   const handleTrashClick = useCallback(() => {
-    if (trash) {
-      openCardsDialog([...trash].reverse(), 'あなたの捨札');
-    }
-  }, [openCardsDialog, trash]);
+    openCardsDialog(state => {
+      const playerTrash = (state.players?.[playerId]?.trash ?? []) as ICard[];
+      return [...playerTrash].reverse(); // 最新の捨札カードが上に表示されるよう逆順に
+    }, 'あなたの捨札');
+  }, [openCardsDialog, playerId]);
 
   const { setNodeRef, isOver } = useDroppable({
     id: 'trash',

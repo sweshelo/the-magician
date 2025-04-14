@@ -177,7 +177,10 @@ export const Game = ({ id }: RoomProps) => {
                     <div
                       className="flex justify-center items-center cursor-pointer w-full h-full"
                       onClick={() => {
-                        openCardsDialog([...opponent.trash].reverse() as ICard[], '対戦相手の捨札');
+                        openCardsDialog(state => {
+                          const trash = (state.players?.[oppenentId]?.trash ?? []) as ICard[];
+                          return [...trash].reverse(); // 最新の捨札カードが上に表示されるよう逆順に
+                        }, '対戦相手の捨札');
                       }}
                     >
                       {<BsTrash3Fill color="yellowgreen" size={32} />}

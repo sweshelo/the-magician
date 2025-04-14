@@ -12,7 +12,7 @@ interface MyFieldWrapperProps {
 export const MyFieldWrapper = ({ children }: MyFieldWrapperProps) => {
   const { activeCard } = useSystemContext();
   const playerId = LocalStorageHelper.playerId();
-  const field = useGameStore.getState().players?.[playerId]?.field ?? [];
+  const field = useGameStore.getState().players?.[playerId]?.field.length ?? 0;
   const rule = useGameStore.getState().rule;
   const { isOver, setNodeRef } = useDroppable({
     id: 'field',
@@ -21,7 +21,7 @@ export const MyFieldWrapper = ({ children }: MyFieldWrapperProps) => {
       accepts: ['card'],
     },
     disabled:
-      field.length >= rule.player.max.field ||
+      field >= rule.player.max.field ||
       catalog.get(activeCard?.data.current?.type)?.type !== 'unit',
   });
 
