@@ -1,7 +1,9 @@
+import { useCallback } from 'react';
 import { useTimer } from './hooks';
+import { useWebSocketGame } from '@/hooks/game';
 
 const CircularTimer = () => {
-  const { time, initialTime, endTurn } = useTimer();
+  const { time, initialTime } = useTimer();
 
   // 残り時間の割合を計算
   const timeRatio = time / initialTime;
@@ -30,6 +32,19 @@ const CircularTimer = () => {
   const seconds = Math.floor(time % 60);
   const deciseconds = Math.floor((time % 1) * 10);
   const timeDisplay = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}.${deciseconds}`;
+
+  const { send } = useWebSocketGame();
+  const turnEnd = useCallback(() => {
+    send({
+      action: {
+        handler: 'core',
+        type: 'event',
+      },
+      payload: {
+        type: 'TurnEnd',
+      },
+    });
+  }, [send]);
 
   return (
     <div className="flex flex-col items-center justify-center">
@@ -63,7 +78,7 @@ const CircularTimer = () => {
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
           <div className="text-2xl font-bold mb-2">{timeDisplay}</div>
           <button
-            onClick={endTurn}
+            onClick={turnEnd}
             className="bg-blue-500 bg-lime-600 hover:bg-lime-500 text-white font-medium py-2 px-4 rounded shadow w-30"
           >
             ターン終了
