@@ -11,18 +11,18 @@ import { useCallback } from 'react';
 import { MyTrash } from '../MyTrash';
 import { LocalStorageHelper } from '@/service/local-storage';
 import { ICard } from '@/submodule/suit/types';
-import { useGameStore } from '@/hooks/game';
+import { useDeck, usePlayer } from '@/hooks/game/hooks';
 
 export const MyArea = () => {
   const { openCardsDialog } = useCardsDialog();
   const playerId = LocalStorageHelper.playerId();
 
-  const deck = (useGameStore.getState().players?.[playerId]?.deck ?? []) as ICard[];
-  const self = useGameStore.getState().players?.[playerId];
+  const deck = useDeck(playerId);
+  const self = usePlayer(playerId);
 
   const handleDeckClick = useCallback(() => {
-    openCardsDialog(state => (state.players?.[playerId]?.deck ?? []) as ICard[], 'あなたのデッキ');
-  }, [openCardsDialog, playerId]);
+    openCardsDialog((deck ?? []) as ICard[], 'あなたのデッキ');
+  }, [openCardsDialog, deck]);
   useMyArea();
 
   return (
@@ -38,7 +38,7 @@ export const MyArea = () => {
 
         <div className="flex gap-4">
           {deck && (
-            <CardsCountView count={deck.length}>
+            <CardsCountView count={(deck ?? []).length}>
               <div
                 className="flex justify-center items-center cursor-pointer w-full h-full"
                 onClick={handleDeckClick}

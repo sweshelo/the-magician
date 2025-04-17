@@ -1,7 +1,7 @@
 import { CardsCountView } from '@/component/ui/CardsCountView';
 import { HighlightBoarder } from '@/component/ui/HighlightBorder';
 import { useCardsDialog } from '@/hooks/cards-dialog';
-import { useGameStore } from '@/hooks/game';
+import { useTrash } from '@/hooks/game/hooks';
 import { ICard } from '@/submodule/suit/types';
 import { useSystemContext } from '@/hooks/system/hooks';
 import { LocalStorageHelper } from '@/service/local-storage';
@@ -15,7 +15,7 @@ export const MyTrash = () => {
   const { activeCard } = useSystemContext();
   const playerId = LocalStorageHelper.playerId();
 
-  const trash = useGameStore.getState().players?.[playerId]?.trash ?? ([] as ICard[]);
+  const trash = useTrash(playerId) ?? [];
 
   // メモ化されたイベントハンドラ - Zustandセレクタを使用して捨札を購読
   const handleTrashClick = useCallback(() => {

@@ -1,7 +1,7 @@
 import { BackFlipedCard } from '@/component/ui/BackFlipedCard';
 import { CardView } from '@/component/ui/CardView';
 import { RotatedSquareHighlight } from '@/component/ui/RotatedSquareHighlight';
-import { useGameStore } from '@/hooks/game';
+import { useTrigger, useRule } from '@/hooks/game/hooks';
 import { useInterceptUsage } from '@/hooks/intercept-usage';
 import { LocalStorageHelper } from '@/service/local-storage';
 import master from '@/submodule/suit/catalog/catalog';
@@ -10,8 +10,8 @@ import { ICard } from '@/submodule/suit/types';
 export const MyTriggerZoneBody = () => {
   const { availableIntercepts, activateIntercept } = useInterceptUsage();
   const playerId = LocalStorageHelper.playerId();
-  const trigger = (useGameStore.getState().players?.[playerId]?.trigger ?? []) as ICard[];
-  const rule = useGameStore.getState().rule;
+  const trigger = (useTrigger(playerId) as ICard[]) ?? [];
+  const rule = useRule();
 
   return (
     <div className="flex gap-1">

@@ -3,7 +3,7 @@ import { useDroppable } from '@dnd-kit/core';
 import { useSystemContext } from '@/hooks/system/hooks';
 import catalog from '@/submodule/suit/catalog/catalog';
 import { LocalStorageHelper } from '@/service/local-storage';
-import { useGameStore } from '@/hooks/game';
+import { useField, useRule } from '@/hooks/game/hooks';
 
 interface MyFieldWrapperProps {
   children: ReactNode;
@@ -12,8 +12,8 @@ interface MyFieldWrapperProps {
 export const MyFieldWrapper = ({ children }: MyFieldWrapperProps) => {
   const { activeCard } = useSystemContext();
   const playerId = LocalStorageHelper.playerId();
-  const field = useGameStore.getState().players?.[playerId]?.field.length ?? 0;
-  const rule = useGameStore.getState().rule;
+  const field = useField(playerId)?.length ?? 0;
+  const rule = useRule();
   const { isOver, setNodeRef } = useDroppable({
     id: 'field',
     data: {

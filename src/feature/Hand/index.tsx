@@ -1,5 +1,5 @@
 import { HandView } from '@/component/ui/HandView';
-import { useGameStore } from '@/hooks/game';
+import { useRule, useHand } from '@/hooks/game/hooks';
 import { useMemo } from 'react';
 import { ICard } from '@/submodule/suit/types';
 
@@ -8,8 +8,8 @@ interface HandAreaProps {
 }
 
 export const HandArea = ({ playerId }: HandAreaProps) => {
-  const rule = useGameStore.getState().rule;
-  const hand = (useGameStore.getState().players?.[playerId]?.hand ?? []) as ICard[];
+  const rule = useRule();
+  const hand = (useHand(playerId) ?? []) as ICard[];
 
   // Calculate the width needed for all placeholder slots
   const containerWidth = useMemo(() => {

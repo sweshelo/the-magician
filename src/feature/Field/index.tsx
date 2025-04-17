@@ -7,7 +7,7 @@ interface FieldProps {
 }
 
 export const Field = ({ playerId, isOwnField = false }: FieldProps) => {
-  const units = useGameStore.getState().players?.[playerId]?.field ?? [];
+  const units = useGameStore(state => state.players?.[playerId].field);
 
   return (
     <div className={`flex justify-center items-center gap-4 h-43`}>

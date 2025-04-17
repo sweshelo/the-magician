@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { colorTable } from '@/helper/color';
-import { useGameStore, useWebSocketGame } from '@/hooks/game';
+import { usePlayers, usePlayer } from '@/hooks/game/hooks';
+import { useWebSocketGame } from '@/hooks/game';
 import { useSoundV2 } from '@/hooks/soundV2/hooks';
 import { useSystemContext } from '@/hooks/system/hooks';
 import { LocalStorageHelper } from '@/service/local-storage';
@@ -14,8 +15,7 @@ export const DebugDialog = () => {
   const [bgmVolume, setBgmVolume] = useState(getVolume());
   const [isBgmPlaying, setIsBgmPlaying] = useState(false);
   const [hide, setHide] = useState(false);
-  const playerId = Object.keys(useGameStore.getState().players ?? []);
-  const usePlayer = (id: string) => useGameStore.getState().players?.[id];
+  const playerId = Object.keys(usePlayers() ?? {});
 
   // Check and update BGM playing status
   useEffect(() => {

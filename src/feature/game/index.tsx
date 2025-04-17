@@ -8,7 +8,7 @@ import { DebugDialog } from '@/component/ui/DebugDialog';
 import { InterceptSelectionOverlay } from '@/component/ui/InterceptSelectionOverlay';
 import { LifeView } from '@/component/ui/LifeView';
 import { colorTable } from '@/helper/color';
-import { useGameStore } from '@/hooks/game';
+import { useRule, usePlayers, usePlayer } from '@/hooks/game/hooks';
 import { MyArea } from '../MyArea';
 import {
   DndContext,
@@ -43,14 +43,14 @@ export const Game = ({ id }: RoomProps) => {
   const { openCardsDialog } = useCardsDialog();
   const { cursorCollisionSize } = useSystemContext();
 
-  const rule = useGameStore.getState().rule;
-  const playerId = Object.keys(useGameStore.getState().players ?? []);
+  const rule = useRule();
+  const playerId = Object.keys(usePlayers() ?? {});
   const oppenentId =
     useMemo(
       () => playerId.find((id: string) => id !== LocalStorageHelper.playerId()),
       [playerId]
     ) ?? '';
-  const opponent = useGameStore.getState().players?.[oppenentId];
+  const opponent = usePlayer(oppenentId);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {

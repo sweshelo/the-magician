@@ -1,4 +1,4 @@
-import { useGameStore } from '@/hooks/game';
+import { useRule, useTrigger } from '@/hooks/game/hooks';
 import { useSystemContext } from '@/hooks/system/hooks';
 import { LocalStorageHelper } from '@/service/local-storage';
 import { useDroppable } from '@dnd-kit/core';
@@ -11,8 +11,8 @@ interface MyTriggerZoneWrapperProps {
 export const MyTriggerZoneWrapper = ({ children }: MyTriggerZoneWrapperProps) => {
   const { activeCard } = useSystemContext();
   const playerId = LocalStorageHelper.playerId();
-  const rule = useGameStore.getState().rule;
-  const trigger = useGameStore.getState().players?.[playerId]?.trigger ?? [];
+  const rule = useRule();
+  const trigger = useTrigger(playerId) ?? [];
   const { isOver, setNodeRef } = useDroppable({
     id: 'trigger-zone',
     data: {
