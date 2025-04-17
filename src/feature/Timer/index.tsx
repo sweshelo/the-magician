@@ -1,12 +1,72 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTimer } from './hooks';
 import { useWebSocketGame } from '@/hooks/game';
 
+const getRemainTime = (
+  startDate: Date | null,
+  initialTime: number,
+  isRunning: boolean,
+  pauseRemain: number | null
+) => {
+  if (!isRunning) {
+    // 一時停止中
+    if (pauseRemain !== null) return pauseRemain;
+    if (!startDate) return initialTime;
+    // 例外ケース
+    return 0;
+  }
+  if (!startDate) return initialTime;
+  const elapsed = (Date.now() - startDate.getTime()) / 1000;
+  return Math.max(0, initialTime - elapsed);
+};
+
 const CircularTimer = () => {
-  const { time, initialTime } = useTimer();
+  const { startDate, initialTime, isRunning } = useTimer();
+
+  // 一時停止時の残り秒数を保持
+  const [pauseRemain, setPauseRemain] = useState<number | null>(null);
+
+  // isRunningやstartDateの変化でpauseRemainをリセット
+  useEffect(() => {
+    if (isRunning) {
+      setPauseRemain(null);
+    } else if (startDate) {
+      // 一時停止時に残り秒数を記録
+      const elapsed = (Date.now() - startDate.getTime()) / 1000;
+      setPauseRemain(Math.max(0, initialTime - elapsed));
+    } else {
+      setPauseRemain(initialTime);
+    }
+  }, [isRunning, startDate, initialTime]);
+
+  // 残り秒数をローカルstateで管理（アニメーション用）
+  const [remain, setRemain] = useState(initialTime);
+
+  // requestAnimationFrameで残り秒数を更新
+  const rafRef = useRef<number | null>(null);
+  useEffect(() => {
+    let mounted = true;
+    const update = () => {
+      if (!mounted) return;
+      const t = getRemainTime(startDate, initialTime, isRunning, pauseRemain);
+      setRemain(t);
+      if (isRunning && t > 0) {
+        rafRef.current = requestAnimationFrame(update);
+      }
+    };
+    if (isRunning) {
+      rafRef.current = requestAnimationFrame(update);
+    } else {
+      setRemain(getRemainTime(startDate, initialTime, isRunning, pauseRemain));
+    }
+    return () => {
+      mounted = false;
+      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+    };
+  }, [isRunning, startDate, initialTime, pauseRemain]);
 
   // 残り時間の割合を計算
-  const timeRatio = time / initialTime;
+  const timeRatio = remain / initialTime;
 
   // 残り時間に応じた色を決定
   const getColor = () => {
@@ -28,9 +88,9 @@ const CircularTimer = () => {
   const rotation = 270;
 
   // 分と秒とミリ秒の表示形式
-  const minutes = Math.floor(time / 60);
-  const seconds = Math.floor(time % 60);
-  const deciseconds = Math.floor((time % 1) * 10);
+  const minutes = Math.floor(remain / 60);
+  const seconds = Math.floor(remain % 60);
+  const deciseconds = Math.floor((remain % 1) * 10);
   const timeDisplay = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}.${deciseconds}`;
 
   const { send } = useWebSocketGame();

@@ -2,7 +2,7 @@ import { createContext, ReactNode, useContext } from 'react';
 
 // 型定義
 export interface TimerContextType {
-  time: number;
+  startDate: Date | null;
   initialTime: number;
   isRunning: boolean;
   pauseTimer: () => void;

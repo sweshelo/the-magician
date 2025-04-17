@@ -1,52 +1,55 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState, useRef } from 'react';
 import { TimerContext, TimerContextType, TimerProviderProps } from './hooks';
 
 export const TimerProvider = ({ children, initialTime = 60 }: TimerProviderProps) => {
+  // タイマー開始時刻
+  const [startDate, setStartDate] = useState<Date | null>(new Date());
+  // 初期残り秒数
+  const [initialTimeValue, setInitialTimeValue] = useState(initialTime);
+  // 動作中か
   const [isRunning, setIsRunning] = useState(true);
-  const [time, setTime] = useState(initialTime);
-  const [initialTimeValue] = useState(initialTime);
+
+  // 一時停止時の残り秒数
+  const pauseRemainRef = useRef<number | null>(null);
 
   const pauseTimer = () => {
+    if (!isRunning) return;
     setIsRunning(false);
+    if (startDate) {
+      const elapsed = (Date.now() - startDate.getTime()) / 1000;
+      pauseRemainRef.current = Math.max(0, initialTimeValue - elapsed);
+    }
   };
 
   const resumeTimer = () => {
+    if (isRunning) return;
     setIsRunning(true);
+    // 再開時は現在時刻を新たなstartDateにし、pauseRemainRef.currentを新たなinitialTimeValueに
+    if (pauseRemainRef.current !== null) {
+      setStartDate(new Date());
+      setInitialTimeValue(pauseRemainRef.current);
+      pauseRemainRef.current = null;
+    }
   };
 
   const resetTimer = () => {
-    setTime(initialTimeValue);
+    setStartDate(new Date());
+    setInitialTimeValue(initialTime);
     setIsRunning(true);
+    pauseRemainRef.current = null;
   };
 
   const endTurn = () => {
-    setTime(0);
     setIsRunning(false);
+    setStartDate(null);
+    setInitialTimeValue(0);
+    pauseRemainRef.current = null;
   };
 
-  useEffect(() => {
-    let interval: NodeJS.Timeout | null = null;
-    if (isRunning && time > 0) {
-      // 100msごとに更新して小数点以下の表示をサポート
-      interval = setInterval(() => {
-        setTime(prevTime => {
-          const newTime = prevTime - 0.1;
-          return newTime <= 0 ? 0 : parseFloat(newTime.toFixed(1));
-        });
-      }, 100);
-    } else if (time === 0) {
-      setIsRunning(false);
-    }
-
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [isRunning, time, initialTimeValue]);
-
   const value: TimerContextType = {
-    time,
+    startDate,
     initialTime: initialTimeValue,
     isRunning,
     pauseTimer,
