@@ -1,13 +1,14 @@
-import { IUnit } from "@/submodule/suit/types";
-import { BPView } from "./BPView";
-import { UnitIconView } from "./UnitIconView";
-import { UnitActivatedView } from "./UnitActivatedView";
-import { UnitActionButtons } from "./UnitActionButtons";
-import { UnitSelectionButton } from "./UnitSelectionButton";
-import { UnitIconEffect } from "./UnitIconEffect";
-import { useUnitSelection } from "@/hooks/unit-selection";
-import catalog from "@/submodule/suit/catalog/catalog";
-import { useSystemContext } from "@/hooks/system/hooks";
+import React from 'react';
+import { IUnit } from '@/submodule/suit/types';
+import { BPView } from './BPView';
+import { UnitIconView } from './UnitIconView';
+import { UnitActivatedView } from './UnitActivatedView';
+import { UnitActionButtons } from './UnitActionButtons';
+import { UnitSelectionButton } from './UnitSelectionButton';
+import { UnitIconEffect } from './UnitIconEffect';
+import { useUnitSelection } from '@/hooks/unit-selection';
+import catalog from '@/submodule/suit/catalog/catalog';
+import { useSystemContext } from '@/hooks/system/hooks';
 
 interface UnitViewProps {
   unit: IUnit;
@@ -15,28 +16,25 @@ interface UnitViewProps {
   isOwnUnit?: boolean;
 }
 
-export const UnitView = ({ unit, isOwnUnit = false }: UnitViewProps) => {
-  const { setActiveUnit, candidate, animationUnit, setAnimationUnit } =
-    useUnitSelection();
+const UnitViewComponent = ({ unit, isOwnUnit = false }: UnitViewProps) => {
+  const { setActiveUnit, candidate, animationUnit, setAnimationUnit } = useUnitSelection();
   const { setSelectedCard, operable } = useSystemContext();
 
   const color: string =
     {
-      1: "orangered",
-      2: "gold",
-      3: "royalblue",
-      4: "mediumseagreen",
-      5: "darkviolet",
-    }[catalog.get(unit.catalogId)?.color ?? 0] ?? "";
+      1: 'orangered',
+      2: 'gold',
+      3: 'royalblue',
+      4: 'mediumseagreen',
+      5: 'darkviolet',
+    }[catalog.get(unit.catalogId)?.color ?? 0] ?? '';
 
   // Handle unit click to show action buttons
   const handleUnitClick = () => {
     if (isOwnUnit && !candidate && operable) {
-      setActiveUnit((prev) => (prev?.id !== unit.id ? unit : undefined));
+      setActiveUnit(prev => (prev?.id !== unit.id ? unit : undefined));
     }
-    setSelectedCard((prev) =>
-      prev?.catalogId === unit.catalogId ? undefined : unit,
-    );
+    setSelectedCard(prev => (prev?.catalogId === unit.catalogId ? undefined : unit));
   };
 
   return (
@@ -88,3 +86,5 @@ export const UnitView = ({ unit, isOwnUnit = false }: UnitViewProps) => {
     </div>
   );
 };
+
+export const UnitView = React.memo(UnitViewComponent);
