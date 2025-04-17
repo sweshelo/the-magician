@@ -4,9 +4,16 @@ import { useContext } from 'react';
 import { CardsDialogContext, CardsDialogContextType } from './context';
 import { ICard } from '@/submodule/suit/types';
 import { useSoundV2 } from '../soundV2/hooks';
+import { useGameStore } from '@/hooks/game';
+
+// Define the GameState type based on what we've seen in the code
+type GameState = ReturnType<typeof useGameStore.getState>;
 
 export const useCardsDialog = (): CardsDialogContextType & {
-  openCardsDialog: (cards: ICard[], title: string) => void;
+  openCardsDialog: (
+    cardsOrSelector: ICard[] | ((state: GameState) => ICard[]),
+    title: string
+  ) => void;
   openCardsSelector: (
     cards: ICard[],
     title: string,
@@ -23,11 +30,39 @@ export const useCardsDialog = (): CardsDialogContextType & {
 
   const { play } = useSoundV2();
 
-  // Function to open cards dialog with the provided cards and title (viewer mode)
-  const openCardsDialog = (cards: ICard[], title: string) => {
+  // Function to open cards dialog with the provided cards or selector and title (viewer mode)
+  const openCardsDialog = (
+    cardsOrSelector: ICard[] | ((state: GameState) => ICard[]),
+    title: string
+  ) => {
+    // Clean up any existing subscription
+    if (context.cleanupFunction) {
+      context.cleanupFunction();
+      context.setCleanupFunction(null);
+    }
+
     context.setSelection([]);
     context.setResolvePromise(null);
-    context.setCards(cards);
+
+    if (typeof cardsOrSelector === 'function') {
+      // It's a selector function - set up subscription
+      const initialCards = cardsOrSelector(useGameStore.getState());
+      context.setCards(initialCards);
+
+      // Subscribe to the store and update cards when state changes
+      const unsubscribe = useGameStore.subscribe(state => {
+        // Get the cards from the selector and update state if they have changed
+        const updatedCards = cardsOrSelector(state);
+        context.setCards(updatedCards);
+      });
+
+      // Save the unsubscribe function for cleanup
+      context.setCleanupFunction(() => unsubscribe);
+    } else {
+      // It's a direct array of cards
+      context.setCards(cardsOrSelector);
+    }
+
     context.setDialogTitle(title);
     context.setIsSelector(false);
     context.setCount(0);
@@ -72,9 +107,17 @@ export const useCardsDialog = (): CardsDialogContextType & {
       context.resolvePromise([]);
       context.setResolvePromise(null);
     }
+
+    // Clean up any active subscription
+    if (context.cleanupFunction) {
+      context.cleanupFunction();
+      context.setCleanupFunction(null);
+    }
+
+    if (context.cards?.length !== undefined) play('close');
+
     context.setCards(undefined);
     context.setSelection([]);
-    play('close');
   };
 
   return {

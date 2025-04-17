@@ -2,7 +2,6 @@ import { CPView } from '@/component/ui/CPView';
 import { CardsCountView } from '@/component/ui/CardsCountView';
 import { LifeView } from '@/component/ui/LifeView';
 import { colorTable } from '@/helper/color';
-import { useGame } from '@/hooks/game';
 import { HandArea } from '../Hand';
 import { GiCardDraw } from 'react-icons/gi';
 import { useCardsDialog } from '@/hooks/cards-dialog';
@@ -10,15 +9,20 @@ import { MyTriggerZone } from '../MyTriggerZone';
 import { useMyArea } from './hooks';
 import { useCallback } from 'react';
 import { MyTrash } from '../MyTrash';
+import { LocalStorageHelper } from '@/service/local-storage';
+import { ICard } from '@/submodule/suit/types';
+import { useDeck, usePlayer } from '@/hooks/game/hooks';
 
 export const MyArea = () => {
-  const { self } = useGame();
   const { openCardsDialog } = useCardsDialog();
+  const playerId = LocalStorageHelper.playerId();
+
+  const deck = useDeck(playerId);
+  const self = usePlayer(playerId);
+
   const handleDeckClick = useCallback(() => {
-    if (self?.deck) {
-      openCardsDialog(self.deck, 'あなたのデッキ');
-    }
-  }, [openCardsDialog, self?.deck]);
+    openCardsDialog((deck ?? []) as ICard[], 'あなたのデッキ');
+  }, [openCardsDialog, deck]);
   useMyArea();
 
   return (
@@ -28,13 +32,13 @@ export const MyArea = () => {
         className={`flex justify-between items-center p-2 ${colorTable.ui.playerInfoBackground} rounded-lg mb-4`}
       >
         <div className="player-identity">
-          <div className="font-bold text-lg">{self?.status.name || ''}</div>
+          <div className="font-bold text-lg">{self?.name || ''}</div>
           <div className={`text-sm ${colorTable.ui.text.secondary}`}>あなたのターン</div>
         </div>
 
         <div className="flex gap-4">
-          {self?.deck && (
-            <CardsCountView count={self.deck.length}>
+          {deck && (
+            <CardsCountView count={(deck ?? []).length}>
               <div
                 className="flex justify-center items-center cursor-pointer w-full h-full"
                 onClick={handleDeckClick}
@@ -49,16 +53,14 @@ export const MyArea = () => {
         <MyTriggerZone />
 
         <div className="flex flex-col gap-2">
-          {self?.status.life && (
-            <LifeView current={self.status.life.current} max={self.status.life.max} />
-          )}
-          {self?.status.cp && <CPView current={self.status.cp.current} max={self.status.cp.max} />}
+          {self?.life && <LifeView current={self.life.current} max={self.life.max} />}
+          {self?.cp && <CPView current={self.cp.current} max={self.cp.max} />}
         </div>
       </div>
 
       {/* 自分の手札エリア */}
       <div className="flex justify-center">
-        <HandArea hand={self.hand} />
+        <HandArea playerId={playerId} />
         {/*
         <div className="flex gap-2">
           <HandView

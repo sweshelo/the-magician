@@ -1,8 +1,8 @@
-import master from "@/submodule/suit/catalog/catalog";
-import { getColorCode } from "@/helper/color";
-import { IAtom, ICard } from "@/submodule/suit/types";
-import { useSystemContext } from "@/hooks/system/hooks";
-import { useCallback } from "react";
+import master from '@/submodule/suit/catalog/catalog';
+import { getColorCode } from '@/helper/color';
+import { IAtom, ICard } from '@/submodule/suit/types';
+import { useSystemContext } from '@/hooks/system/hooks';
+import { useCallback } from 'react';
 
 interface Props {
   card: IAtom;
@@ -10,15 +10,16 @@ interface Props {
   isHighlighting?: boolean;
   onClick?: () => void;
   isSmall?: boolean;
+  isMitigated?: boolean;
 }
 
 // Type guard to check if an IAtom is actually an ICard
 function isICard(card: IAtom): card is ICard {
   return (
-    "catalogId" in card &&
-    typeof card.catalogId === "string" &&
-    "lv" in card &&
-    typeof card.lv === "number"
+    'catalogId' in card &&
+    typeof card.catalogId === 'string' &&
+    'lv' in card &&
+    typeof card.lv === 'number'
   );
 }
 
@@ -27,28 +28,27 @@ export const CardView = ({
   isSelecting,
   isHighlighting,
   isSmall,
+  isMitigated = false,
   onClick,
 }: Props) => {
   // Use the type guard to check if this is an ICard
   const cardAsICard = isICard(card) ? card : null;
   const catalog = cardAsICard ? master.get(cardAsICard.catalogId) : undefined;
 
-  const sizeClass = isSmall ? "w-19 h-26" : "w-28 h-39";
+  const sizeClass = isSmall ? 'w-19 h-26' : 'w-28 h-39';
 
   const { setSelectedCard } = useSystemContext();
   const handleCardClick = useCallback(() => {
     if (isICard(card))
-      setSelectedCard((prev) =>
-        prev?.catalogId === card.catalogId ? undefined : card,
-      );
+      setSelectedCard(prev => (prev?.catalogId === card.catalogId ? undefined : card));
   }, [card, setSelectedCard]);
 
   return (
     <div
-      className={`${sizeClass} border-2 border-slate-600 rounded justify-center items-center text-slate-500 relative ${isSelecting ? "animate-pulse-border" : ""}`}
+      className={`${sizeClass} border-2 border-slate-600 rounded justify-center items-center text-slate-500 relative ${isSelecting ? 'animate-pulse-border' : ''}`}
       style={{
         backgroundImage: `url('https://coj.sega.jp/player/img/${catalog?.img}')`,
-        backgroundSize: "cover",
+        backgroundSize: 'cover',
       }}
       onClick={() => {
         handleCardClick();
@@ -62,9 +62,9 @@ export const CardView = ({
           <div className="border-3 border-gray-700">
             {catalog && (
               <div
-                className={`w-5 h-5 flex items-center justify-center font-bold text-white ${catalog ? getColorCode(catalog.color) : ""}`}
+                className={`w-5 h-5 flex items-center justify-center font-bold text-white ${catalog ? getColorCode(catalog.color) : ''}`}
               >
-                {catalog?.cost}
+                {(catalog?.cost ?? 0) - (isMitigated ? 1 : 0)}
               </div>
             )}
           </div>
@@ -75,14 +75,8 @@ export const CardView = ({
           <ul
             className={`w-full h-7 flex items-center justify-center font-bold text-white bg-gray-700`}
           >
-            {cardAsICard && (
-              <li className="text-xs">{`Lv ${cardAsICard.lv}`}</li>
-            )}
-            {catalog.bp && (
-              <li className="ml-2">
-                {catalog.bp?.[(cardAsICard?.lv ?? 1) - 1]}
-              </li>
-            )}
+            {cardAsICard && <li className="text-xs">{`Lv ${cardAsICard.lv}`}</li>}
+            {catalog.bp && <li className="ml-2">{catalog.bp?.[(cardAsICard?.lv ?? 1) - 1]}</li>}
           </ul>
         )}
       </div>

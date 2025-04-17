@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import { useEffect, useRef, useState, useCallback } from 'react';
 
 interface UnitIconEffectProps {
@@ -11,7 +12,7 @@ interface UnitIconEffectProps {
   onComplete?: () => void;
 }
 
-export const UnitIconEffect = ({
+const UnitIconEffectComponent = ({
   size = 160,
   rectangleWidth = 6,
   rectangleHeight = 24,
@@ -193,7 +194,7 @@ export const UnitIconEffect = ({
   }, [phase, show, onComplete, circleRadius, rectangleCount]);
 
   // If not showing and already hidden, return null
-  if (!show && phase === 'hidden') {
+  if (!show && phase === 'initial') {
     return null;
   }
 
@@ -248,3 +249,5 @@ export const UnitIconEffect = ({
     </div>
   );
 };
+
+export const UnitIconEffect = React.memo(UnitIconEffectComponent);

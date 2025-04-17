@@ -2,18 +2,20 @@
 
 import { useState, useEffect } from 'react';
 import { colorTable } from '@/helper/color';
-import { useGame, useWebSocketGame } from '@/hooks/game';
+import { usePlayers, usePlayer } from '@/hooks/game/hooks';
+import { useWebSocketGame } from '@/hooks/game';
 import { useSoundV2 } from '@/hooks/soundV2/hooks';
 import { useSystemContext } from '@/hooks/system/hooks';
+import { LocalStorageHelper } from '@/service/local-storage';
 
 export const DebugDialog = () => {
-  const { self, opponent } = useGame();
   const { send } = useWebSocketGame();
   const { play, setVolume, getVolume, bgm, stopBgm, isPlaying } = useSoundV2();
   const { cursorCollisionSize, setCursorCollisionSize, setOperable } = useSystemContext();
   const [bgmVolume, setBgmVolume] = useState(getVolume());
   const [isBgmPlaying, setIsBgmPlaying] = useState(false);
   const [hide, setHide] = useState(false);
+  const playerId = Object.keys(usePlayers() ?? {});
 
   // Check and update BGM playing status
   useEffect(() => {
@@ -31,6 +33,9 @@ export const DebugDialog = () => {
     return () => clearInterval(intervalId);
   }, [isPlaying]);
 
+  const self = usePlayer(playerId.find((id: string) => id === LocalStorageHelper.playerId())!);
+  const opponent = usePlayer(playerId.find((id: string) => id !== LocalStorageHelper.playerId())!);
+
   const handleDebugButtonClick = () => {
     console.log('self: ', self, '\nopponent: ', opponent);
   };
@@ -44,7 +49,7 @@ export const DebugDialog = () => {
       },
       payload: {
         type: 'DebugDraw',
-        player: self.status.id!,
+        player: LocalStorageHelper.playerId(),
       },
     });
   };

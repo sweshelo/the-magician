@@ -1,16 +1,18 @@
-import { UnitView } from "@/component/ui/UnitView";
-import { IUnit } from "@/submodule/suit/types";
+import { UnitView } from '@/component/ui/UnitView';
+import { useGameStore } from '@/hooks/game';
 
 interface FieldProps {
-  units: IUnit[] | undefined;
+  playerId: string;
   isOwnField?: boolean;
 }
 
-export const Field = ({ units, isOwnField = false }: FieldProps) => {
+export const Field = ({ playerId, isOwnField = false }: FieldProps) => {
+  const units = useGameStore(state => state.players?.[playerId].field);
+
   return (
     <div className={`flex justify-center items-center gap-4 h-43`}>
-      {(units ?? []).map((unit, i) => (
-        <UnitView unit={unit} key={i} isOwnUnit={isOwnField} />
+      {(isOwnField ? [...(units ?? [])].reverse() : (units ?? [])).map(unit => (
+        <UnitView unit={unit} key={unit.id} isOwnUnit={isOwnField} />
       ))}
     </div>
   );

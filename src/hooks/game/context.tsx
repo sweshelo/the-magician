@@ -1,16 +1,20 @@
 'use client';
 
-import { createContext, ReactNode, useReducer, useMemo } from 'react';
-import { GameAction, gameReducer, GameState } from './reducer';
 import { DEFAULT_ROOM_SETTINGS } from '@/constants/room';
+import { IPlayer, Rule } from '@/submodule/suit/types';
+import { create } from 'zustand';
 
-// Context用の型定義：stateとdispatchを公開
-export type GameContextType = {
-  state: GameState;
-  dispatch: React.Dispatch<GameAction>;
-};
-
-export const GameContext = createContext<GameContextType | undefined>(undefined);
+// ステートの型定義
+export interface GameState {
+  players?: {
+    [key: string]: IPlayer;
+  };
+  game: {
+    turn: number;
+    round: number;
+  };
+  rule: Rule;
+}
 
 // 初期状態
 const initialState: GameState = {
@@ -22,12 +26,15 @@ const initialState: GameState = {
   rule: DEFAULT_ROOM_SETTINGS.rule,
 };
 
-// Providerコンポーネント：useReducerを利用して状態管理を行い、Contextに値を渡します
-export const GameProvider = ({ children }: { children: ReactNode }) => {
-  const [state, dispatch] = useReducer(gameReducer, initialState);
-
-  // valueの再生成を防ぐためuseMemoを利用
-  const contextValue = useMemo(() => ({ state, dispatch }), [state]);
-
-  return <GameContext.Provider value={contextValue}>{children}</GameContext.Provider>;
-};
+export const useGameStore = create<
+  GameState & {
+    sync: (newState: Partial<GameState>) => void;
+  }
+>(set => ({
+  ...initialState,
+  sync: newState =>
+    set(store => ({
+      ...store,
+      ...newState,
+    })),
+}));

@@ -1,6 +1,4 @@
 import { ICard, IUnit, Message } from '@/submodule/suit/types';
-import { useGame } from './hooks';
-import { GameState } from './reducer';
 import { useCardEffectDialog } from '@/hooks/card-effect-dialog';
 import { useWebSocketGame } from './websocket';
 import { useCardsDialog } from '../cards-dialog';
@@ -11,9 +9,10 @@ import { useSystemContext } from '../system/hooks';
 import { useCardUsageEffect } from '../card-usage-effect';
 import { LocalStorageHelper } from '@/service/local-storage';
 import { useTimer } from '@/feature/Timer/hooks';
+import { GameState, useGameStore } from './context';
 
 export const useHandler = () => {
-  const { setAll } = useGame();
+  const { sync } = useGameStore();
   const { continueGame, choose } = useWebSocketGame();
   const { showDialog } = useCardEffectDialog();
   const { setAvailableUnits, setCandidate, setAnimationUnit } = useUnitSelection();
@@ -23,6 +22,7 @@ export const useHandler = () => {
   const { play } = useSoundV2();
   const { setOperable } = useSystemContext();
   const { pauseTimer, resumeTimer } = useTimer();
+  const { closeCardsDialog } = useCardsDialog();
 
   const handle = async (message: Message) => {
     const { payload } = message;
@@ -33,7 +33,7 @@ export const useHandler = () => {
         const game: GameState = {
           ...payload.body,
         };
-        setAll(game);
+        sync(game);
         break;
       }
 
@@ -48,6 +48,8 @@ export const useHandler = () => {
 
       // カード効果選択
       case 'Choices': {
+        closeCardsDialog();
+
         const { choices } = payload;
         if (choices.type === 'option') {
           // 知らん
