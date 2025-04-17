@@ -1,9 +1,9 @@
 import { useSystemContext } from '@/hooks/system/hooks';
 import { useDraggable, useDroppable } from '@dnd-kit/core';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { CardView } from './CardView';
 import { ICard } from '@/submodule/suit/types';
-import { useGameStore } from '@/hooks/game';
+import { GameState, useGameStore } from '@/hooks/game';
 import { LocalStorageHelper } from '@/service/local-storage';
 import master from '@/submodule/suit/catalog/catalog';
 import { isMitigated } from '@/helper/game';
@@ -17,9 +17,18 @@ const empty: ICard[] = [];
 
 export const HandView = ({ card }: Props) => {
   const [isHighlighted, setHighlighted] = useState(false);
-  const cp = useGameStore(state => state.players?.[LocalStorageHelper.playerId()].cp.current) ?? 0;
-  const trigger = (useGameStore(state => state.players?.[LocalStorageHelper.playerId()].trigger) ??
-    empty) as ICard[];
+
+  const cpSelector = useCallback(
+    (state: GameState) => state.players?.[LocalStorageHelper.playerId()].cp.current,
+    []
+  );
+  const triggerSelector = useCallback(
+    (state: GameState) => state.players?.[LocalStorageHelper.playerId()].trigger,
+    []
+  );
+
+  const cp = useGameStore(cpSelector) ?? 0;
+  const trigger = (useGameStore(triggerSelector) ?? empty) as ICard[];
   const { operable, activeCard } = useSystemContext();
   const {
     attributes,
@@ -59,7 +68,7 @@ export const HandView = ({ card }: Props) => {
     setHighlighted(activeCard?.id !== card.id && activeCard?.data.current?.type === card.catalogId);
   }, [activeCard?.data, activeCard?.id, card.catalogId, card.id]);
 
-  const mitigate = isMitigated(card, trigger);
+  const mitigate = useMemo(() => isMitigated(card, trigger), [card, trigger]);
 
   return (
     <div
