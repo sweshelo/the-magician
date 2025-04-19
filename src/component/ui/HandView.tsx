@@ -30,6 +30,16 @@ export const HandView = ({ card }: Props) => {
   const cp = useGameStore(cpSelector) ?? 0;
   const trigger = (useGameStore(triggerSelector) ?? empty) as ICard[];
   const { operable, activeCard } = useSystemContext();
+  const isStrictOverride = useGameStore(state => state.rule.misc.strictOverride);
+  const cardMaster = useMemo(() => master.get(activeCard?.data.current?.type), [activeCard]);
+  const isSameCard = useMemo(
+    () =>
+      isStrictOverride
+        ? cardMaster?.id === master.get(card.catalogId)?.id
+        : cardMaster?.name === master.get(card.catalogId)?.name,
+    [card.catalogId, cardMaster?.id, cardMaster?.name, isStrictOverride]
+  );
+
   const {
     attributes,
     listeners,
@@ -44,7 +54,7 @@ export const HandView = ({ card }: Props) => {
   });
   const { isOver, setNodeRef: setDroppableRef } = useDroppable({
     id: card.id,
-    disabled: activeCard?.id === card.id || card.catalogId !== activeCard?.data.current?.type,
+    disabled: activeCard?.id === card.id || !isSameCard,
     data: {
       supports: [card.catalogId],
       type: 'card',
@@ -65,8 +75,8 @@ export const HandView = ({ card }: Props) => {
   );
 
   useEffect(() => {
-    setHighlighted(activeCard?.id !== card.id && activeCard?.data.current?.type === card.catalogId);
-  }, [activeCard?.data, activeCard?.id, card.catalogId, card.id]);
+    setHighlighted(activeCard?.id !== card.id && isSameCard);
+  }, [activeCard?.data, activeCard?.id, card.catalogId, card.id, isSameCard, isStrictOverride]);
 
   const mitigate = useMemo(() => isMitigated(card, trigger), [card, trigger]);
 
