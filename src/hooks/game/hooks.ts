@@ -1,25 +1,42 @@
 import { useGameStore } from './context';
+import { useShallow } from 'zustand/shallow';
 
-// Zustandの推奨に従い、空配列リテラルは返さずundefinedを許容するhooks群
-// すべてのplayer state accessorを集約
+export const usePlayer = (playerId: string) => {
+  const [player] = useGameStore(useShallow(state => [state.players?.[playerId]]));
+  return player;
+};
 
-export const usePlayer = (playerId: string) => useGameStore(state => state.players?.[playerId]);
+export const useField = (playerId: string) => {
+  const [field] = useGameStore(useShallow(state => [state.players?.[playerId]?.field]));
+  return field;
+};
 
-export const useField = (playerId: string) =>
-  useGameStore(state => state.players?.[playerId]?.field);
+export const useHand = (playerId: string) => {
+  const [hand] = useGameStore(useShallow(state => [state.players?.[playerId]?.hand]));
+  return hand;
+};
 
-export const useHand = (playerId: string) => useGameStore(state => state.players?.[playerId]?.hand);
+export const useDeck = (playerId: string) => {
+  const [deck] = useGameStore(useShallow(state => [state.players?.[playerId]?.deck]));
+  return deck;
+};
 
-export const useDeck = (playerId: string) => useGameStore(state => state.players?.[playerId]?.deck);
+export const useTrash = (playerId: string) => {
+  const [trash] = useGameStore(useShallow(state => [state.players?.[playerId]?.trash]));
+  return trash;
+};
 
-export const useTrash = (playerId: string) =>
-  useGameStore(state => state.players?.[playerId]?.trash);
+export const useTrigger = (playerId: string) => {
+  const [trigger] = useGameStore(useShallow(state => [state.players?.[playerId]?.trigger]));
+  return trigger;
+};
 
-export const useTrigger = (playerId: string) =>
-  useGameStore(state => state.players?.[playerId]?.trigger);
+export const useRule = () => {
+  const [rule] = useGameStore(useShallow(state => [state.rule]));
+  return rule;
+};
 
-export const useRule = () => useGameStore(state => state.rule);
-
-export const usePlayers = () => useGameStore(state => state.players);
-
-// 必要に応じて他のstate accessorもここに追加
+export const usePlayers = () => {
+  const [players] = useGameStore(useShallow(state => [state.players]));
+  return players;
+};
