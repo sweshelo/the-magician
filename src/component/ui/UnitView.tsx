@@ -41,45 +41,48 @@ const UnitViewComponent = ({ unit, isOwnUnit = false }: UnitViewProps) => {
 
   return (
     <div className="flex flex-col items-center">
-      <div
-        ref={unitRef}
-        className="relative w-32 h-32 unit-wrapper"
-        onClick={isOwnUnit ? handleUnitClick : undefined}
-        style={useUnitAttackAnimationStyle(unit.id)}
-      >
-        {/* Animation effect layer (highest z-index) */}
-        <div className="absolute inset-0 z-10 pointer-events-none">
-          <UnitIconEffect
-            show={animationUnit === unit.id}
-            onComplete={() => setAnimationUnit(undefined)}
-          />
-        </div>
-
-        {/* Position components to layer correctly */}
-        <div className="absolute inset-0 z-1">
-          <UnitIconView
-            color={color}
-            image={`/image/card/full/${unit.catalogId}.jpg`}
-            reversed={false}
-          />
-        </div>
-        <div className="absolute inset-0 z-0">
-          <UnitActivatedView color={color} active={unit.active} />
-        </div>
-
+      <div className="relative w-32 h-32 unit-wrapper">
         {/* Action buttons (Attack/Withdrawal/Boot) - only shown for own units */}
         {isOwnUnit && (
-          <UnitActionButtons
-            unit={unit}
-            unitRef={unitRef}
-            canAttack={unit.active} // Example: Unit can only attack when active
-            canBoot={!unit.active} // Example: Unit can only boot when not already active
-            canWithdraw={true} // Always allow withdrawal
-          />
+          <div className="absolute inset-0 z-20 pointer-events-auto">
+            <UnitActionButtons
+              unit={unit}
+              unitRef={unitRef}
+              canAttack={unit.active}
+              canBoot={!unit.active}
+              canWithdraw={true}
+            />
+          </div>
         )}
+        <div
+          ref={unitRef}
+          className="absolute inset-0 z-0"
+          onClick={handleUnitClick}
+          style={useUnitAttackAnimationStyle(unit.id)}
+        >
+          {/* Animation effect layer (highest z-index) */}
+          <div className="absolute inset-0 z-10 pointer-events-none">
+            <UnitIconEffect
+              show={animationUnit === unit.id}
+              onComplete={() => setAnimationUnit(undefined)}
+            />
+          </div>
 
-        {/* Selection button (Select/Target/Block) - can be shown for any unit */}
-        <UnitSelectionButton unitId={unit.id} />
+          {/* Position components to layer correctly */}
+          <div className="absolute inset-0 z-1">
+            <UnitIconView
+              color={color}
+              image={`/image/card/full/${unit.catalogId}.jpg`}
+              reversed={false}
+            />
+          </div>
+          <div className="absolute inset-0 z-0">
+            <UnitActivatedView color={color} active={unit.active} />
+          </div>
+
+          {/* Selection button (Select/Target/Block) - can be shown for any unit */}
+          <UnitSelectionButton unitId={unit.id} />
+        </div>
       </div>
       <div className="-mt-2" style={useBPViewAnimationStyle(unit.id)}>
         <BPView

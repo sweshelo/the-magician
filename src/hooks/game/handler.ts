@@ -11,6 +11,8 @@ import { LocalStorageHelper } from '@/service/local-storage';
 import { useTimer } from '@/feature/Timer/hooks';
 import { GameState, useGameStore } from './context';
 
+import { useAttackAnimation } from '../attack-animation';
+
 export const useHandler = () => {
   const { sync } = useGameStore();
   const { continueGame, choose } = useWebSocketGame();
@@ -23,6 +25,20 @@ export const useHandler = () => {
   const { setOperable } = useSystemContext();
   const { pauseTimer, resumeTimer } = useTimer();
   const { closeCardsDialog } = useCardsDialog();
+  const { startAttackDeclaration, proceedToPreparation } = useAttackAnimation();
+
+  // 仮のユニット座標取得関数（後で実装/差し替え）
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const getUnitCenterPosition = (unitId: string): { x: number; y: number } | undefined => {
+    // 実装例: window.unitPositionMap[unitId] など
+    // if (typeof window !== 'undefined' && (window as any).unitPositionMap) {
+    //   return (window as any).unitPositionMap[unitId];
+    // }
+    return undefined;
+  };
+
+  // 画面中央座標取得
+  const getScreenCenterX = () => window.innerWidth / 2;
 
   const handle = async (message: Message) => {
     const { payload } = message;
@@ -91,19 +107,60 @@ export const useHandler = () => {
 
       // ヴィジュアルエフェクト通知
       case 'VisualEffect': {
-        switch (payload.body.effect) {
+        const body = payload.body;
+        switch (body.effect) {
+          case 'attack': {
+            // アタック宣言アニメ（declarationフェーズ）
+            const attackerId = body.attackerId;
+            const attackerPos = attackerId
+              ? getUnitCenterPosition(attackerId)
+              : { x: getScreenCenterX(), y: 0 };
+            const isPlayerUnit =
+              !!attackerId && attackerId.startsWith(LocalStorageHelper.playerId());
+            startAttackDeclaration(
+              attackerId,
+              isPlayerUnit,
+              attackerPos || { x: getScreenCenterX(), y: 0 }
+            );
+            break;
+          }
+          case 'launch': {
+            // launchアニメ（着弾座標算出→proceedToPreparation）
+            const attackerId = body.attackerId;
+            const blockerId = body.blockerId;
+            let targetPosition: { x: number; y: number };
+            if (blockerId) {
+              // blockerユニットの座標
+              const blockerPos = getUnitCenterPosition(blockerId);
+              targetPosition = blockerPos || { x: getScreenCenterX(), y: 0 };
+            } else {
+              // blockerIdがundefined: プレイヤー直接攻撃
+              const isPlayerUnit =
+                !!attackerId && attackerId.startsWith(LocalStorageHelper.playerId());
+              if (isPlayerUnit) {
+                targetPosition = { x: getScreenCenterX(), y: 20 };
+              } else {
+                targetPosition = { x: getScreenCenterX(), y: 600 };
+              }
+            }
+            proceedToPreparation(targetPosition);
+            break;
+          }
           case 'drive': {
-            const position =
-              payload.body.type === 'UNIT'
-                ? payload.body.player === LocalStorageHelper.playerId()
-                  ? 'right'
-                  : 'left'
-                : 'center';
-            showCardUsageEffect({
-              image: payload.body.image,
-              type: payload.body.type,
-              position,
-            });
+            // type guard
+            if ('type' in body && 'player' in body && 'image' in body) {
+              const position =
+                body.type === 'UNIT'
+                  ? body.player === LocalStorageHelper.playerId()
+                    ? 'right'
+                    : 'left'
+                  : 'center';
+              showCardUsageEffect({
+                image: body.image,
+                type: body.type,
+                position,
+              });
+            }
             break;
           }
         }
