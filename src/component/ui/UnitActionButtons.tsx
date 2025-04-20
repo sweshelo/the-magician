@@ -1,9 +1,12 @@
-import { useWebSocketGame } from "@/hooks/game";
-import { useUnitSelection } from "@/hooks/unit-selection";
-import { IUnit } from "@/submodule/suit/types";
+import React, { RefObject } from 'react';
+import { useWebSocketGame } from '@/hooks/game';
+import { useUnitSelection } from '@/hooks/unit-selection';
+import { useAttackAnimation } from '@/hooks/attack-animation';
+import { IUnit } from '@/submodule/suit/types';
 
 interface UnitActionButtonsProps {
   unit: IUnit;
+  unitRef: RefObject<HTMLDivElement | null>;
   canAttack?: boolean;
   canBoot?: boolean;
   canWithdraw?: boolean;
@@ -11,12 +14,14 @@ interface UnitActionButtonsProps {
 
 export const UnitActionButtons = ({
   unit,
+  unitRef,
   canAttack = true,
   canBoot = true,
   canWithdraw = true,
 }: UnitActionButtonsProps) => {
   const { activeUnit, setActiveUnit, candidate } = useUnitSelection();
   const { withdrawal } = useWebSocketGame();
+  const { startAttackDeclaration } = useAttackAnimation();
 
   // Don't render buttons if not showing for this unit
   // We only pass this component when rendering units in player's field, so no need to check ownership
@@ -27,6 +32,22 @@ export const UnitActionButtons = ({
   // Handle action button clicks
   const handleAttack = () => {
     console.log(`Unit ${unit.id} attacking`);
+
+    // Get the current unit position from the DOM
+    if (unitRef.current) {
+      const rect = unitRef.current.getBoundingClientRect();
+      const position = {
+        x: rect.left + rect.width / 2,
+        y: rect.top + rect.height / 2,
+      };
+
+      // Start the attack declaration animation with the actual unit position
+      startAttackDeclaration(unit.id, true, position);
+    } else {
+      // Fallback if unitRef is not available
+      startAttackDeclaration(unit.id, true, { x: 0, y: 0 });
+    }
+
     setActiveUnit(undefined);
   };
 
