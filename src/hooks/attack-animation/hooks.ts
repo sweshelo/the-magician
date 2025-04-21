@@ -26,15 +26,11 @@ export const useUnitAttackAnimationStyle = (unitId: string) => {
     return {}; // Return empty style object if not the attacking unit
   }
 
-  // Forward direction depends on whether it's the player's unit
-  const forwardDirection = state.isPlayerUnit ? -1 : 1;
-  const moveDistance = 12; // 12px as specified in requirements
-
   switch (state.phase) {
     case 'declaration':
       // Expand by 1.25x and move forward by 12px
       return {
-        transform: `scale(1.25) translateY(${forwardDirection * moveDistance}px)`,
+        transform: `scale(1.25)`, // translateY(${forwardDirection * moveDistance}px)`,
         transformOrigin: 'center center',
         transition: 'transform 0.3s ease-out',
       };

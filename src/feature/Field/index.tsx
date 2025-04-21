@@ -16,7 +16,7 @@ export const Field = ({ playerId, isOwnField = false }: FieldProps) => {
       {/* 画面カバー: ボタン表示中のみ有効 */}
       {activeUnit && (
         <div
-          className="absolute inset-0 z-30"
+          className="absolute inset-0 z-19"
           style={{ background: 'transparent', pointerEvents: 'auto' }}
           onClick={() => setActiveUnit(undefined)}
         />

@@ -18,7 +18,8 @@ interface UnitViewProps {
 }
 
 const UnitViewComponent = ({ unit, isOwnUnit = false }: UnitViewProps) => {
-  const { setActiveUnit, candidate, animationUnit, setAnimationUnit } = useUnitSelection();
+  const { setActiveUnit, candidate, animationUnit, setAnimationUnit, activeUnit } =
+    useUnitSelection();
   const { setSelectedCard, operable } = useSystemContext();
   const unitRef = useRef<HTMLDivElement>(null);
 
@@ -43,7 +44,7 @@ const UnitViewComponent = ({ unit, isOwnUnit = false }: UnitViewProps) => {
     <div className="flex flex-col items-center">
       <div className="relative w-32 h-32 unit-wrapper">
         {/* Action buttons (Attack/Withdrawal/Boot) - only shown for own units */}
-        {isOwnUnit && (
+        {isOwnUnit && activeUnit === unit && !candidate && (
           <div className="absolute inset-0 z-20 pointer-events-auto">
             <UnitActionButtons
               unit={unit}
