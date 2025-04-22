@@ -93,7 +93,7 @@ export const useWebSocketGame = () => {
   );
 
   const choose = useCallback(
-    ({ promptId, choice }: { promptId: string; choice: string[] }) => {
+    ({ promptId, choice }: { promptId: string; choice: string[] | undefined }) => {
       const message: Message = {
         action: {
           type: 'game',
