@@ -17,7 +17,8 @@ export const useHandler = () => {
   const { sync } = useGameStore();
   const { continueGame, choose } = useWebSocketGame();
   const { showDialog } = useCardEffectDialog();
-  const { setAvailableUnits, setCandidate, setAnimationUnit } = useUnitSelection();
+  const { setAvailableUnits, setCandidate, setAnimationUnit, setHandleSelected } =
+    useUnitSelection();
   const { openCardsSelector } = useCardsDialog();
   const { setAvailableIntercepts } = useInterceptUsage();
   const { showCardUsageEffect } = useCardUsageEffect();
@@ -70,6 +71,7 @@ export const useHandler = () => {
 
         switch (choices.type) {
           case 'option':
+            throw new Error('未実装の機能が呼び出されました');
             break;
 
           case 'card': {
@@ -223,6 +225,7 @@ export const useHandler = () => {
       const handleSelect = (unit?: IUnit['id']) => {
         resolve(unit);
         setCandidate(undefined);
+        setHandleSelected(undefined);
       };
 
       setAvailableUnits(units, handleSelect, mode);

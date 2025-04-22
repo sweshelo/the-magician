@@ -11,7 +11,7 @@ export interface UnitSelectionContextType {
   selectionMode: SelectionMode;
   setSelectionMode: (mode: SelectionMode) => void;
   handleSelected: ((unit?: IUnit['id']) => void) | undefined;
-  setHandleSelected: (callback: (unit?: IUnit['id']) => void) => void;
+  setHandleSelected: (callback: ((unit?: IUnit['id']) => void) | undefined) => void;
   setAvailableUnits: (
     units: IUnit[],
     onSelected: (unitId?: IUnit['id']) => void,

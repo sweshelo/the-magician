@@ -28,9 +28,9 @@ export const useUnitAttackAnimationStyle = (unitId: string) => {
 
   switch (state.phase) {
     case 'declaration':
-      // Expand by 1.25x and move forward by 12px
+      // Expand by 1.25x
       return {
-        transform: `scale(1.25)`, // translateY(${forwardDirection * moveDistance}px)`,
+        transform: `scale(1.25)`,
         transformOrigin: 'center center',
         transition: 'transform 0.3s ease-out',
       };
