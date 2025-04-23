@@ -72,7 +72,6 @@ export const useHandler = () => {
         switch (choices.type) {
           case 'option':
             throw new Error('未実装の機能が呼び出されました');
-            break;
 
           case 'card': {
             const response = await openCardsSelector(choices.items, choices.title, choices.count, {
