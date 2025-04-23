@@ -1,6 +1,7 @@
 import { ReactNode } from 'react';
 import { WebSocketProvider } from './websocket';
 import { SystemContextProvider } from './system';
+import { AttackAnimationProvider } from './attack-animation';
 
 interface Props {
   children: ReactNode;
@@ -9,7 +10,9 @@ interface Props {
 export const GlobalContextProvider = ({ children }: Props) => {
   return (
     <WebSocketProvider>
-      <SystemContextProvider>{children}</SystemContextProvider>
+      <SystemContextProvider>
+        <AttackAnimationProvider>{children}</AttackAnimationProvider>
+      </SystemContextProvider>
     </WebSocketProvider>
   );
 };

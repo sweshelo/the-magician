@@ -1,9 +1,12 @@
-import { useWebSocketGame } from "@/hooks/game";
-import { useUnitSelection } from "@/hooks/unit-selection";
-import { IUnit } from "@/submodule/suit/types";
+import React, { RefObject } from 'react';
+import { useWebSocketGame } from '@/hooks/game';
+import { useUnitSelection } from '@/hooks/unit-selection';
+import { IUnit } from '@/submodule/suit/types';
+import { LocalStorageHelper } from '@/service/local-storage';
 
 interface UnitActionButtonsProps {
   unit: IUnit;
+  unitRef: RefObject<HTMLDivElement | null>;
   canAttack?: boolean;
   canBoot?: boolean;
   canWithdraw?: boolean;
@@ -15,18 +18,25 @@ export const UnitActionButtons = ({
   canBoot = true,
   canWithdraw = true,
 }: UnitActionButtonsProps) => {
-  const { activeUnit, setActiveUnit, candidate } = useUnitSelection();
-  const { withdrawal } = useWebSocketGame();
-
-  // Don't render buttons if not showing for this unit
-  // We only pass this component when rendering units in player's field, so no need to check ownership
-  if (activeUnit !== unit || candidate) {
-    return null;
-  }
+  const { setActiveUnit } = useUnitSelection();
+  const { withdrawal, send } = useWebSocketGame();
 
   // Handle action button clicks
   const handleAttack = () => {
-    console.log(`Unit ${unit.id} attacking`);
+    // AttackPayloadを送信
+    if (unit) {
+      send({
+        action: {
+          type: 'game',
+          handler: 'core',
+        },
+        payload: {
+          type: 'Attack',
+          player: LocalStorageHelper.playerId(),
+          target: unit,
+        },
+      });
+    }
     setActiveUnit(undefined);
   };
 

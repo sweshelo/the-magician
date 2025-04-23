@@ -6,15 +6,19 @@ import { usePlayers, usePlayer } from '@/hooks/game/hooks';
 import { useWebSocketGame } from '@/hooks/game';
 import { useSoundV2 } from '@/hooks/soundV2/hooks';
 import { useSystemContext } from '@/hooks/system/hooks';
+import { useAttackAnimation } from '@/hooks/attack-animation';
 import { LocalStorageHelper } from '@/service/local-storage';
 
 export const DebugDialog = () => {
   const { send } = useWebSocketGame();
   const { play, setVolume, getVolume, bgm, stopBgm, isPlaying } = useSoundV2();
   const { cursorCollisionSize, setCursorCollisionSize, setOperable } = useSystemContext();
+  const { state: attackState, proceedToPreparation } = useAttackAnimation();
   const [bgmVolume, setBgmVolume] = useState(getVolume());
   const [isBgmPlaying, setIsBgmPlaying] = useState(false);
   const [hide, setHide] = useState(false);
+  const [targetX, setTargetX] = useState('0');
+  const [targetY, setTargetY] = useState('0');
   const playerId = Object.keys(usePlayers() ?? {});
 
   // Check and update BGM playing status
@@ -188,6 +192,39 @@ export const DebugDialog = () => {
                   {isBgmPlaying ? '停止' : '再生'}
                 </button>
               </div>
+            </div>
+          </div>
+
+          {/* Attack Animation Debug Controls */}
+          <div className="mt-2 border-t pt-2 border-gray-700">
+            <div className="text-sm mb-1">アタックアニメーション: {attackState.phase}</div>
+            <div className="flex flex-col gap-2">
+              <div className="flex gap-2 items-center">
+                <label className="text-sm whitespace-nowrap">ターゲット座標 (絶対座標):</label>
+                <input
+                  type="number"
+                  value={targetX}
+                  onChange={e => setTargetX(e.target.value)}
+                  className="w-16 px-2 py-1 bg-slate-700 rounded text-white"
+                  placeholder="X"
+                />
+                <input
+                  type="number"
+                  value={targetY}
+                  onChange={e => setTargetY(e.target.value)}
+                  className="w-16 px-2 py-1 bg-slate-700 rounded text-white"
+                  placeholder="Y"
+                />
+              </div>
+
+              {attackState.phase === 'declaration' && (
+                <button
+                  onClick={() => proceedToPreparation({ x: Number(targetX), y: Number(targetY) })}
+                  className={`px-3 py-1 rounded ${colorTable.ui.border} bg-green-600 hover:bg-green-500 transition-colors`}
+                >
+                  続行
+                </button>
+              )}
             </div>
           </div>
         </div>

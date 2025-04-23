@@ -33,6 +33,7 @@ import { ICard } from '@/submodule/suit/types';
 import { Timer } from '../Timer';
 import { LocalStorageHelper } from '@/service/local-storage';
 import { useMemo } from 'react';
+import { UnitSelectionOverlay } from '@/component/ui/UnitSelectionOverlay';
 
 interface RoomProps {
   id: string;
@@ -112,8 +113,9 @@ export const Game = ({ id }: RoomProps) => {
         {/* カード使用エフェクト */}
         <CardUsageEffect />
 
-        {/* インターセプト選択オーバーレイ */}
+        {/* 選択オーバーレイ */}
         <InterceptSelectionOverlay />
+        <UnitSelectionOverlay />
 
         {/* メインゲームコンテナ */}
         <div className="flex flex-col w-full h-full p-4">
