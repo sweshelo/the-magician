@@ -34,6 +34,7 @@ import { Timer } from '../Timer';
 import { LocalStorageHelper } from '@/service/local-storage';
 import { useMemo } from 'react';
 import { UnitSelectionOverlay } from '@/component/ui/UnitSelectionOverlay';
+import { ChoicePanel } from '@/feature/ChoicePanel';
 
 interface RoomProps {
   id: string;
@@ -116,6 +117,7 @@ export const Game = ({ id }: RoomProps) => {
         {/* 選択オーバーレイ */}
         <InterceptSelectionOverlay />
         <UnitSelectionOverlay />
+        <ChoicePanel />
 
         {/* メインゲームコンテナ */}
         <div className="flex flex-col w-full h-full p-4">
