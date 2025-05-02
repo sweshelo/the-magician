@@ -21,7 +21,15 @@ export const MyTrash = () => {
   const handleTrashClick = useCallback(() => {
     openCardsDialog(state => {
       const playerTrash = (state.players?.[playerId]?.trash ?? []) as ICard[];
-      return [...playerTrash].reverse(); // 最新の捨札カードが上に表示されるよう逆順に
+      const playerDeleted = (state.players?.[playerId]?.delete ?? []) as ICard[];
+      return [
+        ...[...playerTrash].reverse(),
+        ...playerDeleted
+          .map(card => {
+            return { ...card, deleted: true };
+          })
+          .reverse(),
+      ]; // 最新の捨札カードが上に表示されるよう逆順に
     }, 'あなたの捨札');
   }, [openCardsDialog, playerId]);
 

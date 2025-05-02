@@ -183,7 +183,11 @@ export const Game = ({ id }: RoomProps) => {
                       onClick={() => {
                         openCardsDialog(state => {
                           const trash = (state.players?.[oppenentId]?.trash ?? []) as ICard[];
-                          return [...trash].reverse(); // 最新の捨札カードが上に表示されるよう逆順に
+                          const deleted = (state.players?.[oppenentId]?.delete ?? []) as ICard[];
+                          return [
+                            ...[...trash].reverse(),
+                            ...deleted.map(card => ({ ...card, deleted: true })),
+                          ]; // 最新の捨札カードが上に表示されるよう逆順に
                         }, '対戦相手の捨札');
                       }}
                     >

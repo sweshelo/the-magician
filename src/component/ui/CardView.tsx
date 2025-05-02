@@ -83,6 +83,79 @@ export const CardView = ({
       {isHighlighting && (
         <div className="absolute inset-0 border-1 border-gray-300 animate-pulse-border shadow-glow pointer-events-none" />
       )}
+
+      {/* Deleted card indicators */}
+      {'deleted' in card && typeof card.deleted === 'boolean' && card.deleted && (
+        <>
+          {/* First diagonal line */}
+          <div
+            className="absolute pointer-events-none"
+            style={{
+              top: 0,
+              right: 0,
+              width: '100%',
+              height: '100%',
+              overflow: 'hidden',
+            }}
+          >
+            <div
+              style={{
+                position: 'absolute',
+                top: 0,
+                right: 15,
+                width: '192px',
+                height: '3px',
+                backgroundColor: 'navy',
+                transformOrigin: 'top right',
+                transform: 'rotate(-55deg)',
+              }}
+            />
+          </div>
+
+          {/* Second diagonal line */}
+          <div
+            className="absolute pointer-events-none"
+            style={{
+              top: 0,
+              right: 0,
+              width: '100%',
+              height: '100%',
+              overflow: 'hidden',
+            }}
+          >
+            <div
+              style={{
+                position: 'absolute',
+                top: 0,
+                right: -7,
+                width: '192px',
+                height: '3px',
+                backgroundColor: 'navy',
+                transformOrigin: 'top right',
+                transform: 'rotate(-55deg)',
+              }}
+            />
+          </div>
+
+          {/* Central DELETE box */}
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div
+              style={{
+                width: '100%',
+                padding: '6px 0',
+                backgroundColor: 'navy',
+                color: 'white',
+                textAlign: 'center',
+                fontWeight: 'bold',
+                fontSize: '14px',
+                letterSpacing: '1px',
+              }}
+            >
+              DELETE
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 };

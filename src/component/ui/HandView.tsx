@@ -89,7 +89,7 @@ export const HandView = ({ card }: Props) => {
       {...listeners}
     >
       {cp < (master.get(card.catalogId)?.cost ?? 0) - (mitigate ? 1 : 0) && (
-        <div className="absolute inset-0 bg-black opacity-30 z-1" />
+        <div className="absolute inset-0 bg-black opacity-30 z-1 pointer-events-none" />
       )}
       <CardView
         card={card}
