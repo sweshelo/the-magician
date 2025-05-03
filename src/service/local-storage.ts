@@ -1,5 +1,6 @@
 // Deck type definition
 export type DeckData = {
+  id: string;
   title: string;
   cards: string[];
 };
@@ -41,23 +42,29 @@ export const LocalStorageHelper = {
   },
 
   // Save a deck (new or overwrite)
-  saveDeck: (title: string, cards: string[]): void => {
+  saveDeck: (title: string, cards: string[], isMainDeck: boolean = false): void => {
     if (typeof window === 'undefined') {
       return;
     }
 
     const decks = LocalStorageHelper.getAllDecks();
     const existingDeckIndex = decks.findIndex(deck => deck.title === title);
+    const id = existingDeckIndex >= 0 ? decks[existingDeckIndex].id : crypto.randomUUID();
 
     if (existingDeckIndex >= 0) {
       // Update existing deck
-      decks[existingDeckIndex] = { title, cards };
+      decks[existingDeckIndex] = { id, title, cards };
     } else {
       // Add new deck
-      decks.push({ title, cards });
+      decks.push({ id, title, cards });
     }
 
     window.localStorage.setItem('decks', JSON.stringify(decks));
+
+    // If this is set as main deck, update the main deck reference
+    if (isMainDeck) {
+      window.localStorage.setItem('deck', id);
+    }
   },
 
   // Get a deck by title
@@ -71,6 +78,17 @@ export const LocalStorageHelper = {
     return deck || null;
   },
 
+  // Get a deck by ID
+  getDeckById: (id: string): DeckData | null => {
+    if (typeof window === 'undefined') {
+      return null;
+    }
+
+    const decks = LocalStorageHelper.getAllDecks();
+    const deck = decks.find(d => d.id === id);
+    return deck || null;
+  },
+
   // Delete a deck
   deleteDeck: (title: string): void => {
     if (typeof window === 'undefined') {
@@ -78,7 +96,43 @@ export const LocalStorageHelper = {
     }
 
     const decks = LocalStorageHelper.getAllDecks();
+    const deckToDelete = decks.find(deck => deck.title === title);
     const filteredDecks = decks.filter(deck => deck.title !== title);
     window.localStorage.setItem('decks', JSON.stringify(filteredDecks));
+
+    // If the deleted deck was the main deck, clear the main deck reference
+    if (deckToDelete && LocalStorageHelper.getMainDeckId() === deckToDelete.id) {
+      window.localStorage.removeItem('deck');
+    }
+  },
+
+  // Get the main deck ID
+  getMainDeckId: (): string | null => {
+    if (typeof window === 'undefined') {
+      return null;
+    }
+
+    return window.localStorage.getItem('deck');
+  },
+
+  // Set the main deck ID
+  setMainDeckId: (id: string): void => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    window.localStorage.setItem('deck', id);
+  },
+
+  // Get the main deck
+  getMainDeck: (): DeckData | null => {
+    if (typeof window === 'undefined') {
+      return null;
+    }
+
+    const mainDeckId = LocalStorageHelper.getMainDeckId();
+    if (!mainDeckId) return null;
+
+    return LocalStorageHelper.getDeckById(mainDeckId);
   },
 };

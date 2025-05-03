@@ -6,11 +6,11 @@ import { useState, useEffect } from 'react';
 interface DeckSaveDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (title: string) => void;
+  onSave: (title: string, isMainDeck: boolean) => void;
   deck: string[];
 }
 
-interface DeckLoadDialogProps {
+interface DeckListDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onLoad: (cards: string[]) => void;
@@ -21,6 +21,7 @@ export const DeckSaveDialog = ({ isOpen, onClose, onSave, deck }: DeckSaveDialog
   const [savedDecks, setSavedDecks] = useState<DeckData[]>([]);
   const [selectedDeck, setSelectedDeck] = useState<string | null>(null);
   const [saveMode, setSaveMode] = useState<'new' | 'overwrite'>('new');
+  const [isMainDeck, setIsMainDeck] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -39,7 +40,7 @@ export const DeckSaveDialog = ({ isOpen, onClose, onSave, deck }: DeckSaveDialog
       return;
     }
 
-    onSave(finalTitle);
+    onSave(finalTitle, isMainDeck);
     onClose();
   };
 
@@ -83,6 +84,17 @@ export const DeckSaveDialog = ({ isOpen, onClose, onSave, deck }: DeckSaveDialog
                 placeholder="デッキ名を入力"
                 autoFocus
               />
+              <div className="mt-4">
+                <label className="flex items-center text-white cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="mr-2 h-4 w-4"
+                    checked={isMainDeck}
+                    onChange={e => setIsMainDeck(e.target.checked)}
+                  />
+                  メインのデッキにする
+                </label>
+              </div>
             </div>
           ) : (
             <div>
@@ -99,6 +111,17 @@ export const DeckSaveDialog = ({ isOpen, onClose, onSave, deck }: DeckSaveDialog
                     <span className="text-white">{deck.title}</span>
                   </div>
                 ))}
+              </div>
+              <div className="mt-4">
+                <label className="flex items-center text-white cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="mr-2 h-4 w-4"
+                    checked={isMainDeck}
+                    onChange={e => setIsMainDeck(e.target.checked)}
+                  />
+                  メインのデッキにする
+                </label>
               </div>
             </div>
           )}
@@ -125,13 +148,15 @@ export const DeckSaveDialog = ({ isOpen, onClose, onSave, deck }: DeckSaveDialog
   );
 };
 
-export const DeckLoadDialog = ({ isOpen, onClose, onLoad }: DeckLoadDialogProps) => {
+export const DeckLoadDialog = ({ isOpen, onClose, onLoad }: DeckListDialogProps) => {
   const [savedDecks, setSavedDecks] = useState<DeckData[]>([]);
+  const [mainDeckId, setMainDeckId] = useState<string | null>(null);
 
   useEffect(() => {
     if (isOpen) {
       // Load saved decks when dialog opens
       setSavedDecks(LocalStorageHelper.getAllDecks());
+      setMainDeckId(LocalStorageHelper.getMainDeckId());
     }
   }, [isOpen]);
 
@@ -140,11 +165,17 @@ export const DeckLoadDialog = ({ isOpen, onClose, onLoad }: DeckLoadDialogProps)
     onClose();
   };
 
+  const handleSetMainDeck = (deckId: string) => {
+    LocalStorageHelper.setMainDeckId(deckId);
+    setMainDeckId(deckId);
+  };
+
   const handleDeleteDeck = (title: string, event: React.MouseEvent) => {
     event.stopPropagation();
     if (confirm(`「${title}」を削除してもよろしいですか？`)) {
       LocalStorageHelper.deleteDeck(title);
       setSavedDecks(LocalStorageHelper.getAllDecks());
+      setMainDeckId(LocalStorageHelper.getMainDeckId());
     }
   };
 
@@ -153,7 +184,7 @@ export const DeckLoadDialog = ({ isOpen, onClose, onLoad }: DeckLoadDialogProps)
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-gray-800 p-6 rounded-lg max-w-md w-full">
-        <h2 className="text-xl font-bold mb-4 text-white">デッキを読み込む</h2>
+        <h2 className="text-xl font-bold mb-4 text-white">デッキ一覧</h2>
 
         {savedDecks.length === 0 ? (
           <p className="text-white mb-4">保存されたデッキがありません。</p>
@@ -162,10 +193,18 @@ export const DeckLoadDialog = ({ isOpen, onClose, onLoad }: DeckLoadDialogProps)
             {savedDecks.map(deck => (
               <div
                 key={deck.title}
-                className="p-3 bg-gray-700 mb-2 rounded cursor-pointer hover:bg-gray-600 flex justify-between items-center"
+                className="p-3 bg-gray-700 mb-2 rounded cursor-pointer hover:bg-gray-600 flex items-center"
                 onClick={() => handleLoadDeck(deck)}
               >
-                <span className="text-white">{deck.title}</span>
+                <input
+                  type="radio"
+                  name="mainDeck"
+                  className="mr-3 h-4 w-4"
+                  checked={mainDeckId === deck.id}
+                  onChange={() => handleSetMainDeck(deck.id)}
+                  onClick={e => e.stopPropagation()}
+                />
+                <span className="text-white flex-grow">{deck.title}</span>
                 <button
                   className="text-red-400 hover:text-red-300 px-2"
                   onClick={e => handleDeleteDeck(deck.title, e)}

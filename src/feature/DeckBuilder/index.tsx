@@ -267,8 +267,9 @@ export const DeckBuilder = () => {
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [loadDialogOpen, setLoadDialogOpen] = useState(false);
 
-  // Current deck title - if loaded from saved decks
+  // Current deck info - if loaded from saved decks
   const [currentDeckTitle, setCurrentDeckTitle] = useState<string | null>(null);
+  const [currentDeckId, setCurrentDeckId] = useState<string | null>(null);
 
   // Card search and filtering
   const [searchQuery, setSearchQuery] = useState('');
@@ -339,6 +340,16 @@ export const DeckBuilder = () => {
     '1-2-071',
     '1-2-071',
   ]);
+
+  // Load main deck on component mount
+  useEffect(() => {
+    const mainDeck = LocalStorageHelper.getMainDeck();
+    if (mainDeck) {
+      setDeck(mainDeck.cards);
+      setCurrentDeckTitle(mainDeck.title);
+      setCurrentDeckId(mainDeck.id);
+    }
+  }, []);
 
   const handleCardClick = useCallback((index: number) => {
     setDeck(prev => {
@@ -505,11 +516,22 @@ export const DeckBuilder = () => {
   }, [deck]);
 
   const handleSaveDeck = useCallback(
-    (title: string) => {
+    (title: string, isMainDeck: boolean) => {
       if (deck.length === 40) {
-        LocalStorageHelper.saveDeck(title, deck);
+        LocalStorageHelper.saveDeck(title, deck, isMainDeck);
         setCurrentDeckTitle(title);
-        alert(`デッキ「${title}」が保存されました。`);
+
+        // If this is a main deck, remember its ID
+        if (isMainDeck) {
+          const savedDeck = LocalStorageHelper.getDeckByTitle(title);
+          if (savedDeck) {
+            setCurrentDeckId(savedDeck.id);
+          }
+        }
+
+        alert(
+          `デッキ「${title}」が保存されました。${isMainDeck ? '（メインデッキに設定されました）' : ''}`
+        );
       }
     },
     [deck]
@@ -578,7 +600,18 @@ export const DeckBuilder = () => {
 
   const handleLoadDeck = useCallback((cards: string[]) => {
     setDeck(cards);
-    setCurrentDeckTitle(null); // Reset title since we don't know if this was from legacy
+
+    // Check if this is the main deck
+    const mainDeckId = LocalStorageHelper.getMainDeckId();
+    const mainDeck = mainDeckId ? LocalStorageHelper.getDeckById(mainDeckId) : null;
+
+    if (mainDeck && JSON.stringify(mainDeck.cards) === JSON.stringify(cards)) {
+      setCurrentDeckTitle(mainDeck.title);
+      setCurrentDeckId(mainDeck.id);
+    } else {
+      setCurrentDeckTitle(null);
+      setCurrentDeckId(null);
+    }
   }, []);
 
   return (
@@ -609,16 +642,23 @@ export const DeckBuilder = () => {
           className="px-3 py-1 border rounde text-white rounded bg-red-500"
           onClick={deleteDeck}
         >
-          デッキを削除
+          デッキをリセット
         </button>
         <button
           className="px-3 py-1 border rounde text-white rounded bg-green-500"
           onClick={() => setLoadDialogOpen(true)}
         >
-          デッキを読み込む
+          デッキ一覧
         </button>
         {currentDeckTitle && (
-          <span className="ml-2 text-gray-300">現在のデッキ: {currentDeckTitle}</span>
+          <span className="ml-2 text-gray-300">
+            現在のデッキ: {currentDeckTitle}
+            {currentDeckId === LocalStorageHelper.getMainDeckId() && (
+              <span className="ml-2 bg-yellow-600 text-white text-xs px-2 py-1 rounded">
+                メイン
+              </span>
+            )}
+          </span>
         )}
       </div>
 
