@@ -138,7 +138,9 @@ export const CardDetailWindow = () => {
                 height={32}
               />
             </div>
-            <span className="text-xs mt-1">{`${cardType[catalog.type]} - ${catalog.id}`}</span>
+            <span className="text-xs mt-1">
+              {`${cardType[catalog.type]} - ${catalog.id} ${catalog.species ? '| ' + catalog.species.join(' / ') : ''}`}
+            </span>
           </h3>
           <button
             onClick={() => setDetailCard(undefined)}
