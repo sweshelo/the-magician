@@ -10,6 +10,7 @@ import { useUnitSelection } from '@/hooks/unit-selection';
 import catalog from '@/submodule/suit/catalog/catalog';
 import { useSystemContext } from '@/hooks/system/hooks';
 import { useUnitAttackAnimationStyle, useBPViewAnimationStyle } from '@/hooks/attack-animation';
+import master from '@/submodule/suit/catalog/catalog';
 
 interface UnitViewProps {
   unit: IUnit;
@@ -20,7 +21,7 @@ interface UnitViewProps {
 const UnitViewComponent = ({ unit, isOwnUnit = false }: UnitViewProps) => {
   const { setActiveUnit, candidate, animationUnit, setAnimationUnit, activeUnit } =
     useUnitSelection();
-  const { setSelectedCard, operable } = useSystemContext();
+  const { setSelectedCard, setDetailCard, operable } = useSystemContext();
   const unitRef = useRef<HTMLDivElement>(null);
 
   const color: string =
@@ -38,6 +39,7 @@ const UnitViewComponent = ({ unit, isOwnUnit = false }: UnitViewProps) => {
       setActiveUnit(prev => (prev?.id !== unit.id ? unit : undefined));
     }
     setSelectedCard(prev => (prev?.catalogId === unit.catalogId ? undefined : unit));
+    setDetailCard(prev => (prev?.catalogId === unit.catalogId ? undefined : unit));
   };
 
   return (
@@ -73,7 +75,7 @@ const UnitViewComponent = ({ unit, isOwnUnit = false }: UnitViewProps) => {
           <div className="absolute inset-0 z-1">
             <UnitIconView
               color={color}
-              image={`/image/card/full/${unit.catalogId}.jpg`}
+              image={`https://coj.sega.jp/player/img/${master.get(unit.catalogId)?.img}`}
               reversed={false}
             />
           </div>
