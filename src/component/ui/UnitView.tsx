@@ -45,7 +45,8 @@ const UnitViewComponent = ({ unit, isOwnUnit = false }: UnitViewProps) => {
   const isEvolutionCard = draggableMaster?.type === 'advanced_unit';
   const isSameColor = draggableMaster?.color === unitMaster?.color;
   const hasVirusSpecies = unitMaster?.species?.includes('ウィルス') || false;
-  const hasEvolutionBan = unit.delta?.some(delta => delta.effect.name === '進化禁止') || false;
+  const hasEvolutionBan =
+    unit.delta?.some(delta => 'name' in delta.effect && delta.effect.name === '進化禁止') || false;
 
   // Check if unit can be evolved
   const canEvolve =

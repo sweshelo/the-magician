@@ -4,17 +4,10 @@ import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { Tooltip } from 'react-tooltip';
 import keywordsData from '../../submodule/suit/catalog/keywords.json';
-
-interface KeywordEffect {
-  count: number;
-  effect: {
-    type: string;
-    name: string;
-  };
-}
+import { IDelta } from '@/submodule/suit/types';
 
 interface BattleIconsViewProps {
-  delta?: unknown; // Use unknown instead of any for type safety
+  delta?: IDelta[]; // Use unknown instead of any for type safety
 }
 
 const BattleIconsViewComponent = ({ delta }: BattleIconsViewProps) => {
@@ -22,9 +15,13 @@ const BattleIconsViewComponent = ({ delta }: BattleIconsViewProps) => {
   const deltaArray = Array.isArray(delta) ? delta : [];
   const [currentPage, setCurrentPage] = useState(0);
 
-  // Filter for keyword effects, handling potential undefined properties safely
-  const keywordEffects: KeywordEffect[] =
-    deltaArray.filter(item => item?.effect?.type === 'keyword') || [];
+  const keywordEffects: string[] =
+    Array.from(
+      new Set(
+        // @ts-expect-error keywordでフィルタしているので絶対にeffect.nameが存在する
+        deltaArray.filter(item => item.effect.type === 'keyword')?.map(item => item.effect.name)
+      )
+    ) || [];
   const totalPages = Math.ceil(keywordEffects.length / 5);
 
   // Use useEffect to cycle through pages every second if there are more than 5 icons
@@ -53,37 +50,37 @@ const BattleIconsViewComponent = ({ delta }: BattleIconsViewProps) => {
   const displayIcons = keywordEffects.slice(currentPage * 5, currentPage * 5 + 5);
 
   return (
-    <div className="relative flex justify-center w-32 h-6 mb-1">
+    <div className="absolute flex justify-center w-32 h-6 mb-1 bottom-[48]">
       <div className="flex flex-row justify-start items-center w-[120px]">
         {displayIcons.map((item, index) => (
           <Image
             key={index}
             src={
-              keywordsData.find(k => k.title === item.effect.name)?.['no-image']
+              keywordsData.find(k => k.title === item)?.['no-image']
                 ? '/image/icon/no-image.png'
-                : `/image/icon/${item.effect.name}.png`
+                : `/image/icon/${item}.png`
             }
-            alt={item.effect.name}
+            alt={item}
             width={24}
             height={24}
             className="inline-block"
-            data-tooltip-id={`keyword-tooltip-${item.effect.name}`}
+            data-tooltip-id={`keyword-tooltip-${item}`}
           />
         ))}
       </div>
 
       {/* Add tooltips for each icon */}
       {displayIcons.map(item => {
-        const keyword = keywordsData.find(k => k.title === item.effect.name);
+        const keyword = keywordsData.find(k => k.title === item);
         console.log(keyword);
         return (
           <Tooltip
-            key={`tooltip-${item.effect.name}`}
-            id={`keyword-tooltip-${item.effect.name}`}
+            key={`tooltip-${item}`}
+            id={`keyword-tooltip-${item}`}
             place="top"
             className="z-50 max-w-xs"
           >
-            {keyword ? <BattleIconDetail name={keyword.title} /> : item.effect.name}
+            {keyword ? <BattleIconDetail name={keyword.title} /> : item}
           </Tooltip>
         );
       })}
