@@ -100,7 +100,7 @@ export const Game = ({ id }: RoomProps) => {
       modifiers={[restrictToWindowEdges]}
     >
       <div
-        className={`flex h-screen ${colorTable.ui.background} ${colorTable.ui.text.primary} relative overflow-hidden`}
+        className={`flex h-screen ${colorTable.ui.background} ${colorTable.ui.text.primary} relative overflow-hidden select-none`}
       >
         {/* カード詳細ウィンドウ */}
         <CardDetailWindow />
