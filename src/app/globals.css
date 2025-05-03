@@ -201,3 +201,9 @@ body {
   animation: button-border-wave 1.2s infinite;
   z-index: 1;
 }
+
+.font_p {
+  color: purple;
+  background-color: white;
+  margin-right: 5px;
+}
