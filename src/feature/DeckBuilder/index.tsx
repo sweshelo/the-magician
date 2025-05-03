@@ -6,6 +6,8 @@ import { colorTable } from '@/helper/color';
 import master from '@/submodule/suit/catalog/catalog';
 import { ICard, Catalog } from '@/submodule/suit/types';
 import { useCallback, useEffect, useMemo, useState, memo } from 'react';
+import { DeckSaveDialog, DeckLoadDialog } from './DeckDialogs';
+import { LocalStorageHelper } from '@/service/local-storage';
 
 // Memoized Card Component to prevent unnecessary re-renders
 const MemoizedCardView = memo(
@@ -57,6 +59,8 @@ const FilterControls = memo(
     availableSpecies,
     selectedTypes,
     toggleType,
+    selectedCosts,
+    toggleCost,
   }: {
     searchQuery: string;
     setSearchQuery: (query: string) => void;
@@ -75,6 +79,8 @@ const FilterControls = memo(
     availableSpecies: string[];
     selectedTypes: string[];
     toggleType: (type: string) => void;
+    selectedCosts: (number | string)[];
+    toggleCost: (cost: number | string) => void;
   }) => {
     return (
       <>
@@ -168,6 +174,22 @@ const FilterControls = memo(
             </div>
           </div>
 
+          {/* コストフィルタ */}
+          <div className="w-full max-w-6xl px-4 mb-6">
+            <h3 className="font-bold mb-2">コスト</h3>
+            <div className="flex flex-wrap gap-2">
+              {[0, 1, 2, 3, 4, 5, 6, 7, '7+'].map(cost => (
+                <button
+                  key={cost.toString()}
+                  className={`px-3 py-1 border rounded ${selectedCosts.includes(cost) ? 'bg-blue-500 text-white' : 'bg-gray-500'}`}
+                  onClick={() => toggleCost(cost)}
+                >
+                  {cost.toString()}
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* 種族フィルタ */}
           <div className="w-full max-w-6xl px-4 mb-6">
             <h3 className="font-bold mb-2">種族</h3>
@@ -241,6 +263,13 @@ const DeckView = memo(
 DeckView.displayName = 'DeckView';
 
 export const DeckBuilder = () => {
+  // Dialog visibility states
+  const [saveDialogOpen, setSaveDialogOpen] = useState(false);
+  const [loadDialogOpen, setLoadDialogOpen] = useState(false);
+
+  // Current deck title - if loaded from saved decks
+  const [currentDeckTitle, setCurrentDeckTitle] = useState<string | null>(null);
+
   // Card search and filtering
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRarities, setSelectedRarities] = useState<string[]>([]);
@@ -251,6 +280,7 @@ export const DeckBuilder = () => {
     6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
   ]);
   const [selectedTypes, setSelecteydTypes] = useState<string[]>([]);
+  const [selectedCosts, setSelectedCosts] = useState<(number | string)[]>([]);
 
   // Available filter options
   const [availableSpecies, setAvailableSpecies] = useState<string[]>([]);
@@ -268,46 +298,46 @@ export const DeckBuilder = () => {
 
   // Deck state
   const [deck, setDeck] = useState<string[]>([
-    '2-2-060',
-    '2-2-060',
-    '2-2-060',
-    '2-0-008',
-    '2-0-008',
-    '2-0-008',
-    '1-4-246',
-    '1-4-008',
-    '1-4-008',
-    '1-4-008',
-    '2-3-011',
-    '2-3-011',
-    '2-3-011',
-    '1-4-041',
-    '1-4-041',
-    '1-4-041',
-    '2-0-025',
-    '2-0-025',
-    '2-0-025',
-    '2-0-121',
-    '2-0-121',
-    '2-0-121',
-    'SP-012',
-    'SP-012',
-    'SP-012',
-    '2-1-051',
-    '2-1-051',
-    '2-1-051',
-    '2-0-038',
-    '2-0-038',
-    '2-0-038',
-    '2-0-007',
-    '2-0-007',
-    '2-0-007',
-    '2-0-019',
-    '2-0-019',
-    '2-0-019',
-    'SP-016',
-    'SP-016',
-    'SP-016',
+    '1-2-001',
+    '1-2-001',
+    '1-2-003',
+    '1-2-003',
+    '1-2-004',
+    '1-2-004',
+    '1-2-007',
+    '1-2-007',
+    '1-2-101',
+    '1-2-101',
+    '1-2-104',
+    '1-2-104',
+    '1-2-106',
+    '1-2-106',
+    'PR-028',
+    'PR-028',
+    '1-2-043',
+    '1-2-043',
+    '1-2-049',
+    '1-2-049',
+    '1-2-051',
+    '1-2-051',
+    '1-2-124',
+    'PR-016',
+    'PR-016',
+    'PR-031',
+    'PR-031',
+    '1-2-122',
+    '1-2-122',
+    '1-2-057',
+    '1-2-057',
+    'PR-032',
+    '1-2-078',
+    '1-2-141',
+    'PR-067',
+    '1-2-099',
+    '1-2-099',
+    '1-2-148',
+    '1-2-071',
+    '1-2-071',
   ]);
 
   const handleCardClick = useCallback((index: number) => {
@@ -364,6 +394,12 @@ export const DeckBuilder = () => {
     );
   }, []);
 
+  const toggleCost = useCallback((cost: number | string) => {
+    setSelectedCosts(prev =>
+      prev.includes(cost) ? prev.filter(c => c !== cost) : [...prev, cost]
+    );
+  }, []);
+
   // Callback for search input changes
   const handleSearchChange = useCallback((value: string) => {
     setSearchQuery(value);
@@ -401,6 +437,16 @@ export const DeckBuilder = () => {
       // Type filter
       const matchesType = selectedTypes.length === 0 || selectedTypes.includes(catalog.type);
 
+      // Cost filter
+      const matchesCost =
+        selectedCosts.length === 0 ||
+        selectedCosts.some(cost => {
+          if (cost === '7+') {
+            return catalog.cost >= 7;
+          }
+          return catalog.cost === cost;
+        });
+
       return (
         matchesSearch &&
         matchesRarity &&
@@ -408,7 +454,8 @@ export const DeckBuilder = () => {
         matchesSpecies &&
         matchesOriginality &&
         matchesVersion &&
-        matchesType
+        matchesType &&
+        matchesCost
       );
     });
   }, [
@@ -419,6 +466,7 @@ export const DeckBuilder = () => {
     selectedOriginalities,
     selectedVersions,
     selectedTypes,
+    selectedCosts,
   ]);
 
   // Card List component
@@ -448,14 +496,24 @@ export const DeckBuilder = () => {
   // Set display name for the card list
   CardList.displayName = 'CardList';
 
-  const saveDeck = useCallback(() => {
+  const handleOpenSaveDialog = useCallback(() => {
     if (deck.length === 40) {
-      localStorage.setItem('deck', JSON.stringify(deck));
-      alert('デッキが保存されました。');
+      setSaveDialogOpen(true);
     } else {
       alert('デッキは40枚必要です。');
     }
   }, [deck]);
+
+  const handleSaveDeck = useCallback(
+    (title: string) => {
+      if (deck.length === 40) {
+        LocalStorageHelper.saveDeck(title, deck);
+        setCurrentDeckTitle(title);
+        alert(`デッキ「${title}」が保存されました。`);
+      }
+    },
+    [deck]
+  );
 
   const sortDeck = useCallback(() => {
     setDeck(prevDeck => {
@@ -518,13 +576,9 @@ export const DeckBuilder = () => {
     setDeck([]);
   }, []);
 
-  const loadDeck = useCallback(() => {
-    const savedDeck = localStorage.getItem('deck');
-    if (savedDeck) {
-      setDeck(JSON.parse(savedDeck));
-    } else {
-      alert('保存されたデッキが見つかりません。');
-    }
+  const handleLoadDeck = useCallback((cards: string[]) => {
+    setDeck(cards);
+    setCurrentDeckTitle(null); // Reset title since we don't know if this was from legacy
   }, []);
 
   return (
@@ -540,7 +594,7 @@ export const DeckBuilder = () => {
       <div className="items-center justify-center flex my-2 gap-3">
         <button
           className="px-3 py-1 border rounde text-white rounded bg-blue-500 disabled:bg-indigo-900"
-          onClick={saveDeck}
+          onClick={handleOpenSaveDialog}
           disabled={deck.length !== 40}
         >
           保存する
@@ -559,10 +613,13 @@ export const DeckBuilder = () => {
         </button>
         <button
           className="px-3 py-1 border rounde text-white rounded bg-green-500"
-          onClick={loadDeck}
+          onClick={() => setLoadDialogOpen(true)}
         >
           デッキを読み込む
         </button>
+        {currentDeckTitle && (
+          <span className="ml-2 text-gray-300">現在のデッキ: {currentDeckTitle}</span>
+        )}
       </div>
 
       <div className="w-full flex flex-col items-center">
@@ -584,10 +641,25 @@ export const DeckBuilder = () => {
           availableSpecies={availableSpecies}
           selectedTypes={selectedTypes}
           toggleType={toggleType}
+          selectedCosts={selectedCosts}
+          toggleCost={toggleCost}
         />
 
         <CardList catalogs={filteredCatalogs} addToDeck={addToDeck} />
       </div>
+      {/* Deck Management Dialogs */}
+      <DeckSaveDialog
+        isOpen={saveDialogOpen}
+        onClose={() => setSaveDialogOpen(false)}
+        onSave={handleSaveDeck}
+        deck={deck}
+      />
+
+      <DeckLoadDialog
+        isOpen={loadDialogOpen}
+        onClose={() => setLoadDialogOpen(false)}
+        onLoad={handleLoadDeck}
+      />
     </div>
   );
 };
