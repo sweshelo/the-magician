@@ -45,12 +45,15 @@ export const Game = ({ id }: RoomProps) => {
   const { openCardsDialog } = useCardsDialog();
   const { cursorCollisionSize } = useSystemContext();
 
+  // Get current player ID
+  const currentPlayerId = LocalStorageHelper.playerId();
+
   const rule = useRule();
-  const playerId = Object.keys(usePlayers() ?? {});
+  const playerIds = Object.keys(usePlayers() ?? {});
   const oppenentId =
     useMemo(
-      () => playerId.find((id: string) => id !== LocalStorageHelper.playerId()),
-      [playerId]
+      () => playerIds.find((id: string) => id !== currentPlayerId),
+      [playerIds, currentPlayerId]
     ) ?? '';
   const opponent = usePlayer(oppenentId);
 

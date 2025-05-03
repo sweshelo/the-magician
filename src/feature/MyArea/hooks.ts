@@ -1,11 +1,21 @@
 import { useWebSocketGame } from '@/hooks/game';
 import { useSystemContext } from '@/hooks/system/hooks';
-import { ICard } from '@/submodule/suit/types';
+import { useHand, useField } from '@/hooks/game/hooks';
+import { ICard, IUnit } from '@/submodule/suit/types';
 import { useDndMonitor, DragStartEvent, DragEndEvent } from '@dnd-kit/core';
+import { LocalStorageHelper } from '@/service/local-storage';
+import catalog from '@/submodule/suit/catalog/catalog';
 
 export const useMyArea = () => {
   const { activeCard, setActiveCard } = useSystemContext();
-  const { override, unitDrive, setTrigger, discard } = useWebSocketGame();
+  const { override, unitDrive, setTrigger, discard, evolution } = useWebSocketGame();
+
+  // Get current player ID
+  const currentPlayerId = LocalStorageHelper.playerId();
+
+  // Get player's hand and field for evolution handling
+  const hand = useHand(currentPlayerId) || [];
+  const field = useField(currentPlayerId) || [];
   useDndMonitor({
     onDragStart(e: DragStartEvent) {
       setActiveCard(e.active);
@@ -28,6 +38,30 @@ export const useMyArea = () => {
           break;
         case 'trash':
           discard({ target: { id: activeCard?.id } as ICard });
+          break;
+        case 'unit':
+          // Evolution handling
+          const draggedCardId = activeCard?.id as string;
+          const targetUnitId = over.data.current.unitId as string;
+
+          // Find the corresponding card and unit
+          const handCard = hand.find(card => card.id === draggedCardId) as ICard | undefined;
+          const fieldUnit = field.find(unit => unit.id === targetUnitId) as IUnit | undefined;
+
+          if (handCard && fieldUnit) {
+            // Get catalog entries
+            const handCardMaster = catalog.get(handCard.catalogId);
+
+            // Check if it's an advanced_unit (already checked in UnitView's droppable config,
+            // but double-checking here for safety)
+            if (handCardMaster?.type === 'advanced_unit') {
+              // Send evolution action to server
+              evolution({
+                source: fieldUnit,
+                target: handCard,
+              });
+            }
+          }
           break;
         default:
           break;

@@ -173,6 +173,32 @@ export const useWebSocketGame = () => {
     [send]
   );
 
+  interface EvolutionProps {
+    source: IUnit; // 進化元（フィールド上のユニット）
+    target: ICard; // 進化先（手札のカード）
+  }
+  const evolution = useCallback(
+    ({ source, target }: EvolutionProps) => {
+      // Since "Evolution" type isn't defined in the core payload types,
+      // We'll use the createMessage function with UnitDrive type but add custom properties
+      const message: Message = createMessage({
+        action: {
+          type: 'game',
+          handler: 'core',
+        },
+        payload: {
+          type: 'EvolveDrive', // Use existing type that server will recognize
+          target: { id: target.id },
+          source: { id: source.id }, // Additional parameter for evolution
+          isEvolution: true, // Flag to indicate this is an evolution action
+          player: LocalStorageHelper.playerId(),
+        },
+      });
+      send(message);
+    },
+    [send]
+  );
+
   return {
     send,
     override,
@@ -182,5 +208,6 @@ export const useWebSocketGame = () => {
     withdrawal,
     setTrigger,
     discard,
+    evolution,
   };
 };
