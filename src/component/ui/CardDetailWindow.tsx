@@ -101,7 +101,7 @@ export const CardDetailWindow = () => {
     catalog && (
       <div
         ref={windowRef}
-        className={`absolute transform w-100 ${colorTable.ui.playerInfoBackground} rounded-lg shadow-lg z-50 border ${colorTable.ui.border} overflow-hidden cursor-move`}
+        className={`fixed transform w-100 ${colorTable.ui.playerInfoBackground} rounded-lg shadow-lg z-50 border ${colorTable.ui.border} overflow-hidden cursor-move`}
         style={{
           left: `${position.x}px`,
           top: `${position.y}px`,
