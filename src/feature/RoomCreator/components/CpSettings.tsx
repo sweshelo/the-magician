@@ -1,8 +1,8 @@
 'use client';
 
-import { NumberInput } from '@/app/component/interface/numberInput';
-import { SettingsGroup } from '@/app/component/interface/settingsGroup';
-import { Toggle } from '@/app/component/interface/toggle';
+import { NumberInput } from '@/component/interface/numberInput';
+import { SettingsGroup } from '@/component/interface/settingsGroup';
+import { Toggle } from '@/component/interface/toggle';
 import { UseFormRegister } from 'react-hook-form';
 import { RoomCreatorFormParams } from '../type';
 import { DEFAULT_ROOM_SETTINGS } from '../../../constants/room';

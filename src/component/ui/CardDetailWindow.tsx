@@ -1,8 +1,11 @@
-import { useSystemContext } from "@/hooks/system/hooks";
-import master from "@/submodule/suit/catalog/catalog";
-import classNames from "classnames";
-import { colorTable, getColorCode } from "@/helper/color";
-import Image from "next/image";
+'use client';
+
+import master from '@/submodule/suit/catalog/catalog';
+import classNames from 'classnames';
+import { colorTable, getColorCode } from '@/helper/color';
+import Image from 'next/image';
+import { useSystemContext } from '@/hooks/system/hooks';
+import { MouseEvent, useCallback, useEffect, useRef, useState } from 'react';
 
 interface LevelProps {
   lv: number;
@@ -13,11 +16,11 @@ export const Level = ({ bp, lv, active }: LevelProps) => {
   return (
     <div
       className={classNames(
-        "flex rounded h-6 flex-1 items-center justify-center text-xs font-bold mr-1 px-4",
+        'flex rounded h-6 flex-1 items-center justify-center text-xs font-bold mr-1 px-4',
         {
-          "bg-red-700": active,
-          "bg-slate-600": !active,
-        },
+          'bg-red-700': active,
+          'bg-slate-600': !active,
+        }
       )}
     >
       <div className="flex-1">Lv.{lv}</div>
@@ -27,30 +30,92 @@ export const Level = ({ bp, lv, active }: LevelProps) => {
 };
 
 export const CardDetailWindow = () => {
-  const { selectedCard, setSelectedCard } = useSystemContext();
-  const catalog =
-    selectedCard?.catalogId && master.get(selectedCard?.catalogId);
+  const { detailCard, setDetailCard, detailPosition } = useSystemContext();
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const windowRef = useRef<HTMLDivElement>(null);
+
+  // Handle mouse events for dragging
+  const handleMouseDown = (e: MouseEvent) => {
+    if (windowRef.current) {
+      const rect = windowRef.current.getBoundingClientRect();
+      setDragOffset({
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top,
+      });
+      setIsDragging(true);
+    }
+  };
+
+  const handleMouseMove = useCallback(
+    (e: MouseEvent) => {
+      if (isDragging) {
+        setPosition({
+          x: e.clientX - dragOffset.x,
+          y: e.clientY - dragOffset.y,
+        });
+      }
+    },
+    [isDragging, dragOffset]
+  );
+
+  const handleMouseUp = useCallback(() => {
+    setIsDragging(false);
+  }, []);
+
+  // Only set the initial position once when component mounts or when card changes but position hasn't been set yet
+  useEffect(() => {
+    // Initialize position only if it hasn't been set yet (x and y are both 0)
+    if (position.x === 0 && position.y === 0) {
+      setPosition(detailPosition);
+    }
+  }, [detailPosition, position.x, position.y]);
+
+  // Add and remove global event listeners
+  useEffect(() => {
+    if (isDragging) {
+      window.addEventListener('mousemove', handleMouseMove as unknown as EventListener);
+      window.addEventListener('mouseup', handleMouseUp);
+    }
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove as unknown as EventListener);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDragging, handleMouseMove, handleMouseUp]);
+
+  // If no card is selected, don't render anything
+  if (!detailCard) return null;
+
+  const catalog = detailCard?.catalogId && master.get(detailCard.catalogId);
 
   const cardType = {
-    unit: "ユニットカード",
-    advanced_unit: "進化カード",
-    trigger: "トリガーカード",
-    intercept: "インターセプトカード",
+    unit: 'ユニットカード',
+    advanced_unit: '進化カード',
+    trigger: 'トリガーカード',
+    intercept: 'インターセプトカード',
   };
 
   return (
-    selectedCard &&
     catalog && (
       <div
-        className={`absolute left-4 bottom-2 transform w-100 ${colorTable.ui.playerInfoBackground} rounded-lg shadow-lg z-3 border ${colorTable.ui.border} overflow-hidden`}
+        ref={windowRef}
+        className={`absolute transform w-100 ${colorTable.ui.playerInfoBackground} rounded-lg shadow-lg z-50 border ${colorTable.ui.border} overflow-hidden cursor-move`}
+        style={{
+          left: `${position.x}px`,
+          top: `${position.y}px`,
+          minWidth: '400px',
+          maxWidth: '500px',
+        }}
       >
         {/* ウィンドウヘッダー */}
         <div
           className={`flex justify-between items-center p-3 h-20 ${colorTable.ui.background}`}
           style={{
             backgroundImage: `url(https://coj.sega.jp/player/img/${catalog.img})`,
-            backgroundSize: "cover",
-            backgroundPosition: "0% -140px",
+            backgroundSize: 'cover',
+            backgroundPosition: '0% -140px',
           }}
         >
           <div className="rounded-sm border-3 border-gray">
@@ -73,20 +138,18 @@ export const CardDetailWindow = () => {
             <span className="text-xs mt-1">{`${cardType[catalog.type]} - ${catalog.id}`}</span>
           </h3>
           <button
-            onClick={() => setSelectedCard(undefined)}
-            className={`${colorTable.ui.text.secondary} hover:${colorTable.ui.text.primary}`}
+            onClick={() => setDetailCard(undefined)}
+            className={`${colorTable.ui.text.secondary} hover:${colorTable.ui.text.primary} cursor-pointer`}
           >
             ✕
           </button>
         </div>
 
         {/* カード情報 */}
-        <div className="p-4">
+        <div className="p-4" onMouseDown={handleMouseDown}>
           {/* 効果 */}
           <div className="mb-3">
-            <p className={`text-sm rounded whitespace-pre-wrap min-h-40`}>
-              {catalog.ability}
-            </p>
+            <p className={`text-sm rounded whitespace-pre-wrap min-h-40`}>{catalog.ability}</p>
           </div>
 
           {/* BP */}
