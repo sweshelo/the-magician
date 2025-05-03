@@ -1,11 +1,13 @@
 import React, { useRef } from 'react';
 import { IUnit } from '@/submodule/suit/types';
+
 import { BPView } from './BPView';
 import { UnitIconView } from './UnitIconView';
 import { UnitActivatedView } from './UnitActivatedView';
 import { UnitActionButtons } from './UnitActionButtons';
 import { UnitSelectionButton } from './UnitSelectionButton';
 import { UnitIconEffect } from './UnitIconEffect';
+import { BattleIconsView } from './BattleIconsView';
 import { useUnitSelection } from '@/hooks/unit-selection';
 import catalog from '@/submodule/suit/catalog/catalog';
 import { useSystemContext } from '@/hooks/system/hooks';
@@ -87,7 +89,8 @@ const UnitViewComponent = ({ unit, isOwnUnit = false }: UnitViewProps) => {
           <UnitSelectionButton unitId={unit.id} />
         </div>
       </div>
-      <div className="-mt-2" style={useBPViewAnimationStyle(unit.id)}>
+      <div className="-mt-8" style={useBPViewAnimationStyle(unit.id)}>
+        {unit.delta && <BattleIconsView delta={unit.delta} />}
         <BPView
           bp={unit.bp.base + unit.bp.diff - unit.bp.damage}
           diff={unit.bp.diff - unit.bp.damage}

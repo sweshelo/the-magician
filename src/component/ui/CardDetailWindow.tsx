@@ -6,6 +6,9 @@ import { colorTable, getColorCode } from '@/helper/color';
 import Image from 'next/image';
 import { useSystemContext } from '@/hooks/system/hooks';
 import { MouseEvent, useCallback, useEffect, useRef, useState } from 'react';
+import keywordsData from '@/submodule/suit/catalog/keywords.json';
+import { BattleIconDetail } from './BattleIconsView';
+import { Tooltip } from 'react-tooltip';
 
 interface LevelProps {
   lv: number;
@@ -149,8 +152,14 @@ export const CardDetailWindow = () => {
         <div className="p-4" onMouseDown={handleMouseDown}>
           {/* 効果 */}
           <div className="mb-3">
-            <p className={`text-sm rounded whitespace-pre-wrap min-h-40`}>{catalog.ability}</p>
+            <p
+              className={`text-sm rounded whitespace-pre-wrap min-h-40`}
+              dangerouslySetInnerHTML={{ __html: catalog.ability }}
+            />
           </div>
+
+          {/* 関連アビリティ */}
+          {catalog.ability && <RelatedAbilities abilityText={catalog.ability} />}
 
           {/* BP */}
           <div className="justify-between">
@@ -163,5 +172,44 @@ export const CardDetailWindow = () => {
         </div>
       </div>
     )
+  );
+};
+
+// 関連アビリティを表示するコンポーネント
+const RelatedAbilities = ({ abilityText }: { abilityText: string }) => {
+  // HTMLタグを削除してプレーンテキストを取得
+  const plainText = abilityText.replace(/<[^>]*>/g, '');
+
+  // キーワード一覧から、テキスト内に含まれるキーワードを検索 (matcherフィールドを使用)
+  const foundKeywords = keywordsData.filter(keyword => plainText.includes(`${keyword.matcher}`));
+
+  // 見つかったキーワードがない場合は何も表示しない
+  if (foundKeywords.length === 0) return null;
+
+  return (
+    <div className="mb-3">
+      <div className="text-sm font-bold mb-1">関連アビリティ</div>
+      <div className="flex flex-wrap gap-2">
+        {foundKeywords.map((keyword, index) => (
+          <div key={index} className="inline-block">
+            <Image
+              src={
+                keyword['no-image']
+                  ? '/image/icon/no-image.png'
+                  : `/image/icon/${keyword.title}.png`
+              }
+              alt={''}
+              width={24}
+              height={24}
+              className="inline-block"
+              data-tooltip-id={`ability-tooltip-${keyword.title}`}
+            />
+            <Tooltip id={`ability-tooltip-${keyword.title}`} place="top" className="z-50 max-w-xs">
+              <BattleIconDetail name={keyword.title} />
+            </Tooltip>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 };
