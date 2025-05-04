@@ -13,6 +13,8 @@ import { GameState, useGameStore } from './context';
 
 import { useAttackAnimation } from '../attack-animation';
 
+import { useChoicePanel } from '@/feature/ChoicePanel/context';
+
 export const useHandler = () => {
   const { sync } = useGameStore();
   const { continueGame, choose } = useWebSocketGame();
@@ -27,6 +29,14 @@ export const useHandler = () => {
   const { pauseTimer, resumeTimer } = useTimer();
   const { closeCardsDialog } = useCardsDialog();
   const { startAttackDeclaration, proceedToPreparation } = useAttackAnimation();
+  const { setOptions, clear, setOnSelectCallback } = useChoicePanel();
+
+  // 選択肢選択をPromiseで待つ
+  const handleOptionSelection = (): Promise<string | null> => {
+    return new Promise(resolve => {
+      setOnSelectCallback(resolve);
+    });
+  };
 
   // 仮のユニット座標取得関数（後で実装/差し替え）
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -70,10 +80,35 @@ export const useHandler = () => {
         const { choices } = payload;
 
         switch (choices.type) {
-          case 'option':
-            throw new Error('未実装の機能が呼び出されました');
+          case 'option': {
+            setOptions(
+              choices.items.map((item: { id: string; description: string }) => ({
+                id: item.id,
+                label: item.description,
+                enabled: true,
+              })),
+              10, // 10秒制限
+              payload.player,
+              choices.title,
+              payload.promptId
+            );
+            play('choices');
+
+            // 選択肢選択を受け付け
+            const selectedId = await handleOptionSelection();
+            if (selectedId) {
+              play('select');
+              choose({ promptId: payload.promptId, choice: [selectedId] });
+            } else {
+              // タイムアウトや未選択時
+              choose({ promptId: payload.promptId, choice: [] });
+            }
+            clear();
+            break;
+          }
 
           case 'card': {
+            if (payload.player !== LocalStorageHelper.playerId()) return;
             const response = await openCardsSelector(choices.items, choices.title, choices.count, {
               timeLimit: 10,
             });
@@ -82,6 +117,7 @@ export const useHandler = () => {
           }
 
           case 'intercept': {
+            if (payload.player !== LocalStorageHelper.playerId()) return;
             const selectedCard = await handleInterceptSelection(choices.items);
             choose({
               promptId: payload.promptId,
@@ -91,6 +127,7 @@ export const useHandler = () => {
           }
 
           case 'unit': {
+            if (payload.player !== LocalStorageHelper.playerId()) return;
             const selectedUnit = await handleUnitSelection(choices.items);
             choose({
               promptId: payload.promptId,
@@ -100,6 +137,7 @@ export const useHandler = () => {
           }
 
           case 'block': {
+            if (payload.player !== LocalStorageHelper.playerId()) return;
             const selectedUnit = await handleUnitSelection(choices.items, 'block');
             choose({
               promptId: payload.promptId,
@@ -109,6 +147,12 @@ export const useHandler = () => {
           }
         }
 
+        break;
+      }
+
+      // 選択肢即時終了
+      case 'Selected': {
+        clear();
         break;
       }
 

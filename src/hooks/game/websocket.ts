@@ -5,6 +5,7 @@ import { useWebSocket } from '../websocket/hooks';
 import {
   ContinuePayload,
   createMessage,
+  EvolveDrivePayload,
   ICard,
   IUnit,
   Message,
@@ -173,6 +174,29 @@ export const useWebSocketGame = () => {
     [send]
   );
 
+  interface EvolutionProps {
+    source: IUnit; // 進化元（フィールド上のユニット）
+    target: ICard; // 進化先（手札のカード）
+  }
+  const evolution = useCallback(
+    ({ source, target }: EvolutionProps) => {
+      const message: Message<EvolveDrivePayload> = createMessage({
+        action: {
+          type: 'game',
+          handler: 'core',
+        },
+        payload: {
+          type: 'EvolveDrive',
+          target: { id: target.id },
+          source: { id: source.id },
+          player: LocalStorageHelper.playerId(),
+        },
+      });
+      send(message);
+    },
+    [send]
+  );
+
   return {
     send,
     override,
@@ -182,5 +206,6 @@ export const useWebSocketGame = () => {
     withdrawal,
     setTrigger,
     discard,
+    evolution,
   };
 };

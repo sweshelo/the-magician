@@ -50,7 +50,7 @@ export type SoundKey =
   | 'withdrawal'
   | 'cancel'
   | 'close'
-  | 'choice'
+  | 'choices'
   | 'decide'
   | 'joker-drive'
   | 'joker-grow'
@@ -107,7 +107,7 @@ const SOUND_CONFIG: Record<SoundKey, { path: string; volume: number }> = {
   withdrawal: { path: '/sound/se/withdrawal.ogg', volume: 0.25 },
   cancel: { path: '/sound/se/cancel.ogg', volume: 0.25 },
   close: { path: '/sound/se/close.ogg', volume: 0.25 },
-  choice: { path: '/sound/se/choice.ogg', volume: 0.25 },
+  choices: { path: '/sound/se/choice.ogg', volume: 0.25 },
   decide: { path: '/sound/se/decide.ogg', volume: 0.25 },
   'joker-drive': { path: '/sound/se/joker-drive.ogg', volume: 0.25 },
   'joker-grow': { path: '/sound/se/joker-grow.ogg', volume: 0.25 },
@@ -327,8 +327,8 @@ export const SoundManagerV2Provider: React.FC<{ children: React.ReactNode }> = (
   const [closePlay, closeControls] = useSound(SOUND_CONFIG['close'].path, {
     volume: SOUND_CONFIG['close'].volume,
   });
-  const [choicePlay, choiceControls] = useSound(SOUND_CONFIG['choice'].path, {
-    volume: SOUND_CONFIG['choice'].volume,
+  const [choicePlay, choiceControls] = useSound(SOUND_CONFIG['choices'].path, {
+    volume: SOUND_CONFIG['choices'].volume,
   });
   const [decidePlay, decideControls] = useSound(SOUND_CONFIG['decide'].path, {
     volume: SOUND_CONFIG['decide'].volume,
@@ -425,7 +425,7 @@ export const SoundManagerV2Provider: React.FC<{ children: React.ReactNode }> = (
     });
     soundInstancesRef.current.set('cancel', { play: cancelPlay, stop: cancelControls.stop });
     soundInstancesRef.current.set('close', { play: closePlay, stop: closeControls.stop });
-    soundInstancesRef.current.set('choice', { play: choicePlay, stop: choiceControls.stop });
+    soundInstancesRef.current.set('choices', { play: choicePlay, stop: choiceControls.stop });
     soundInstancesRef.current.set('decide', { play: decidePlay, stop: decideControls.stop });
     soundInstancesRef.current.set('joker-drive', {
       play: jokerDrivePlay,

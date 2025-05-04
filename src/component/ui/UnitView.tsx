@@ -1,15 +1,18 @@
 import React, { useRef } from 'react';
 import { IUnit } from '@/submodule/suit/types';
+import { useDroppable } from '@dnd-kit/core';
+
 import { BPView } from './BPView';
 import { UnitIconView } from './UnitIconView';
 import { UnitActivatedView } from './UnitActivatedView';
 import { UnitActionButtons } from './UnitActionButtons';
 import { UnitSelectionButton } from './UnitSelectionButton';
 import { UnitIconEffect } from './UnitIconEffect';
+import { BattleIconsView } from './BattleIconsView';
 import { useUnitSelection } from '@/hooks/unit-selection';
-import catalog from '@/submodule/suit/catalog/catalog';
 import { useSystemContext } from '@/hooks/system/hooks';
 import { useUnitAttackAnimationStyle, useBPViewAnimationStyle } from '@/hooks/attack-animation';
+import master from '@/submodule/suit/catalog/catalog';
 
 interface UnitViewProps {
   unit: IUnit;
@@ -20,7 +23,7 @@ interface UnitViewProps {
 const UnitViewComponent = ({ unit, isOwnUnit = false }: UnitViewProps) => {
   const { setActiveUnit, candidate, animationUnit, setAnimationUnit, activeUnit } =
     useUnitSelection();
-  const { setSelectedCard, operable } = useSystemContext();
+  const { setSelectedCard, setDetailCard, operable, activeCard } = useSystemContext();
   const unitRef = useRef<HTMLDivElement>(null);
 
   const color: string =
@@ -30,7 +33,34 @@ const UnitViewComponent = ({ unit, isOwnUnit = false }: UnitViewProps) => {
       3: 'royalblue',
       4: 'mediumseagreen',
       5: 'darkviolet',
-    }[catalog.get(unit.catalogId)?.color ?? 0] ?? '';
+    }[master.get(unit.catalogId)?.color ?? 0] ?? '';
+
+  // Check if the dragged card is an evolution card and can evolve this unit
+  const draggableType = activeCard?.data.current?.type;
+  const draggableMaster = draggableType ? master.get(draggableType) : undefined;
+  const unitMaster = master.get(unit.catalogId);
+
+  // Evolution conditions
+  const isEvolutionCard = draggableMaster?.type === 'advanced_unit';
+  const isSameColor = draggableMaster?.color === unitMaster?.color;
+  const hasVirusSpecies = unitMaster?.species?.includes('ウィルス') || false;
+  const hasEvolutionBan =
+    unit.delta?.some(delta => 'name' in delta.effect && delta.effect.name === '進化禁止') || false;
+
+  // Check if unit can be evolved
+  const canEvolve =
+    isOwnUnit && isEvolutionCard && isSameColor && !hasVirusSpecies && !hasEvolutionBan;
+
+  // Set up droppable
+  const { isOver, setNodeRef: setDroppableRef } = useDroppable({
+    id: `unit-${unit.id}`,
+    data: {
+      type: 'unit',
+      unitId: unit.id,
+      accepts: ['card'],
+    },
+    disabled: !isOwnUnit || !operable || !canEvolve,
+  });
 
   // Handle unit click to show action buttons
   const handleUnitClick = () => {
@@ -38,6 +68,7 @@ const UnitViewComponent = ({ unit, isOwnUnit = false }: UnitViewProps) => {
       setActiveUnit(prev => (prev?.id !== unit.id ? unit : undefined));
     }
     setSelectedCard(prev => (prev?.catalogId === unit.catalogId ? undefined : unit));
+    setDetailCard(prev => (prev?.catalogId === unit.catalogId ? undefined : unit));
   };
 
   return (
@@ -56,7 +87,10 @@ const UnitViewComponent = ({ unit, isOwnUnit = false }: UnitViewProps) => {
           </div>
         )}
         <div
-          ref={unitRef}
+          ref={node => {
+            unitRef.current = node;
+            setDroppableRef(node);
+          }}
           className="absolute inset-0 z-0"
           onClick={handleUnitClick}
           style={useUnitAttackAnimationStyle(unit.id)}
@@ -73,7 +107,7 @@ const UnitViewComponent = ({ unit, isOwnUnit = false }: UnitViewProps) => {
           <div className="absolute inset-0 z-1">
             <UnitIconView
               color={color}
-              image={`/image/card/full/${unit.catalogId}.jpg`}
+              image={`https://coj.sega.jp/player/img/${master.get(unit.catalogId)?.img}`}
               reversed={false}
             />
           </div>
@@ -83,9 +117,20 @@ const UnitViewComponent = ({ unit, isOwnUnit = false }: UnitViewProps) => {
 
           {/* Selection button (Select/Target/Block) - can be shown for any unit */}
           <UnitSelectionButton unitId={unit.id} />
+
+          {/* 進化ユニットを ドラッグして上に重ねている間のみ表示させる */}
+          {activeCard && isOver && canEvolve && (
+            <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+              <div
+                className="absolute border-2 rounded-lg w-4/5 h-4/5 animate-field-highlight"
+                style={{ borderColor: 'rgba(255, 255, 255, 0.6)' }}
+              />
+            </div>
+          )}
         </div>
       </div>
-      <div className="-mt-2" style={useBPViewAnimationStyle(unit.id)}>
+      <div className="-mt-8" style={useBPViewAnimationStyle(unit.id)}>
+        {unit.delta && <BattleIconsView delta={unit.delta} />}
         <BPView
           bp={unit.bp.base + unit.bp.diff - unit.bp.damage}
           diff={unit.bp.diff - unit.bp.damage}

@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import React, { useState, useEffect } from "react";
-import { useRef } from "react";
-import { Tooltip } from "react-tooltip";
-import { UseFormRegisterReturn } from "react-hook-form";
+import React, { useState, useEffect } from 'react';
+import { useRef } from 'react';
+import { Tooltip } from 'react-tooltip';
+import { UseFormRegisterReturn } from 'react-hook-form';
 
 interface NumberInputProps {
   label: string;
@@ -32,11 +32,11 @@ export const NumberInput: React.FC<NumberInputProps> = ({
 }) => {
   const rangeRef = useRef<HTMLInputElement>(null);
   const numberRef = useRef<HTMLInputElement>(null);
-  
+
   // Initialize with defaultValue if provided, otherwise use min
   const initialValue = defaultValue !== undefined ? String(defaultValue) : String(min);
   const [value, setValue] = useState<string>(initialValue);
-  
+
   // Update value when defaultValue changes externally
   useEffect(() => {
     if (defaultValue !== undefined) {
@@ -50,21 +50,16 @@ export const NumberInput: React.FC<NumberInputProps> = ({
   };
 
   return (
-    <div className={`mb-3 ${className || ""}`}>
+    <div className={`mb-3 ${className || ''}`}>
       <label className="block text-sm font-medium text-gray-700">
         {label}
         {tooltipId && (
-          <span
-            data-tooltip-id={tooltipId}
-            className="ml-1 text-gray-400 cursor-help"
-          >
+          <span data-tooltip-id={tooltipId} className="ml-1 text-gray-400 cursor-help">
             ⓘ
           </span>
         )}
       </label>
-      {description && (
-        <div className="text-xs text-gray-500 mb-2">{description}</div>
-      )}
+      {description && <div className="text-xs text-gray-500 mb-2">{description}</div>}
       <div className="flex items-center space-x-2 relative">
         <input
           type="range"
@@ -73,7 +68,7 @@ export const NumberInput: React.FC<NumberInputProps> = ({
           step={step}
           className="w-full"
           name={registration.name}
-          onChange={(e) => {
+          onChange={e => {
             handleChange(e);
             registration.onChange(e);
           }}
@@ -88,14 +83,14 @@ export const NumberInput: React.FC<NumberInputProps> = ({
           step={step}
           className="w-16 px-2 py-1 border border-gray-300 rounded-md text-center"
           name={registration.name}
-          onChange={(e) => {
+          onChange={e => {
             handleChange(e);
             registration.onChange(e);
           }}
           onBlur={registration.onBlur}
-          ref={(e) => {
+          ref={e => {
             numberRef.current = e;
-            if (typeof registration.ref === "function") {
+            if (typeof registration.ref === 'function') {
               registration.ref(e);
             }
           }}

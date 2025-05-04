@@ -6,6 +6,7 @@ import { CardUsageEffectProvider } from '../card-usage-effect';
 import { InterceptUsageProvider } from '../intercept-usage';
 import { TimerProvider } from '@/feature/Timer/context';
 import { UnitSelectionProvider } from '../unit-selection';
+import { ChoicePanelProvider } from '@/feature/ChoicePanel/context';
 
 interface Props {
   children: ReactNode;
@@ -19,7 +20,9 @@ export const GameContextProvider = ({ children }: Props) => {
           <CardUsageEffectProvider>
             <InterceptUsageProvider>
               <TimerProvider>
-                <UnitSelectionProvider>{children}</UnitSelectionProvider>
+                <ChoicePanelProvider>
+                  <UnitSelectionProvider>{children}</UnitSelectionProvider>
+                </ChoicePanelProvider>
               </TimerProvider>
             </InterceptUsageProvider>
           </CardUsageEffectProvider>

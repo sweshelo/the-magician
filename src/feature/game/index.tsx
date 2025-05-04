@@ -34,6 +34,7 @@ import { Timer } from '../Timer';
 import { LocalStorageHelper } from '@/service/local-storage';
 import { useMemo } from 'react';
 import { UnitSelectionOverlay } from '@/component/ui/UnitSelectionOverlay';
+import { ChoicePanel } from '@/feature/ChoicePanel';
 
 interface RoomProps {
   id: string;
@@ -44,12 +45,15 @@ export const Game = ({ id }: RoomProps) => {
   const { openCardsDialog } = useCardsDialog();
   const { cursorCollisionSize } = useSystemContext();
 
+  // Get current player ID
+  const currentPlayerId = LocalStorageHelper.playerId();
+
   const rule = useRule();
-  const playerId = Object.keys(usePlayers() ?? {});
+  const playerIds = Object.keys(usePlayers() ?? {});
   const oppenentId =
     useMemo(
-      () => playerId.find((id: string) => id !== LocalStorageHelper.playerId()),
-      [playerId]
+      () => playerIds.find((id: string) => id !== currentPlayerId),
+      [playerIds, currentPlayerId]
     ) ?? '';
   const opponent = usePlayer(oppenentId);
 
@@ -99,10 +103,10 @@ export const Game = ({ id }: RoomProps) => {
       modifiers={[restrictToWindowEdges]}
     >
       <div
-        className={`flex h-screen ${colorTable.ui.background} ${colorTable.ui.text.primary} relative overflow-hidden`}
+        className={`flex h-screen ${colorTable.ui.background} ${colorTable.ui.text.primary} relative overflow-hidden select-none`}
       >
         {/* カード詳細ウィンドウ */}
-        <CardDetailWindow />
+        <CardDetailWindow x={30} y={530} />
 
         {/* デバッグダイアログ */}
         <DebugDialog />
@@ -116,6 +120,7 @@ export const Game = ({ id }: RoomProps) => {
         {/* 選択オーバーレイ */}
         <InterceptSelectionOverlay />
         <UnitSelectionOverlay />
+        <ChoicePanel />
 
         {/* メインゲームコンテナ */}
         <div className="flex flex-col w-full h-full p-4">
@@ -181,7 +186,11 @@ export const Game = ({ id }: RoomProps) => {
                       onClick={() => {
                         openCardsDialog(state => {
                           const trash = (state.players?.[oppenentId]?.trash ?? []) as ICard[];
-                          return [...trash].reverse(); // 最新の捨札カードが上に表示されるよう逆順に
+                          const deleted = (state.players?.[oppenentId]?.delete ?? []) as ICard[];
+                          return [
+                            ...[...trash].reverse(),
+                            ...deleted.map(card => ({ ...card, deleted: true })),
+                          ]; // 最新の捨札カードが上に表示されるよう逆順に
                         }, '対戦相手の捨札');
                       }}
                     >
