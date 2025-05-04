@@ -280,7 +280,7 @@ export const DeckBuilder = () => {
   const [selectedVersions, setSelectedVersions] = useState<number[]>([
     6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
   ]);
-  const [selectedTypes, setSelecteydTypes] = useState<string[]>([]);
+  const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [selectedCosts, setSelectedCosts] = useState<(number | string)[]>([]);
 
   // Available filter options
@@ -400,7 +400,7 @@ export const DeckBuilder = () => {
   }, []);
 
   const toggleType = useCallback((type: string) => {
-    setSelecteydTypes(prev =>
+    setSelectedTypes(prev =>
       prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type]
     );
   }, []);

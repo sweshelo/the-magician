@@ -32,11 +32,16 @@ export const Level = ({ bp, lv, active }: LevelProps) => {
   );
 };
 
-export const CardDetailWindow = () => {
+interface CardDetailWindowProps {
+  x?: number;
+  y?: number;
+}
+
+export const CardDetailWindow = ({ x = 0, y = 0 }: CardDetailWindowProps) => {
   const { detailCard, setDetailCard, detailPosition } = useSystemContext();
-  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [position, setPosition] = useState({ x, y });
   const [isDragging, setIsDragging] = useState(false);
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [dragOffset, setDragOffset] = useState({ x, y });
   const windowRef = useRef<HTMLDivElement>(null);
 
   // Handle mouse events for dragging
@@ -104,7 +109,7 @@ export const CardDetailWindow = () => {
     catalog && (
       <div
         ref={windowRef}
-        className={`fixed transform w-100 ${colorTable.ui.playerInfoBackground} rounded-lg shadow-lg z-50 border ${colorTable.ui.border} overflow-hidden cursor-move`}
+        className={`fixed transform w-100 ${colorTable.ui.playerInfoBackground} rounded-lg shadow-lg z-50 border ${colorTable.ui.border} overflow-hidden`}
         style={{
           left: `${position.x}px`,
           top: `${position.y}px`,
@@ -114,12 +119,13 @@ export const CardDetailWindow = () => {
       >
         {/* ウィンドウヘッダー */}
         <div
-          className={`flex justify-between items-center p-3 h-20 ${colorTable.ui.background}`}
+          className={`flex justify-between items-center p-3 h-20 ${colorTable.ui.background} cursor-move`}
           style={{
             backgroundImage: `url(https://coj.sega.jp/player/img/${catalog.img})`,
             backgroundSize: 'cover',
             backgroundPosition: '0% -140px',
           }}
+          onMouseDown={handleMouseDown}
         >
           <div className="rounded-sm border-3 border-gray">
             <div
@@ -151,17 +157,19 @@ export const CardDetailWindow = () => {
         </div>
 
         {/* カード情報 */}
-        <div className="p-4" onMouseDown={handleMouseDown}>
+        <div className="p-4 h-60">
           {/* 効果 */}
           <div className="mb-3">
-            <p
-              className={`text-sm rounded whitespace-pre-wrap min-h-40`}
-              dangerouslySetInnerHTML={{ __html: catalog.ability }}
-            />
+            {/* スクロール可能なテキストエリア */}
+            <div className="h-42 overflow-y-auto mb-2">
+              <p
+                className={`text-sm rounded whitespace-pre-wrap select-text`}
+                dangerouslySetInnerHTML={{ __html: catalog.ability }}
+              />
+              {/* 関連アビリティ */}
+              {catalog.ability && <RelatedAbilities abilityText={catalog.ability} />}
+            </div>
           </div>
-
-          {/* 関連アビリティ */}
-          {catalog.ability && <RelatedAbilities abilityText={catalog.ability} />}
 
           {/* BP */}
           <div className="justify-between">
@@ -189,7 +197,7 @@ const RelatedAbilities = ({ abilityText }: { abilityText: string }) => {
   if (foundKeywords.length === 0) return null;
 
   return (
-    <div className="mb-3">
+    <div className="my-3">
       <div className="text-sm font-bold mb-1">関連アビリティ</div>
       <div className="flex flex-wrap gap-2">
         {foundKeywords.map((keyword, index) => (

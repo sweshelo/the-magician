@@ -5,6 +5,7 @@ import { useWebSocket } from '../websocket/hooks';
 import {
   ContinuePayload,
   createMessage,
+  EvolveDrivePayload,
   ICard,
   IUnit,
   Message,
@@ -179,18 +180,15 @@ export const useWebSocketGame = () => {
   }
   const evolution = useCallback(
     ({ source, target }: EvolutionProps) => {
-      // Since "Evolution" type isn't defined in the core payload types,
-      // We'll use the createMessage function with UnitDrive type but add custom properties
-      const message: Message = createMessage({
+      const message: Message<EvolveDrivePayload> = createMessage({
         action: {
           type: 'game',
           handler: 'core',
         },
         payload: {
-          type: 'EvolveDrive', // Use existing type that server will recognize
+          type: 'EvolveDrive',
           target: { id: target.id },
-          source: { id: source.id }, // Additional parameter for evolution
-          isEvolution: true, // Flag to indicate this is an evolution action
+          source: { id: source.id },
           player: LocalStorageHelper.playerId(),
         },
       });

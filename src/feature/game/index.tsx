@@ -106,7 +106,7 @@ export const Game = ({ id }: RoomProps) => {
         className={`flex h-screen ${colorTable.ui.background} ${colorTable.ui.text.primary} relative overflow-hidden select-none`}
       >
         {/* カード詳細ウィンドウ */}
-        <CardDetailWindow />
+        <CardDetailWindow x={30} y={530} />
 
         {/* デバッグダイアログ */}
         <DebugDialog />

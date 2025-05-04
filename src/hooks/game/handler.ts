@@ -96,7 +96,6 @@ export const useHandler = () => {
 
             // 選択肢選択を受け付け
             const selectedId = await handleOptionSelection();
-            console.log(selectedId);
             if (selectedId) {
               play('select');
               choose({ promptId: payload.promptId, choice: [selectedId] });

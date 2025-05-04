@@ -22,7 +22,6 @@ export const useMyArea = () => {
     },
     onDragEnd(e: DragEndEvent) {
       const { over } = e;
-      console.log(over);
       switch (over?.data.current?.type) {
         case 'field':
           unitDrive({ target: activeCard?.id as string });

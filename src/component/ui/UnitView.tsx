@@ -10,7 +10,6 @@ import { UnitSelectionButton } from './UnitSelectionButton';
 import { UnitIconEffect } from './UnitIconEffect';
 import { BattleIconsView } from './BattleIconsView';
 import { useUnitSelection } from '@/hooks/unit-selection';
-import catalog from '@/submodule/suit/catalog/catalog';
 import { useSystemContext } from '@/hooks/system/hooks';
 import { useUnitAttackAnimationStyle, useBPViewAnimationStyle } from '@/hooks/attack-animation';
 import master from '@/submodule/suit/catalog/catalog';
@@ -34,7 +33,7 @@ const UnitViewComponent = ({ unit, isOwnUnit = false }: UnitViewProps) => {
       3: 'royalblue',
       4: 'mediumseagreen',
       5: 'darkviolet',
-    }[catalog.get(unit.catalogId)?.color ?? 0] ?? '';
+    }[master.get(unit.catalogId)?.color ?? 0] ?? '';
 
   // Check if the dragged card is an evolution card and can evolve this unit
   const draggableType = activeCard?.data.current?.type;
