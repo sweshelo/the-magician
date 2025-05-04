@@ -5,10 +5,11 @@ import classNames from 'classnames';
 import { colorTable, getColorCode } from '@/helper/color';
 import Image from 'next/image';
 import { useSystemContext } from '@/hooks/system/hooks';
-import { MouseEvent, useCallback, useEffect, useRef, useState } from 'react';
+import { MouseEventHandler, useCallback, useEffect, useRef, useState } from 'react';
 import keywordsData from '@/submodule/suit/catalog/keywords.json';
 import { BattleIconDetail } from './BattleIconsView';
 import { Tooltip } from 'react-tooltip';
+import DOMPurify from 'dompurify';
 
 interface LevelProps {
   lv: number;
@@ -45,7 +46,7 @@ export const CardDetailWindow = ({ x = 0, y = 0 }: CardDetailWindowProps) => {
   const windowRef = useRef<HTMLDivElement>(null);
 
   // Handle mouse events for dragging
-  const handleMouseDown = (e: MouseEvent) => {
+  const handleMouseDown: MouseEventHandler<HTMLDivElement> = e => {
     if (windowRef.current) {
       const rect = windowRef.current.getBoundingClientRect();
       setDragOffset({
@@ -83,12 +84,12 @@ export const CardDetailWindow = ({ x = 0, y = 0 }: CardDetailWindowProps) => {
   // Add and remove global event listeners
   useEffect(() => {
     if (isDragging) {
-      window.addEventListener('mousemove', handleMouseMove as unknown as EventListener);
+      window.addEventListener('mousemove', handleMouseMove);
       window.addEventListener('mouseup', handleMouseUp);
     }
 
     return () => {
-      window.removeEventListener('mousemove', handleMouseMove as unknown as EventListener);
+      window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
     };
   }, [isDragging, handleMouseMove, handleMouseUp]);
@@ -164,7 +165,9 @@ export const CardDetailWindow = ({ x = 0, y = 0 }: CardDetailWindowProps) => {
             <div className="h-42 overflow-y-auto mb-2">
               <p
                 className={`text-sm rounded whitespace-pre-wrap select-text`}
-                dangerouslySetInnerHTML={{ __html: catalog.ability }}
+                dangerouslySetInnerHTML={{
+                  __html: DOMPurify.sanitize(catalog.ability, { ALLOWED_TAGS: ['span'] }),
+                }}
               />
               {/* 関連アビリティ */}
               {catalog.ability && <RelatedAbilities abilityText={catalog.ability} />}

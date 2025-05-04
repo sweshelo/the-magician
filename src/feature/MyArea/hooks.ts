@@ -39,26 +39,28 @@ export const useMyArea = () => {
           discard({ target: { id: activeCard?.id } as ICard });
           break;
         case 'unit':
-          // Evolution handling
-          const draggedCardId = activeCard?.id as string;
-          const targetUnitId = over.data.current.unitId as string;
+          {
+            // Evolution handling
+            const draggedCardId = activeCard?.id as string;
+            const targetUnitId = over.data.current.unitId as string;
 
-          // Find the corresponding card and unit
-          const handCard = hand.find(card => card.id === draggedCardId) as ICard | undefined;
-          const fieldUnit = field.find(unit => unit.id === targetUnitId) as IUnit | undefined;
+            // Find the corresponding card and unit
+            const handCard = hand.find(card => card.id === draggedCardId) as ICard | undefined;
+            const fieldUnit = field.find(unit => unit.id === targetUnitId) as IUnit | undefined;
 
-          if (handCard && fieldUnit) {
-            // Get catalog entries
-            const handCardMaster = catalog.get(handCard.catalogId);
+            if (handCard && fieldUnit) {
+              // Get catalog entries
+              const handCardMaster = catalog.get(handCard.catalogId);
 
-            // Check if it's an advanced_unit (already checked in UnitView's droppable config,
-            // but double-checking here for safety)
-            if (handCardMaster?.type === 'advanced_unit') {
-              // Send evolution action to server
-              evolution({
-                source: fieldUnit,
-                target: handCard,
-              });
+              // Check if it's an advanced_unit (already checked in UnitView's droppable config,
+              // but double-checking here for safety)
+              if (handCardMaster?.type === 'advanced_unit') {
+                // Send evolution action to server
+                evolution({
+                  source: fieldUnit,
+                  target: handCard,
+                });
+              }
             }
           }
           break;

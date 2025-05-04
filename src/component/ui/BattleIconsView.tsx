@@ -37,8 +37,8 @@ const BattleIconsViewComponent = ({ delta }: BattleIconsViewProps) => {
     // Set initial page
     checkAndUpdatePage();
 
-    // Check every 100ms to catch the second change
-    const intervalId = setInterval(checkAndUpdatePage, 100);
+    // Check every 1000ms (1 second) to update the page
+    const intervalId = setInterval(checkAndUpdatePage, 1000);
 
     return () => clearInterval(intervalId);
   }, [totalPages]);
