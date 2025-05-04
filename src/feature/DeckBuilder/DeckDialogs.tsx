@@ -3,6 +3,8 @@
 import { DeckData, LocalStorageHelper } from '@/service/local-storage';
 import { useState, useEffect } from 'react';
 
+// クリップボードAPI用
+
 interface DeckSaveDialogProps {
   isOpen: boolean;
   onClose: () => void;
@@ -22,6 +24,13 @@ export const DeckSaveDialog = ({ isOpen, onClose, onSave, deck }: DeckSaveDialog
   const [selectedDeck, setSelectedDeck] = useState<string | null>(null);
   const [saveMode, setSaveMode] = useState<'new' | 'overwrite'>('new');
   const [isMainDeck, setIsMainDeck] = useState(false);
+
+  // デッキコピー・インポート用
+  const [copyFeedback, setCopyFeedback] = useState('');
+  const [showImport, setShowImport] = useState(false);
+  const [importText, setImportText] = useState('');
+  const [importError, setImportError] = useState('');
+  const [importSuccess, setImportSuccess] = useState('');
 
   useEffect(() => {
     if (isOpen) {
@@ -127,7 +136,100 @@ export const DeckSaveDialog = ({ isOpen, onClose, onSave, deck }: DeckSaveDialog
           )}
         </div>
 
-        <div className="flex justify-end gap-2">
+        {/* --- デッキ内容コピー/インポート機能 --- */}
+        <div className="mt-6 border-t border-gray-600 pt-4">
+          {/* コピー */}
+          <div className="mb-4">
+            <button
+              className="px-3 py-1 bg-green-600 text-white rounded"
+              onClick={async () => {
+                try {
+                  const json = JSON.stringify({ cards: deck }, null, 2);
+                  await navigator.clipboard.writeText(json);
+                  setCopyFeedback('デッキ内容をコピーしました');
+                  setTimeout(() => setCopyFeedback(''), 2000);
+                } catch {
+                  setCopyFeedback('コピーに失敗しました');
+                  setTimeout(() => setCopyFeedback(''), 2000);
+                }
+              }}
+            >
+              デッキ内容をコピー
+            </button>
+            {copyFeedback && <span className="ml-3 text-sm text-green-300">{copyFeedback}</span>}
+          </div>
+          {/* インポート */}
+          <div>
+            <button
+              className="px-3 py-1 bg-purple-600 text-white rounded"
+              onClick={() => {
+                setShowImport(v => !v);
+                setImportText('');
+                setImportError('');
+                setImportSuccess('');
+              }}
+            >
+              デッキ内容から作成
+            </button>
+          </div>
+          {showImport && (
+            <div className="mt-4 bg-gray-700 p-3 rounded">
+              <label className="block text-white mb-2">デッキJSONを貼り付け</label>
+              <textarea
+                className="w-full p-2 rounded bg-gray-800 text-white mb-2"
+                rows={4}
+                value={importText}
+                onChange={e => {
+                  setImportText(e.target.value);
+                  setImportError('');
+                  setImportSuccess('');
+                }}
+                placeholder='{"cards": [...]}'
+              />
+              <button
+                className="px-3 py-1 bg-blue-500 text-white rounded"
+                onClick={() => {
+                  setImportError('');
+                  setImportSuccess('');
+                  try {
+                    const obj = JSON.parse(importText);
+                    if (!obj.cards || !Array.isArray(obj.cards)) {
+                      setImportError('cards配列が見つかりません');
+                      return;
+                    }
+                    if (obj.cards.length !== 40) {
+                      setImportError('デッキは40枚である必要があります');
+                      return;
+                    }
+                    // タイトル入力
+                    const newTitle = prompt('デッキ名を入力してください');
+                    if (!newTitle || !newTitle.trim()) {
+                      setImportError('デッキ名が必要です');
+                      return;
+                    }
+                    // タイトル重複チェック
+                    if (savedDecks.some(d => d.title === newTitle.trim())) {
+                      setImportError('同じ名前のデッキが既に存在します');
+                      return;
+                    }
+                    // 保存
+                    LocalStorageHelper.saveDeck(newTitle.trim(), obj.cards, false);
+                    setImportSuccess('デッキを作成しました');
+                    setSavedDecks(LocalStorageHelper.getAllDecks());
+                  } catch {
+                    setImportError('JSONのパースに失敗しました');
+                  }
+                }}
+              >
+                デッキ作成
+              </button>
+              {importError && <div className="text-red-400 mt-2">{importError}</div>}
+              {importSuccess && <div className="text-green-300 mt-2">{importSuccess}</div>}
+            </div>
+          )}
+        </div>
+        {/* --- 既存の保存/キャンセルボタン --- */}
+        <div className="flex justify-end gap-2 mt-6">
           <button className="px-4 py-2 bg-gray-600 text-white rounded" onClick={onClose}>
             キャンセル
           </button>

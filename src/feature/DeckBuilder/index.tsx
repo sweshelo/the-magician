@@ -8,6 +8,8 @@ import { ICard, Catalog } from '@/submodule/suit/types';
 import { useCallback, useEffect, useMemo, useState, memo } from 'react';
 import { DeckSaveDialog, DeckLoadDialog } from './DeckDialogs';
 import { LocalStorageHelper } from '@/service/local-storage';
+import { DeckPreview } from './DeckPreview';
+import { useSearchParams } from 'next/navigation';
 
 // Memoized Card Component to prevent unnecessary re-renders
 const MemoizedCardView = memo(
@@ -288,6 +290,13 @@ export const DeckBuilder = () => {
   const [availableOriginalities, setAvailableOriginalities] = useState<number[]>([]);
   const [availableVersions, setAvailableVersions] = useState<number[]>([]);
 
+  // Deck preview state
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+
+  // テスト用フラグ
+  const searchParams = useSearchParams();
+  const limitBreak = Boolean(searchParams.get('limitbreak'));
+
   // Load available filter options
   useEffect(() => {
     setAvailableSpecies(getUniqueValues(catalog => catalog.species).sort());
@@ -361,11 +370,11 @@ export const DeckBuilder = () => {
 
   const addToDeck = useCallback(
     (catalogId: string) => {
-      if (deck.length < 40 && deck.filter(id => id === catalogId).length < 3) {
+      if ((limitBreak || deck.length < 40) && deck.filter(id => id === catalogId).length < 3) {
         setDeck(prevDeck => [...prevDeck, catalogId]);
       }
     },
-    [deck]
+    [deck, limitBreak]
   );
 
   // Toggle filter selection - all memoized with useCallback
@@ -650,6 +659,12 @@ export const DeckBuilder = () => {
         >
           デッキ一覧
         </button>
+        <button
+          className="px-3 py-1 border rounde text-white rounded bg-black-700"
+          onClick={() => setIsPreviewOpen(true)}
+        >
+          プレビュー
+        </button>
         {currentDeckTitle && (
           <span className="ml-2 text-gray-300">
             現在のデッキ: {currentDeckTitle}
@@ -700,6 +715,13 @@ export const DeckBuilder = () => {
         onClose={() => setLoadDialogOpen(false)}
         onLoad={handleLoadDeck}
       />
+
+      {isPreviewOpen && (
+        <DeckPreview
+          cards={deck.map((id, index) => ({ id: index.toString(), catalogId: id, lv: 1 }) as ICard)}
+          onClose={() => setIsPreviewOpen(false)}
+        />
+      )}
     </div>
   );
 };
