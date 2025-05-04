@@ -50,11 +50,11 @@ const BattleIconsViewComponent = ({ delta }: BattleIconsViewProps) => {
   const displayIcons = keywordEffects.slice(currentPage * 5, currentPage * 5 + 5);
 
   return (
-    <div className="absolute flex justify-center w-32 h-6 mb-1 bottom-[48]">
+    <div className="absolute flex justify-center w-32 h-6 mb-1 bottom-[48px]">
       <div className="flex flex-row justify-start items-center w-[120px]">
-        {displayIcons.map((item, index) => (
+        {displayIcons.map(item => (
           <Image
-            key={index}
+            key={item}
             src={
               keywordsData.find(k => k.title === item)?.['no-image']
                 ? '/image/icon/no-image.png'
@@ -72,7 +72,6 @@ const BattleIconsViewComponent = ({ delta }: BattleIconsViewProps) => {
       {/* Add tooltips for each icon */}
       {displayIcons.map(item => {
         const keyword = keywordsData.find(k => k.title === item);
-        console.log(keyword);
         return (
           <Tooltip
             key={`tooltip-${item}`}
