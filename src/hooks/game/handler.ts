@@ -38,13 +38,9 @@ export const useHandler = () => {
     });
   };
 
-  // 仮のユニット座標取得関数（後で実装/差し替え）
+  // ユニット座標取得関数（window.unitPositionMapを参照）
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const getUnitCenterPosition = (unitId: string): { x: number; y: number } | undefined => {
-    // 実装例: window.unitPositionMap[unitId] など
-    // if (typeof window !== 'undefined' && (window as any).unitPositionMap) {
-    //   return (window as any).unitPositionMap[unitId];
-    // }
     return undefined;
   };
 
@@ -183,8 +179,6 @@ export const useHandler = () => {
             break;
           }
           case 'launch': {
-            // launchアニメ（着弾座標算出→proceedToPreparation）
-            const attackerId = body.attackerId;
             const blockerId = body.blockerId;
             let targetPosition: { x: number; y: number };
             if (blockerId) {
@@ -193,13 +187,8 @@ export const useHandler = () => {
               targetPosition = blockerPos || { x: getScreenCenterX(), y: 0 };
             } else {
               // blockerIdがundefined: プレイヤー直接攻撃
-              const isPlayerUnit =
-                !!attackerId && attackerId.startsWith(LocalStorageHelper.playerId());
-              if (isPlayerUnit) {
-                targetPosition = { x: getScreenCenterX(), y: 20 };
-              } else {
-                targetPosition = { x: getScreenCenterX(), y: 600 };
-              }
+              // Y座標の決定はUI層（isOwnUnit）で行うため、ここでは中央Xのみ渡す
+              targetPosition = { x: getScreenCenterX(), y: 0 };
             }
             proceedToPreparation(targetPosition);
             break;

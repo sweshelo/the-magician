@@ -74,6 +74,12 @@ const UnitViewComponent = ({ unit, isOwnUnit = false }: UnitViewProps) => {
   return (
     <div className="flex flex-col items-center">
       <div className="relative w-32 h-32 unit-wrapper">
+        {/* COPY banner for copy units */}
+        {unit.isCopy && (
+          <div className="absolute inset-0 z-1 pointer-events-none flex items-center justify-center">
+            <div className="copy-banner">COPY</div>
+          </div>
+        )}
         {/* Action buttons (Attack/Withdrawal/Boot) - only shown for own units */}
         {isOwnUnit && activeUnit === unit && !candidate && (
           <div className="absolute inset-0 z-20 pointer-events-auto">
@@ -81,7 +87,9 @@ const UnitViewComponent = ({ unit, isOwnUnit = false }: UnitViewProps) => {
               unit={unit}
               unitRef={unitRef}
               canAttack={unit.active}
-              canBoot={!unit.active}
+              canBoot={unit.delta?.some(
+                delta => delta.effect.type === 'keyword' && delta.effect.name === '起動'
+              )}
               canWithdraw={true}
             />
           </div>
@@ -93,7 +101,7 @@ const UnitViewComponent = ({ unit, isOwnUnit = false }: UnitViewProps) => {
           }}
           className="absolute inset-0 z-0"
           onClick={handleUnitClick}
-          style={useUnitAttackAnimationStyle(unit.id)}
+          style={useUnitAttackAnimationStyle(unit.id, isOwnUnit)}
         >
           {/* Animation effect layer (highest z-index) */}
           <div className="absolute inset-0 z-10 pointer-events-none">
@@ -141,4 +149,33 @@ const UnitViewComponent = ({ unit, isOwnUnit = false }: UnitViewProps) => {
   );
 };
 
+// CSS for the copy banner animation
+const copyBannerStyle = `
+  @keyframes copyPulse {
+    0% { opacity: 0.6; }
+    50% { opacity: 0.9; }
+    100% { opacity: 0.6; }
+  }
+  
+  .copy-banner {
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    font-weight: bold;
+    padding: 2px 8px;
+    width: 80%;
+    text-align: center;
+    font-size: 1rem;
+    letter-spacing: 1px;
+    animation: copyPulse 3s ease-in-out infinite;
+    z-index: 30;
+  }
+`;
+
 export const UnitView = React.memo(UnitViewComponent);
+
+// Add the CSS to the document
+if (typeof document !== 'undefined') {
+  const style = document.createElement('style');
+  style.textContent = copyBannerStyle;
+  document.head.appendChild(style);
+}

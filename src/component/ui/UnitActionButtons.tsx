@@ -14,8 +14,8 @@ interface UnitActionButtonsProps {
 
 export const UnitActionButtons = ({
   unit,
-  canAttack = true,
-  canBoot = true,
+  canAttack = false,
+  canBoot = false,
   canWithdraw = true,
 }: UnitActionButtonsProps) => {
   const { setActiveUnit } = useUnitSelection();

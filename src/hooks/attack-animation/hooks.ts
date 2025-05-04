@@ -19,7 +19,7 @@ export const useIsUnitAttacking = (unitId: string) => {
 };
 
 // Utility function to get the current animation style for a unit
-export const useUnitAttackAnimationStyle = (unitId: string) => {
+export const useUnitAttackAnimationStyle = (unitId: string, isOwnUnit: boolean) => {
   const { state } = useAttackAnimation();
 
   if (state.attackingUnitId !== unitId) {
@@ -46,9 +46,10 @@ export const useUnitAttackAnimationStyle = (unitId: string) => {
     case 'launch':
       // Move to absolute target position by calculating distance from initial position
       if (state.targetPosition && state.initialPosition) {
-        // Calculate the distance between target and initial position
+        // Y座標をisOwnUnitで上書き
+        const targetY = isOwnUnit ? 20 : 600;
         const deltaX = state.targetPosition.x - state.initialPosition.x;
-        const deltaY = state.targetPosition.y - state.initialPosition.y;
+        const deltaY = targetY - state.initialPosition.y;
 
         return {
           transform: `translate3d(${deltaX}px, ${deltaY}px, 0) scale(1.25)`,
