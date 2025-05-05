@@ -152,7 +152,7 @@ export const Game = ({ id }: RoomProps) => {
                       <div
                         className="w-10 h-13.5 border-1 border-white rounded-sm bg-gray-800"
                         style={{
-                          backgroundImage: `url('/image/card/back/red.png')`,
+                          backgroundImage: `url('/image/card/back/${'color' in card ? card.color : 'none'}.png')`,
                           backgroundSize: 'cover',
                         }}
                         key={index}
