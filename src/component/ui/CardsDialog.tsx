@@ -30,7 +30,7 @@ export const CardsDialogView = ({
       {/* Center container */}
       <div className="flex justify-center">
         {/* デフォルト値の 1192 は 10*112+8*9 */}
-        <div className={`flex flex-wrap justify-start gap-2 w-[calc(${width}px)]`}>
+        <div className={`flex flex-wrap justify-start gap-2`} style={{ width }}>
           {cards?.map(card => (
             <CardView
               card={card}
