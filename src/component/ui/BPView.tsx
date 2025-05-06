@@ -8,12 +8,12 @@ interface BPViewProps {
 }
 
 export const BPView = ({ bp, lv, diff }: BPViewProps) => {
-  const motionBp = useMotionValue(bp);
+  const motionBp = useMotionValue(bp + diff);
 
   useEffect(() => {
-    const controls = animate(motionBp, bp, { duration: 0.2 });
+    const controls = animate(motionBp, bp + diff, { duration: 0.2 });
     return controls.stop;
-  }, [bp, motionBp]);
+  }, [bp, diff, motionBp]);
 
   const blue = diff > 0 ? 'text-cyan-300' : undefined;
   const red = diff < 0 ? 'text-red-400' : undefined;

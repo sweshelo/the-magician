@@ -140,8 +140,16 @@ const UnitViewComponent = ({ unit, isOwnUnit = false }: UnitViewProps) => {
       <div className="-mt-8" style={useBPViewAnimationStyle(unit.id)}>
         {unit.delta && <BattleIconsView delta={unit.delta} />}
         <BPView
-          bp={unit.bp.base + unit.bp.diff - unit.bp.damage}
-          diff={unit.bp.diff - unit.bp.damage}
+          bp={unit.bp}
+          diff={
+            unit.delta
+              ?.map(delta => {
+                if (delta.effect.type === 'bp') return delta.effect.diff;
+                if (delta.effect.type === 'damage') return -delta.effect.value;
+                return 0;
+              })
+              .reduce((acc, current) => (acc += current), 0) ?? 0
+          }
           lv={unit.lv}
         />
       </div>
