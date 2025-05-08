@@ -77,7 +77,7 @@ const BattleIconsViewComponent = ({ delta }: BattleIconsViewProps) => {
             key={`tooltip-${item}`}
             id={`keyword-tooltip-${item}`}
             place="top"
-            className="z-50 max-w-xs"
+            className="z-1 max-w-xs"
           >
             {keyword ? <BattleIconDetail name={keyword.title} /> : item}
           </Tooltip>

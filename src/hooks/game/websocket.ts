@@ -132,6 +132,27 @@ export const useWebSocketGame = () => {
     [send]
   );
 
+  interface BootProps {
+    target: IUnit;
+  }
+  const boot = useCallback(
+    ({ target }: BootProps) => {
+      const message: Message = createMessage({
+        action: {
+          type: 'game',
+          handler: 'core',
+        },
+        payload: {
+          type: 'Boot',
+          target,
+          player: LocalStorageHelper.playerId(),
+        },
+      });
+      send(message);
+    },
+    [send]
+  );
+
   interface SetTriggerProps {
     target: ICard;
   }
@@ -207,5 +228,6 @@ export const useWebSocketGame = () => {
     setTrigger,
     discard,
     evolution,
+    boot,
   };
 };

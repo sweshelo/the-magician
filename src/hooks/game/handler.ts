@@ -124,7 +124,12 @@ export const useHandler = () => {
 
           case 'unit': {
             if (payload.player !== LocalStorageHelper.playerId()) return;
-            const selectedUnit = await handleUnitSelection(choices.items);
+            const selectedUnit = await handleUnitSelection(
+              choices.items,
+              choices.title,
+              'target',
+              choices.isCancelable
+            );
             choose({
               promptId: payload.promptId,
               choice: selectedUnit ? [selectedUnit] : undefined,
@@ -134,7 +139,12 @@ export const useHandler = () => {
 
           case 'block': {
             if (payload.player !== LocalStorageHelper.playerId()) return;
-            const selectedUnit = await handleUnitSelection(choices.items, 'block');
+            const selectedUnit = await handleUnitSelection(
+              choices.items,
+              choices.title,
+              'block',
+              choices.isCancelable
+            );
             choose({
               promptId: payload.promptId,
               choice: selectedUnit ? [selectedUnit] : undefined,
@@ -250,7 +260,9 @@ export const useHandler = () => {
 
   const handleUnitSelection = (
     units: IUnit[],
-    mode: SelectionMode = 'target'
+    title?: string,
+    mode: SelectionMode = 'target',
+    isCancelable: boolean = false
   ): Promise<IUnit['id'] | undefined> => {
     return new Promise(resolve => {
       // Setup handler functions that resolve the promise
@@ -260,7 +272,7 @@ export const useHandler = () => {
         setHandleSelected(undefined);
       };
 
-      setAvailableUnits(units, handleSelect, mode);
+      setAvailableUnits(units, handleSelect, mode, title, isCancelable);
     });
   };
 

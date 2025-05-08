@@ -87,9 +87,7 @@ const UnitViewComponent = ({ unit, isOwnUnit = false }: UnitViewProps) => {
               unit={unit}
               unitRef={unitRef}
               canAttack={unit.active}
-              canBoot={unit.delta?.some(
-                delta => delta.effect.type === 'keyword' && delta.effect.name === '起動'
-              )}
+              canBoot={unit.isBootable === true}
               canWithdraw={true}
             />
           </div>

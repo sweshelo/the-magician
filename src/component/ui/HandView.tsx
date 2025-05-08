@@ -79,6 +79,13 @@ export const HandView = ({ card }: Props) => {
   }, [activeCard?.data, activeCard?.id, card.catalogId, card.id, isSameCard, isStrictOverride]);
 
   const mitigate = useMemo(() => isMitigated(card, trigger), [card, trigger]);
+  const reduced = useMemo(() => {
+    return (
+      (card as ICard).delta
+        ?.map(delta => (delta.effect.type === 'cost' ? delta.effect.value : 0))
+        .reduce((acc, current) => acc + current, 0) ?? 0
+    );
+  }, [card]);
 
   return (
     <div
@@ -88,7 +95,7 @@ export const HandView = ({ card }: Props) => {
       {...attributes}
       {...listeners}
     >
-      {cp < (master.get(card.catalogId)?.cost ?? 0) - (mitigate ? 1 : 0) && (
+      {cp < (master.get(card.catalogId)?.cost ?? 0) - (mitigate ? 1 : 0) + reduced && (
         <div className="absolute inset-0 bg-black opacity-30 z-1 pointer-events-none" />
       )}
       <CardView

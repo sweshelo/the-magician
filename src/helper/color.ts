@@ -58,3 +58,9 @@ export const getUIColor = (colorPath: string): string | undefined => {
 
   return typeof result === 'string' ? result : undefined;
 };
+
+export const getCostColor = (delta: number) => {
+  if (delta === 0) return 'text-white';
+  if (delta > 0) return 'text-red-500';
+  if (delta < 0) return 'text-blue-500';
+};
