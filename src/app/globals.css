@@ -97,6 +97,19 @@ body {
   perspective: 1000px;
 }
 
+/* Timer text pulse animation for MulliganView */
+@keyframes pulse {
+  from {
+    opacity: 0.8;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1.02);
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.9);
+  }
+}
+
 /* Card flip animation */
 @keyframes flip {
   0% {

@@ -8,14 +8,17 @@ import { SelectionMode, useUnitSelection } from '../unit-selection';
 import { useSystemContext } from '../system/hooks';
 import { useCardUsageEffect } from '../card-usage-effect';
 import { LocalStorageHelper } from '@/service/local-storage';
-import { useTimer } from '@/feature/Timer/hooks';
+import { useTimer as useGameTimer } from '@/feature/Timer/hooks';
 import { GameState, useGameStore } from './context';
+import { useMulligan, useTimer as useMulliganTimer } from '../mulligan/context';
 
 import { useAttackAnimation } from '../attack-animation';
 
 import { useChoicePanel } from '@/feature/ChoicePanel/context';
 
 export const useHandler = () => {
+  const { setShowMulligan } = useMulligan();
+  const { startTimer, isTimerRunning } = useMulliganTimer();
   const { sync } = useGameStore();
   const { continueGame, choose } = useWebSocketGame();
   const { showDialog } = useCardEffectDialog();
@@ -26,7 +29,7 @@ export const useHandler = () => {
   const { showCardUsageEffect } = useCardUsageEffect();
   const { play } = useSoundV2();
   const { setOperable } = useSystemContext();
-  const { pauseTimer, resumeTimer } = useTimer();
+  const { pauseTimer, resumeTimer } = useGameTimer();
   const { closeCardsDialog } = useCardsDialog();
   const { startAttackDeclaration, proceedToPreparation } = useAttackAnimation();
   const { setOptions, clear, setOnSelectCallback } = useChoicePanel();
@@ -52,6 +55,21 @@ export const useHandler = () => {
 
     // 標準のメッセージ型の処理
     switch (payload.type) {
+      case 'MulliganStart': {
+        // Always show the UI when receiving a MulliganStart message
+        setShowMulligan(true);
+
+        // Only start a fresh 10-second timer if no timer is already running
+        // This ensures the timer continues running even after pressing "はい"
+        if (!isTimerRunning()) {
+          console.log('Starting a new 10-second timer');
+          startTimer(10);
+        } else {
+          console.log('Timer already running, not resetting');
+        }
+        break;
+      }
+
       case 'Sync': {
         const game: GameState = {
           ...payload.body,
@@ -276,5 +294,10 @@ export const useHandler = () => {
     });
   };
 
-  return { handle, showDialog, handleInterceptSelection, handleUnitSelection };
+  return {
+    handle,
+    showDialog,
+    handleInterceptSelection,
+    handleUnitSelection,
+  };
 };

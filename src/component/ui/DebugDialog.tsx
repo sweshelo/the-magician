@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { colorTable } from '@/helper/color';
-import { usePlayers, usePlayer } from '@/hooks/game/hooks';
 import { useWebSocketGame } from '@/hooks/game';
 import { useSoundV2 } from '@/hooks/soundV2/hooks';
 import { useSystemContext } from '@/hooks/system/hooks';
@@ -19,7 +18,6 @@ export const DebugDialog = () => {
   const [hide, setHide] = useState(false);
   const [targetX, setTargetX] = useState('0');
   const [targetY, setTargetY] = useState('0');
-  const playerId = Object.keys(usePlayers() ?? {});
 
   // Check and update BGM playing status
   useEffect(() => {
@@ -37,12 +35,8 @@ export const DebugDialog = () => {
     return () => clearInterval(intervalId);
   }, [isPlaying]);
 
-  const self = usePlayer(playerId.find((id: string) => id === LocalStorageHelper.playerId())!);
-  const opponent = usePlayer(playerId.find((id: string) => id !== LocalStorageHelper.playerId())!);
-
-  const handleDebugButtonClick = () => {
-    console.log('self: ', self, '\nopponent: ', opponent);
-  };
+  const [debugDriveId, setDebugDriveId] = useState('');
+  const [debugMakeId, setDebugMakeId] = useState('');
 
   const handleDrawButtonClick = () => {
     play('draw');
@@ -58,14 +52,30 @@ export const DebugDialog = () => {
     });
   };
 
-  const handleTurnEndClick = () => {
+  const handleDebugDriveButtonClick = () => {
     send({
       action: {
         handler: 'core',
-        type: 'event',
+        type: 'debug',
       },
       payload: {
-        type: 'TurnEnd',
+        type: 'DebugDrive',
+        player: LocalStorageHelper.playerId(),
+        catalogId: debugDriveId,
+      },
+    });
+  };
+
+  const handleDebugMakeButtonClick = () => {
+    send({
+      action: {
+        handler: 'core',
+        type: 'debug',
+      },
+      payload: {
+        type: 'DebugMake',
+        player: LocalStorageHelper.playerId(),
+        catalogId: debugMakeId,
       },
     });
   };
@@ -116,23 +126,44 @@ export const DebugDialog = () => {
             Debug Console
           </div>
           <div className="flex flex-col gap-2">
-            <button
-              onClick={handleDebugButtonClick}
-              className={`px-3 py-1 rounded ${colorTable.ui.border} bg-slate-600 hover:bg-slate-500 transition-colors`}
-            >
-              Console
-            </button>
+            {/* DebugDrive送信UI */}
+            <div className="flex gap-2 items-center">
+              <input
+                type="text"
+                value={debugDriveId}
+                onChange={e => setDebugDriveId(e.target.value)}
+                className="w-32 px-2 py-1 bg-slate-700 rounded text-white"
+                placeholder="DebugDrive ID"
+              />
+              <button
+                onClick={handleDebugDriveButtonClick}
+                className={`px-3 py-1 rounded ${colorTable.ui.border} bg-blue-600 hover:bg-blue-500 transition-colors`}
+              >
+                DebugDrive送信
+              </button>
+            </div>
+
+            {/* DebugMake送信UI */}
+            <div className="flex gap-2 items-center">
+              <input
+                type="text"
+                value={debugMakeId}
+                onChange={e => setDebugMakeId(e.target.value)}
+                className="w-32 px-2 py-1 bg-slate-700 rounded text-white"
+                placeholder="DebugMake ID"
+              />
+              <button
+                onClick={handleDebugMakeButtonClick}
+                className={`px-3 py-1 rounded ${colorTable.ui.border} bg-purple-600 hover:bg-purple-500 transition-colors`}
+              >
+                DebugMake送信
+              </button>
+            </div>
             <button
               onClick={handleDrawButtonClick}
               className={`px-3 py-1 rounded ${colorTable.ui.border} bg-slate-600 hover:bg-slate-500 transition-colors`}
             >
               Draw
-            </button>
-            <button
-              onClick={handleTurnEndClick}
-              className={`px-3 py-1 rounded ${colorTable.ui.border} bg-lime-600 hover:bg-lime-500 transition-colors`}
-            >
-              Turn End
             </button>
             <button
               onClick={() => setOperable(true)}
@@ -142,23 +173,62 @@ export const DebugDialog = () => {
             </button>
 
             {/* カーソル判定サイズコントロール */}
-            <div className="mt-2 border-t pt-2 border-gray-700">
-              <div className="text-sm mb-1">カーソル判定サイズ: {cursorCollisionSize}px</div>
-              <div className="flex gap-2">
-                <button
-                  onClick={decreaseCursorSize}
-                  className={`px-3 py-1 rounded ${colorTable.ui.border} bg-slate-600 hover:bg-slate-500 transition-colors`}
-                >
-                  -
-                </button>
-                <button
-                  onClick={increaseCursorSize}
-                  className={`px-3 py-1 rounded ${colorTable.ui.border} bg-slate-600 hover:bg-slate-500 transition-colors`}
-                >
-                  +
-                </button>
+            <details>
+              <summary>UI調整</summary>
+              <div className="mt-2 border-t pt-2 border-gray-700">
+                <div className="text-sm mb-1">カーソル判定サイズ: {cursorCollisionSize}px</div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={decreaseCursorSize}
+                    className={`px-3 py-1 rounded ${colorTable.ui.border} bg-slate-600 hover:bg-slate-500 transition-colors`}
+                  >
+                    -
+                  </button>
+                  <button
+                    onClick={increaseCursorSize}
+                    className={`px-3 py-1 rounded ${colorTable.ui.border} bg-slate-600 hover:bg-slate-500 transition-colors`}
+                  >
+                    +
+                  </button>
+                </div>
+                {/* Attack Animation Debug Controls */}
+                <div className="mt-2 border-t pt-2 border-gray-700">
+                  <div className="text-sm mb-1">アタックアニメーション: {attackState.phase}</div>
+                  <div className="flex flex-col gap-2">
+                    <div className="flex gap-2 items-center">
+                      <label className="text-sm whitespace-nowrap">
+                        ターゲット座標 (絶対座標):
+                      </label>
+                      <input
+                        type="number"
+                        value={targetX}
+                        onChange={e => setTargetX(e.target.value)}
+                        className="w-16 px-2 py-1 bg-slate-700 rounded text-white"
+                        placeholder="X"
+                      />
+                      <input
+                        type="number"
+                        value={targetY}
+                        onChange={e => setTargetY(e.target.value)}
+                        className="w-16 px-2 py-1 bg-slate-700 rounded text-white"
+                        placeholder="Y"
+                      />
+                    </div>
+
+                    {attackState.phase === 'declaration' && (
+                      <button
+                        onClick={() =>
+                          proceedToPreparation({ x: Number(targetX), y: Number(targetY) })
+                        }
+                        className={`px-3 py-1 rounded ${colorTable.ui.border} bg-green-600 hover:bg-green-500 transition-colors`}
+                      >
+                        続行
+                      </button>
+                    )}
+                  </div>
+                </div>
               </div>
-            </div>
+            </details>
 
             {/* BGMボリュームコントロール */}
             <div className="mt-2 border-t pt-2 border-gray-700">
@@ -176,13 +246,6 @@ export const DebugDialog = () => {
                 >
                   +
                 </button>
-              </div>
-            </div>
-
-            {/* BGM再生コントロール */}
-            <div className="mt-2 border-t pt-2 border-gray-700">
-              <div className="text-sm mb-1">BGM再生: {isBgmPlaying ? '再生中' : '停止中'}</div>
-              <div className="flex gap-2">
                 <button
                   onClick={toggleBgm}
                   className={`px-3 py-1 rounded ${colorTable.ui.border} ${
@@ -192,39 +255,6 @@ export const DebugDialog = () => {
                   {isBgmPlaying ? '停止' : '再生'}
                 </button>
               </div>
-            </div>
-          </div>
-
-          {/* Attack Animation Debug Controls */}
-          <div className="mt-2 border-t pt-2 border-gray-700">
-            <div className="text-sm mb-1">アタックアニメーション: {attackState.phase}</div>
-            <div className="flex flex-col gap-2">
-              <div className="flex gap-2 items-center">
-                <label className="text-sm whitespace-nowrap">ターゲット座標 (絶対座標):</label>
-                <input
-                  type="number"
-                  value={targetX}
-                  onChange={e => setTargetX(e.target.value)}
-                  className="w-16 px-2 py-1 bg-slate-700 rounded text-white"
-                  placeholder="X"
-                />
-                <input
-                  type="number"
-                  value={targetY}
-                  onChange={e => setTargetY(e.target.value)}
-                  className="w-16 px-2 py-1 bg-slate-700 rounded text-white"
-                  placeholder="Y"
-                />
-              </div>
-
-              {attackState.phase === 'declaration' && (
-                <button
-                  onClick={() => proceedToPreparation({ x: Number(targetX), y: Number(targetY) })}
-                  className={`px-3 py-1 rounded ${colorTable.ui.border} bg-green-600 hover:bg-green-500 transition-colors`}
-                >
-                  続行
-                </button>
-              )}
             </div>
           </div>
         </div>

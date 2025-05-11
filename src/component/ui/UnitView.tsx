@@ -9,6 +9,7 @@ import { UnitActionButtons } from './UnitActionButtons';
 import { UnitSelectionButton } from './UnitSelectionButton';
 import { UnitIconEffect } from './UnitIconEffect';
 import { BattleIconsView } from './BattleIconsView';
+import { CountersView } from './CountersView';
 import { useUnitSelection } from '@/hooks/unit-selection';
 import { useSystemContext } from '@/hooks/system/hooks';
 import { useUnitAttackAnimationStyle, useBPViewAnimationStyle } from '@/hooks/attack-animation';
@@ -150,6 +151,7 @@ const UnitViewComponent = ({ unit, isOwnUnit = false }: UnitViewProps) => {
           }
           lv={unit.lv}
         />
+        <CountersView delta={unit.delta} />
       </div>
     </div>
   );

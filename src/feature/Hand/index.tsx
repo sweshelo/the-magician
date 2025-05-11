@@ -1,4 +1,5 @@
 import { HandView } from '@/component/ui/HandView';
+import { MulliganView } from '@/component/ui/MulliganView';
 import { useRule, useHand } from '@/hooks/game/hooks';
 import { useMemo } from 'react';
 import { ICard } from '@/submodule/suit/types';
@@ -21,6 +22,8 @@ export const HandArea = ({ playerId }: HandAreaProps) => {
 
   return (
     <div className="min-h-[180px] relative" style={{ minWidth: `${containerWidth}px` }}>
+      {/* Mulligan UI */}
+      <MulliganView />
       {/* Placeholders - always display for all slots - left aligned */}
       <div className="flex justify-start gap-2 absolute inset-0 pointer-events-none">
         {[...Array(rule.player.max.hand)].map((_, index) => (

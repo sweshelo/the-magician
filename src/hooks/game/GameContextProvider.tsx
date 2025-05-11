@@ -7,6 +7,7 @@ import { InterceptUsageProvider } from '../intercept-usage';
 import { TimerProvider } from '@/feature/Timer/context';
 import { UnitSelectionProvider } from '../unit-selection';
 import { ChoicePanelProvider } from '@/feature/ChoicePanel/context';
+import { MulliganProvider } from '../mulligan/context';
 
 interface Props {
   children: ReactNode;
@@ -21,7 +22,9 @@ export const GameContextProvider = ({ children }: Props) => {
             <InterceptUsageProvider>
               <TimerProvider>
                 <ChoicePanelProvider>
-                  <UnitSelectionProvider>{children}</UnitSelectionProvider>
+                  <MulliganProvider>
+                    <UnitSelectionProvider>{children}</UnitSelectionProvider>
+                  </MulliganProvider>
                 </ChoicePanelProvider>
               </TimerProvider>
             </InterceptUsageProvider>
