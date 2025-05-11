@@ -6,10 +6,17 @@ export const metadata: Metadata = {
   title: 'Deck Builder',
 };
 
-export default function Page() {
+async function getImplementedCardIds() {
+  const res = await fetch(`https://${process.env.NEXT_PUBLIC_WEBSOCKET_HOST}/api/cards`);
+  if (!res.ok) return [];
+  return await res.json();
+}
+
+export default async function Page() {
+  const implementedIds: string[] = await getImplementedCardIds();
   return (
     <div className={`min-h-screen select-none ${colorTable.ui.background}`}>
-      <DeckBuilder />
+      <DeckBuilder implementedIds={implementedIds} />
     </div>
   );
 }

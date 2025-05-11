@@ -63,6 +63,8 @@ const FilterControls = memo(
     toggleType,
     selectedCosts,
     toggleCost,
+    showImplementedOnly,
+    setShowImplementedOnly,
   }: {
     searchQuery: string;
     setSearchQuery: (query: string) => void;
@@ -83,12 +85,27 @@ const FilterControls = memo(
     toggleType: (type: string) => void;
     selectedCosts: (number | string)[];
     toggleCost: (cost: number | string) => void;
+    showImplementedOnly: boolean;
+    setShowImplementedOnly: (v: boolean) => void;
   }) => {
     return (
       <>
         <details className="w-full max-w-6xl p-4">
           <summary className="p-2 border border-2 rounded-lg">フィルタ</summary>
           <div className="w-full max-w-6xl mt-5">
+            {/* 効果実装済みのみ表示チェックボックス */}
+            <div className="px-4 my-2 flex items-center">
+              <input
+                id="show-implemented-only"
+                type="checkbox"
+                className="mr-2"
+                checked={showImplementedOnly}
+                onChange={e => setShowImplementedOnly(e.target.checked)}
+              />
+              <label htmlFor="show-implemented-only" className="select-none cursor-pointer">
+                効果実装済みのみ表示
+              </label>
+            </div>
             {/* 検索ボックス */}
             <div className="px-4 my-6">
               <input
@@ -266,7 +283,11 @@ const DeckView = memo(
 // Set display name for the deck view
 DeckView.displayName = 'DeckView';
 
-export const DeckBuilder = () => {
+type DeckBuilderProps = {
+  implementedIds?: string[];
+};
+
+export const DeckBuilder = ({ implementedIds }: DeckBuilderProps) => {
   // Dialog visibility states
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
 
@@ -354,6 +375,9 @@ export const DeckBuilder = () => {
 
   // Deck preview state
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+
+  // 効果実装済みのみ表示フラグ
+  const [showImplementedOnly, setShowImplementedOnly] = useState(false);
 
   // テスト用フラグ
   const searchParams = useSearchParams();
@@ -445,7 +469,7 @@ export const DeckBuilder = () => {
 
   // Filtered catalog data
   const filteredCatalogs = useMemo(() => {
-    return Array.from(master.values()).filter(catalog => {
+    let catalogs = Array.from(master.values()).filter(catalog => {
       // Search query filter
       const matchesSearch =
         searchQuery === '' ||
@@ -496,6 +520,12 @@ export const DeckBuilder = () => {
         matchesCost
       );
     });
+
+    if (showImplementedOnly && implementedIds && implementedIds.length > 0) {
+      catalogs = catalogs.filter(catalog => implementedIds.includes(catalog.id));
+    }
+
+    return catalogs;
   }, [
     searchQuery,
     selectedRarities,
@@ -505,6 +535,8 @@ export const DeckBuilder = () => {
     selectedVersions,
     selectedTypes,
     selectedCosts,
+    showImplementedOnly,
+    implementedIds,
   ]);
 
   // Card List component
@@ -719,6 +751,8 @@ export const DeckBuilder = () => {
           toggleType={toggleType}
           selectedCosts={selectedCosts}
           toggleCost={toggleCost}
+          showImplementedOnly={showImplementedOnly}
+          setShowImplementedOnly={setShowImplementedOnly}
         />
 
         <CardList catalogs={filteredCatalogs} addToDeck={addToDeck} />
