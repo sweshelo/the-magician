@@ -377,7 +377,7 @@ export const DeckBuilder = ({ implementedIds }: DeckBuilderProps) => {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   // 効果実装済みのみ表示フラグ
-  const [showImplementedOnly, setShowImplementedOnly] = useState(false);
+  const [showImplementedOnly, setShowImplementedOnly] = useState(true);
 
   // テスト用フラグ
   const searchParams = useSearchParams();
