@@ -8,11 +8,17 @@ import { UnitActivatedView } from './UnitActivatedView';
 import { UnitActionButtons } from './UnitActionButtons';
 import { UnitSelectionButton } from './UnitSelectionButton';
 import { UnitIconEffect } from './UnitIconEffect';
+import { SelectEffect } from './SelectEffect';
+import { OverclockEffect } from './OverclockEffect';
+import { MultipleStatusChange } from './StatusChangeEffect';
 import { BattleIconsView } from './BattleIconsView';
 import { CountersView } from './CountersView';
 import { useUnitSelection } from '@/hooks/unit-selection';
 import { useSystemContext } from '@/hooks/system/hooks';
 import { useUnitAttackAnimationStyle, useBPViewAnimationStyle } from '@/hooks/attack-animation';
+import { useSelectEffect } from '@/hooks/select-effect';
+import { useOverclockEffect } from '@/hooks/overclock-effect';
+import { useStatusChange } from '@/hooks/status-change';
 import master from '@/submodule/suit/catalog/catalog';
 
 interface UnitViewProps {
@@ -102,12 +108,45 @@ const UnitViewComponent = ({ unit, isOwnUnit = false }: UnitViewProps) => {
           onClick={handleUnitClick}
           style={useUnitAttackAnimationStyle(unit.id, isOwnUnit)}
         >
-          {/* Animation effect layer (highest z-index) */}
+          {/* Animation effect layers (highest z-index) */}
           <div className="absolute inset-0 z-10 pointer-events-none">
+            {/* 既存の効果発動アニメーション（長方形パターン） - unit-selection/context由来 */}
             <UnitIconEffect
               show={animationUnit === unit.id}
               onComplete={() => setAnimationUnit(undefined)}
             />
+
+            {/* 新しい選択エフェクト（円形拡散） - select-effect/context由来 */}
+            {useSelectEffect().targetUnitId === unit.id && (
+              <SelectEffect
+                unitId={unit.id}
+                onComplete={() => {
+                  /* 完了ハンドラは内部でコンテキストをリセット */
+                }}
+              />
+            )}
+
+            {/* オーバークロックエフェクト - overclock-effect/context由来 */}
+            {useOverclockEffect().activeUnits.includes(unit.id) && (
+              <OverclockEffect
+                unitId={unit.id}
+                onComplete={() => {
+                  /* 完了ハンドラは内部でコンテキストをリセット */
+                }}
+              />
+            )}
+
+            {/* ステータス変更エフェクト - status-change/context由来 */}
+            {useStatusChange()
+              .getStatusChangesForUnit(unit.id)
+              .map(statusItem => (
+                <MultipleStatusChange
+                  key={statusItem.id}
+                  unitId={unit.id}
+                  changes={statusItem.changes}
+                  statusChangeId={statusItem.id}
+                />
+              ))}
           </div>
 
           {/* Position components to layer correctly */}

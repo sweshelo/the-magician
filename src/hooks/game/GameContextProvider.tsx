@@ -8,6 +8,10 @@ import { TimerProvider } from '@/feature/Timer/context';
 import { UnitSelectionProvider } from '../unit-selection';
 import { ChoicePanelProvider } from '@/feature/ChoicePanel/context';
 import { MulliganProvider } from '../mulligan/context';
+import { AnimationProvider } from '../animation';
+import { SelectEffectProvider } from '../select-effect';
+import { OverclockEffectProvider } from '../overclock-effect';
+import { StatusChangeProvider } from '../status-change';
 
 interface Props {
   children: ReactNode;
@@ -23,7 +27,15 @@ export const GameContextProvider = ({ children }: Props) => {
               <TimerProvider>
                 <ChoicePanelProvider>
                   <MulliganProvider>
-                    <UnitSelectionProvider>{children}</UnitSelectionProvider>
+                    <UnitSelectionProvider>
+                      <AnimationProvider>
+                        <SelectEffectProvider>
+                          <OverclockEffectProvider>
+                            <StatusChangeProvider>{children}</StatusChangeProvider>
+                          </OverclockEffectProvider>
+                        </SelectEffectProvider>
+                      </AnimationProvider>
+                    </UnitSelectionProvider>
                   </MulliganProvider>
                 </ChoicePanelProvider>
               </TimerProvider>
