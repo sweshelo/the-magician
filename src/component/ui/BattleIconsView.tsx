@@ -63,7 +63,7 @@ const BattleIconsViewComponent = ({ delta }: BattleIconsViewProps) => {
             alt={item}
             width={24}
             height={24}
-            className="inline-block"
+            className="inline-block z-0"
             data-tooltip-id={`keyword-tooltip-${item}`}
           />
         ))}

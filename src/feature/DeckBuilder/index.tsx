@@ -63,8 +63,10 @@ const FilterControls = memo(
     toggleType,
     selectedCosts,
     toggleCost,
-    showImplementedOnly,
-    setShowImplementedOnly,
+    showImplemented,
+    setShowImplemented,
+    showNotImplemented,
+    setShowNotImplemented,
   }: {
     searchQuery: string;
     setSearchQuery: (query: string) => void;
@@ -85,8 +87,10 @@ const FilterControls = memo(
     toggleType: (type: string) => void;
     selectedCosts: (number | string)[];
     toggleCost: (cost: number | string) => void;
-    showImplementedOnly: boolean;
-    setShowImplementedOnly: (v: boolean) => void;
+    showImplemented: boolean;
+    setShowImplemented: (v: boolean) => void;
+    showNotImplemented: boolean;
+    setShowNotImplemented: (v: boolean) => void;
   }) => {
     return (
       <>
@@ -96,14 +100,27 @@ const FilterControls = memo(
             {/* 効果実装済みのみ表示チェックボックス */}
             <div className="px-4 my-2 flex items-center">
               <input
-                id="show-implemented-only"
+                id="show-implemented"
                 type="checkbox"
                 className="mr-2"
-                checked={showImplementedOnly}
-                onChange={e => setShowImplementedOnly(e.target.checked)}
+                checked={showImplemented}
+                onChange={e => setShowImplemented(e.target.checked)}
               />
-              <label htmlFor="show-implemented-only" className="select-none cursor-pointer">
-                効果実装済みのみ表示
+              <label htmlFor="show-implemented" className="select-none cursor-pointer">
+                効果実装済みを表示
+              </label>
+            </div>
+            {/* 効果実装済みのみ表示チェックボックス */}
+            <div className="px-4 my-2 flex items-center">
+              <input
+                id="show-not-implemented"
+                type="checkbox"
+                className="mr-2"
+                checked={showNotImplemented}
+                onChange={e => setShowNotImplemented(e.target.checked)}
+              />
+              <label htmlFor="show-not-implemented" className="select-none cursor-pointer">
+                効果未実装を表示
               </label>
             </div>
             {/* 検索ボックス */}
@@ -377,7 +394,8 @@ export const DeckBuilder = ({ implementedIds }: DeckBuilderProps) => {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   // 効果実装済みのみ表示フラグ
-  const [showImplementedOnly, setShowImplementedOnly] = useState(true);
+  const [showImplemented, setShowImplemented] = useState(true);
+  const [showNotImplemented, setShowNotImplemented] = useState(true);
 
   // テスト用フラグ
   const searchParams = useSearchParams();
@@ -521,12 +539,16 @@ export const DeckBuilder = ({ implementedIds }: DeckBuilderProps) => {
       );
     });
 
-    if (showImplementedOnly && implementedIds && implementedIds.length > 0) {
-      catalogs = catalogs.filter(catalog => implementedIds.includes(catalog.id));
+    if (implementedIds && implementedIds.length > 0) {
+      catalogs = catalogs.filter(catalog => {
+        const isImplemented = implementedIds.includes(catalog.id);
+        return (showImplemented && isImplemented) || (showNotImplemented && !isImplemented);
+      });
     }
 
     return catalogs;
   }, [
+    implementedIds,
     searchQuery,
     selectedRarities,
     selectedColors,
@@ -535,8 +557,8 @@ export const DeckBuilder = ({ implementedIds }: DeckBuilderProps) => {
     selectedVersions,
     selectedTypes,
     selectedCosts,
-    showImplementedOnly,
-    implementedIds,
+    showImplemented,
+    showNotImplemented,
   ]);
 
   // Card List component
@@ -751,8 +773,10 @@ export const DeckBuilder = ({ implementedIds }: DeckBuilderProps) => {
           toggleType={toggleType}
           selectedCosts={selectedCosts}
           toggleCost={toggleCost}
-          showImplementedOnly={showImplementedOnly}
-          setShowImplementedOnly={setShowImplementedOnly}
+          showImplemented={showImplemented}
+          setShowImplemented={setShowImplemented}
+          showNotImplemented={showNotImplemented}
+          setShowNotImplemented={setShowNotImplemented}
         />
 
         <CardList catalogs={filteredCatalogs} addToDeck={addToDeck} />
