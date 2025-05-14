@@ -101,6 +101,7 @@ export const StatusChangeEffect: React.FC<StatusChangeEffectProps> = ({
         break;
       case 'base-bp':
         labelText = value > 0 ? '基本BPアップ' : '基本BPダウン';
+        break;
       case 'damage':
         labelText = 'BPダメージ';
         break;
@@ -148,9 +149,6 @@ export const StatusChangeEffect: React.FC<StatusChangeEffectProps> = ({
     <div
       className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none w-32"
       data-unit-id={unitId}
-      style={{
-        zIndex: 50, // 最前面に表示
-      }}
     >
       <div
         className="flex flex-col items-center px-1 py-1 bg-gray-500 opacity-10 rounded-sm border-2 border-gray-700"
