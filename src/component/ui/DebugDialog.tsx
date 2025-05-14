@@ -302,9 +302,9 @@ export const DebugDialog = () => {
 
                           // ランダムなステータス効果を生成
                           const changes = [
-                            { type: 'damage' as const, value: -Math.floor(Math.random() * 10) - 1 },
-                            { type: 'bp' as const, value: Math.floor(Math.random() * 5) + 1 },
-                            { type: 'level' as const, value: '+1' },
+                            // { type: 'damage' as const, value: (-Math.floor(Math.random() * 10) - 1) * 1000 },
+                            // { type: 'bp' as const, value: Math.floor(Math.random() * 5) + 1 },
+                            { type: 'level' as const, value: 1 },
                           ];
 
                           // ステータス変更をコンテキストに追加

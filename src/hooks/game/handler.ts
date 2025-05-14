@@ -15,6 +15,7 @@ import { useMulligan, useTimer as useMulliganTimer } from '../mulligan/context';
 import { useAttackAnimation } from '../attack-animation';
 
 import { useChoicePanel } from '@/feature/ChoicePanel/context';
+import { useStatusChange } from '../status-change';
 
 export const useHandler = () => {
   const { setShowMulligan } = useMulligan();
@@ -33,6 +34,7 @@ export const useHandler = () => {
   const { closeCardsDialog } = useCardsDialog();
   const { startAttackDeclaration, proceedToPreparation } = useAttackAnimation();
   const { setOptions, clear, setOnSelectCallback } = useChoicePanel();
+  const { addStatusChange } = useStatusChange();
 
   // 選択肢選択をPromiseで待つ
   const handleOptionSelection = (): Promise<string | null> => {
@@ -219,6 +221,13 @@ export const useHandler = () => {
               targetPosition = { x: getScreenCenterX(), y: 0 };
             }
             proceedToPreparation(targetPosition);
+            break;
+          }
+          case 'status': {
+            addStatusChange({
+              unitId: body.unitId,
+              changes: [{ type: body.type, value: body.value }],
+            });
             break;
           }
           case 'drive': {

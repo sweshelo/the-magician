@@ -3,7 +3,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { StatusChange, useStatusChange } from '@/hooks/status-change';
 
-export type StatusChangeType = 'damage' | 'level' | 'bp' | 'buff' | 'debuff';
+export type StatusChangeType = 'damage' | 'level' | 'bp' | 'base-bp';
 
 interface StatusChangeEffectProps {
   unitId: string;
@@ -12,15 +12,6 @@ interface StatusChangeEffectProps {
   position?: { x: number; y: number }; // 位置をカスタマイズするための座標
   onComplete?: () => void;
 }
-
-// 各ステータスタイプに対する色とラベルを定義
-const STATUS_CONFIG = {
-  damage: { color: '#ff4d4d', label: 'ダメージ' },
-  level: { color: '#4dff4d', label: 'レベルアップ' },
-  bp: { color: '#4d4dff', label: 'BP' },
-  buff: { color: '#ffdd4d', label: 'バフ' },
-  debuff: { color: '#a64dff', label: 'デバフ' },
-};
 
 export const StatusChangeEffect: React.FC<StatusChangeEffectProps> = ({
   unitId,
@@ -39,8 +30,8 @@ export const StatusChangeEffect: React.FC<StatusChangeEffectProps> = ({
 
     // ±15pxの範囲でランダムな位置を生成
     return {
-      x: Math.floor(Math.random() * 30) - 15,
-      y: Math.floor(Math.random() * 30) - 15,
+      x: 0, // Math.floor(Math.random() * 30) - 15,
+      y: 0, // Math.floor(Math.random() * 30) - 15,
     };
   }, [position]);
 
@@ -58,13 +49,7 @@ export const StatusChangeEffect: React.FC<StatusChangeEffectProps> = ({
     let timeout: NodeJS.Timeout;
 
     if (phase === 'initial') {
-      // 初期フェーズからappearへ
-      timeout = setTimeout(() => setPhase('appear'), 0);
-      timeoutsRef.current.push(timeout);
-    } else if (phase === 'appear') {
-      // 表示フェーズからholdへ
-      timeout = setTimeout(() => setPhase('hold'), 200);
-      timeoutsRef.current.push(timeout);
+      setPhase('hold');
     } else if (phase === 'hold') {
       // 保持フェーズからfadeOutへ
       timeout = setTimeout(() => setPhase('fadeOut'), 1000);
@@ -90,7 +75,7 @@ export const StatusChangeEffect: React.FC<StatusChangeEffectProps> = ({
         };
       case 'hold':
         return {
-          opacity: 1,
+          opacity: 0.75,
           transform: `translate(${effectPosition.x}px, ${effectPosition.y}px) scale(1)`,
         };
       case 'fadeOut':
@@ -106,40 +91,77 @@ export const StatusChangeEffect: React.FC<StatusChangeEffectProps> = ({
     }
   }, [phase, effectPosition]);
 
-  // ステータスタイプに基づく色とラベル
-  const { color, label } = STATUS_CONFIG[type];
+  const DisplayContent = ({ type, value }: { type: string; value: number }) => {
+    // Determine label text based on type and value
+    let labelText = '';
 
-  // 値の表示形式（正負の符号を追加）
-  const displayValue = useMemo(() => {
-    if (typeof value === 'number') {
-      return value > 0 ? `+${value}` : value.toString();
+    switch (type) {
+      case 'bp':
+        labelText = value > 0 ? 'BPアップ' : 'BPダウン';
+        break;
+      case 'base-bp':
+        labelText = value > 0 ? '基本BPアップ' : '基本BPダウン';
+      case 'damage':
+        labelText = 'BPダメージ';
+        break;
+      case 'level':
+        labelText = value > 0 ? 'クロックアップ' : 'クロックダウン';
+        break;
+      default:
+        return null;
     }
-    return value;
-  }, [value]);
+
+    // Define text shadow styles based on value
+    // Label color is based on value (cyan for positive, red for negative)
+    const labelShadowColor = value > 0 ? 'rgba(6, 182, 212, 0.9)' : 'rgba(239, 68, 68, 0.9)'; // cyan-500 or red-500
+    // Value shadow is always red
+    const valueShadowColor = 'rgba(239, 68, 68, 0.9)'; // red-500
+
+    const labelStyle = {
+      textShadow: `0 0 10px ${labelShadowColor}, 0 0 8px ${labelShadowColor}`,
+      fontWeight: 'bold',
+      color: 'white',
+    };
+
+    const valueStyle = {
+      textShadow: `0 0 10px ${valueShadowColor}, 0 0 8px ${valueShadowColor}`,
+      fontWeight: 'bold',
+      color: 'white',
+    };
+
+    // Determine value text
+    const valueText = type === 'level' ? `Lv ${value}` : value;
+
+    return (
+      <>
+        <div className="text-md text-center border-b-1 w-full" style={labelStyle}>
+          {labelText}
+        </div>
+        <div className="text-lg" style={valueStyle}>
+          {valueText}
+        </div>
+      </>
+    );
+  };
 
   return (
     <div
-      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none w-32"
       data-unit-id={unitId}
       style={{
         zIndex: 50, // 最前面に表示
       }}
     >
       <div
-        className="flex flex-col items-center px-2 py-1 rounded"
+        className="flex flex-col items-center px-1 py-1 bg-gray-500 opacity-10 rounded-sm border-2 border-gray-700"
         style={{
-          backgroundColor: `${color}33`, // 20% 透明度
-          border: `1px solid ${color}`,
-          boxShadow: `0 0 8px ${color}66`,
-          color: color,
           fontWeight: 'bold',
           fontSize: '0.9rem',
           ...style,
           transition: 'all 0.3s ease-out',
         }}
       >
-        <div className="text-xs">{label}</div>
-        <div className="text-sm">{displayValue}</div>
+        <DisplayContent type={type} value={value as number} />
       </div>
     </div>
   );
@@ -185,11 +207,6 @@ export const MultipleStatusChange: React.FC<MultipleStatusChangeProps> = ({
           type={change.type}
           value={change.value}
           onComplete={() => setCompletedCount(prev => prev + 1)}
-          // ランダムな位置を計算し、複数のエフェクトが重ならないようにする
-          position={{
-            x: ((index % 3) - 1) * 30 + Math.floor(Math.random() * 20) - 10,
-            y: Math.floor(index / 3) * 35 + Math.floor(Math.random() * 10) - 5,
-          }}
         />
       ))}
     </>
