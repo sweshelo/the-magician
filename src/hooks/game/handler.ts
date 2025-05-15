@@ -34,7 +34,7 @@ export const useHandler = () => {
   const { setOperable } = useSystemContext();
   const { pauseTimer, resumeTimer } = useGameTimer();
   const { closeCardsDialog } = useCardsDialog();
-  const { startAttackDeclaration, proceedToPreparation } = useAttackAnimation();
+  const { startAttackDeclaration, proceedToPreparation, cancelLaunch } = useAttackAnimation();
   const { setOptions, clear, setOnSelectCallback } = useChoicePanel();
   const { addStatusChange } = useStatusChange();
 
@@ -259,6 +259,11 @@ export const useHandler = () => {
                 position,
               });
             }
+            break;
+          }
+          case 'launch-cancel': {
+            // 攻撃アニメーションをキャンセルして元の位置に戻す
+            cancelLaunch();
             break;
           }
         }

@@ -25,6 +25,7 @@ export interface AttackAnimationContextType {
   state: AttackAnimationState;
   startAttackDeclaration: (unitId: string, isPlayerUnit: boolean, position: Position) => void;
   proceedToPreparation: (targetPosition: Position) => void;
+  cancelLaunch: () => void;
   resetAnimation: () => void;
 }
 
@@ -42,6 +43,7 @@ export const AttackAnimationContext = createContext<AttackAnimationContextType>(
   state: initialState,
   startAttackDeclaration: () => {},
   proceedToPreparation: () => {},
+  cancelLaunch: () => {},
   resetAnimation: () => {},
 });
 
@@ -71,6 +73,20 @@ export const AttackAnimationProvider: React.FC<{ children: ReactNode }> = ({ chi
         ...prevState,
         phase: 'preparation',
         targetPosition,
+      };
+    });
+  }, []);
+
+  // Cancel launch and go straight to return phase (i.e., back to original position and size)
+  const cancelLaunch = useCallback(() => {
+    setState(prevState => {
+      // Only proceed if we're in an active animation phase
+      if (prevState.phase === 'idle') return prevState;
+
+      // Skip directly to return phase to go back to original position
+      return {
+        ...prevState,
+        phase: 'return',
       };
     });
   }, []);
@@ -122,6 +138,7 @@ export const AttackAnimationProvider: React.FC<{ children: ReactNode }> = ({ chi
         state,
         startAttackDeclaration,
         proceedToPreparation,
+        cancelLaunch,
         resetAnimation,
       }}
     >

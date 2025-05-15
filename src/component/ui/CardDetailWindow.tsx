@@ -5,11 +5,20 @@ import classNames from 'classnames';
 import { colorTable, getColorCode } from '@/helper/color';
 import Image from 'next/image';
 import { useSystemContext } from '@/hooks/system/hooks';
-import { MouseEventHandler, useCallback, useEffect, useRef, useState } from 'react';
+import {
+  Dispatch,
+  MouseEventHandler,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import keywordsData from '@/submodule/suit/catalog/keywords.json';
 import { BattleIconDetail } from './BattleIconsView';
 import { Tooltip } from 'react-tooltip';
 import DOMPurify from 'dompurify';
+import { ICard } from '@/submodule/suit/types';
 
 interface LevelProps {
   lv: number;
@@ -43,6 +52,8 @@ export const CardDetailWindow = ({ x = 0, y = 0 }: CardDetailWindowProps) => {
   const [position, setPosition] = useState({ x, y });
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x, y });
+  const [abilityMode, setAbilityMode] = useState(true);
+
   const windowRef = useRef<HTMLDivElement>(null);
 
   // Handle mouse events for dragging
@@ -97,104 +108,39 @@ export const CardDetailWindow = ({ x = 0, y = 0 }: CardDetailWindowProps) => {
   // If no card is selected, don't render anything
   if (!detailCard) return null;
 
-  const catalog = detailCard?.catalogId && master.get(detailCard.catalogId);
-
-  const cardType = {
-    unit: 'ユニットカード',
-    advanced_unit: '進化カード',
-    trigger: 'トリガーカード',
-    intercept: 'インターセプトカード',
-  };
-
   return (
-    catalog && (
-      <div
-        ref={windowRef}
-        className={`fixed transform w-100 ${colorTable.ui.playerInfoBackground} rounded-lg shadow-lg z-50 border ${colorTable.ui.border} overflow-hidden`}
-        style={{
-          left: `${position.x}px`,
-          top: `${position.y}px`,
-          minWidth: '400px',
-          maxWidth: '500px',
-        }}
-      >
-        {/* ウィンドウヘッダー */}
-        <div
-          className={`flex justify-between items-center p-3 h-20 ${colorTable.ui.background} cursor-move`}
-          style={{
-            backgroundImage: `url(https://coj.sega.jp/player/img/${catalog.img})`,
-            backgroundSize: 'cover',
-            backgroundPosition: '0% -140px',
-          }}
-          onMouseDown={handleMouseDown}
-        >
-          <div className="rounded-sm border-3 border-gray">
-            <div
-              className={`w-6 h-6 flex items-center justify-center font-bold ${getColorCode(catalog.color)}`}
-            >
-              {catalog.cost}
-            </div>
-          </div>
-          <h3 className="font-bold bg-black/50 px-6 py-2 flex flex-col items-center justify-center">
-            <div className="flex items-center justify-center">
-              <span className="mr-2">{catalog.name}</span>
-              <Image
-                src={`https://coj.sega.jp/player/images/common/card/r_${catalog.rarity}.png`}
-                alt={catalog.rarity}
-                width={32}
-                height={32}
-              />
-            </div>
-            <span className="text-xs mt-1">
-              {`${cardType[catalog.type]} - ${catalog.id} ${catalog.species ? '| ' + catalog.species.join(' / ') : ''}`}
-            </span>
-          </h3>
-          <button
-            onClick={() => setDetailCard(undefined)}
-            className={`${colorTable.ui.text.secondary} hover:${colorTable.ui.text.primary} cursor-pointer`}
-          >
-            ✕
-          </button>
-        </div>
-
-        {/* カード情報 */}
-        <div className="p-4 h-60">
-          {/* 効果 */}
-          <div className="mb-3">
-            {/* スクロール可能なテキストエリア */}
-            <div className="h-42 overflow-y-auto mb-2">
-              <p
-                className={`text-sm rounded whitespace-pre-wrap select-text`}
-                dangerouslySetInnerHTML={{
-                  __html: DOMPurify.sanitize(catalog.ability, { ALLOWED_TAGS: ['span'] }),
-                }}
-              />
-              {/* 関連アビリティ */}
-              {catalog.ability && <RelatedAbilities abilityText={catalog.ability} />}
-            </div>
-          </div>
-
-          {/* BP */}
-          <div className="justify-between">
-            <div className="flex flex-row items-center">
-              <Level lv={1} bp={catalog.bp && catalog.bp[0]} active={true} />
-              <Level lv={2} bp={catalog.bp && catalog.bp[1]} />
-              <Level lv={3} bp={catalog.bp && catalog.bp[2]} />
-            </div>
-          </div>
-        </div>
-      </div>
-    )
+    <div
+      ref={windowRef}
+      className={`fixed transform w-100 ${colorTable.ui.playerInfoBackground} rounded-lg shadow-lg z-50 border ${colorTable.ui.border} overflow-hidden`}
+      style={{
+        left: `${position.x}px`,
+        top: `${position.y}px`,
+      }}
+    >
+      <AbilityPane
+        handleMouseDown={handleMouseDown}
+        catalogId={detailCard.catalogId}
+        setDetailCard={setDetailCard}
+        abilityMode={abilityMode}
+        setAbilityMode={setAbilityMode}
+      />
+    </div>
   );
 };
 
 // 関連アビリティを表示するコンポーネント
-const RelatedAbilities = ({ abilityText }: { abilityText: string }) => {
+const RelatedAbilities = ({ abilityText, isVirus }: { abilityText: string; isVirus: boolean }) => {
   // HTMLタグを削除してプレーンテキストを取得
   const plainText = abilityText.replace(/<[^>]*>/g, '');
 
   // キーワード一覧から、テキスト内に含まれるキーワードを検索 (matcherフィールドを使用)
-  const foundKeywords = keywordsData.filter(keyword => plainText.includes(`${keyword.matcher}`));
+  const foundKeywords = keywordsData.filter(keyword => {
+    // ウイルスカードの場合は特定のキーワードを除外する可能性も考慮
+    if (isVirus && keyword.title === 'virus_specific_keyword') {
+      return false;
+    }
+    return plainText.includes(`${keyword.matcher}`);
+  });
 
   // 見つかったキーワードがない場合は何も表示しない
   if (foundKeywords.length === 0) return null;
@@ -224,5 +170,135 @@ const RelatedAbilities = ({ abilityText }: { abilityText: string }) => {
         ))}
       </div>
     </div>
+  );
+};
+
+const AbilityPane = ({
+  handleMouseDown,
+  catalogId,
+  setDetailCard,
+  abilityMode,
+  setAbilityMode,
+}: {
+  handleMouseDown: MouseEventHandler<HTMLDivElement>;
+  catalogId: string;
+  setDetailCard: Dispatch<SetStateAction<ICard | undefined>>;
+  abilityMode: boolean;
+  setAbilityMode: Dispatch<SetStateAction<boolean>>;
+}) => {
+  const cardType = {
+    unit: 'ユニットカード',
+    advanced_unit: '進化カード',
+    trigger: 'トリガーカード',
+    intercept: 'インターセプトカード',
+    virus: 'ウィルスユニット',
+  };
+
+  const catalog = master.get(catalogId);
+  return catalog && abilityMode ? (
+    <>
+      {/* ウィンドウヘッダー */}
+      <div
+        className={`flex justify-between items-center p-3 h-20 ${colorTable.ui.background} cursor-move`}
+        style={{
+          backgroundImage: `url(https://coj.sega.jp/player/img/${catalog.img})`,
+          backgroundSize: 'cover',
+          backgroundPosition: '0% -140px',
+        }}
+        onMouseDown={handleMouseDown}
+        onDoubleClick={() => setAbilityMode(false)}
+      >
+        <div className="rounded-sm border-3 border-gray">
+          <div
+            className={`w-6 h-6 flex items-center justify-center font-bold ${getColorCode(catalog.color)}`}
+          >
+            {catalog.cost}
+          </div>
+        </div>
+        <h3 className="font-bold bg-black/50 px-6 py-2 flex flex-col items-center justify-center">
+          <div className="flex items-center justify-center">
+            <span className="mr-2">{catalog.name}</span>
+            {catalog.type !== 'virus' && (
+              <Image
+                src={`https://coj.sega.jp/player/images/common/card/r_${catalog.rarity}.png`}
+                alt={catalog.rarity}
+                width={32}
+                height={32}
+              />
+            )}
+          </div>
+          <span className="text-xs mt-1">
+            {`${cardType[catalog.type]} - ${catalog.id} ${catalog.species ? '| ' + catalog.species.join(' / ') : ''}`}
+          </span>
+        </h3>
+        <button
+          onClick={() => setDetailCard(undefined)}
+          className={`${colorTable.ui.text.secondary} hover:${colorTable.ui.text.primary} cursor-pointer`}
+        >
+          ✕
+        </button>
+      </div>
+
+      {/* カード情報 */}
+      <div className="p-4 h-60">
+        {/* 効果 */}
+        <div className="mb-3">
+          {/* スクロール可能なテキストエリア */}
+          <div className="h-42 overflow-y-auto mb-2">
+            <p
+              className={`text-sm rounded whitespace-pre-wrap select-text`}
+              dangerouslySetInnerHTML={{
+                __html: DOMPurify.sanitize(catalog.ability, { ALLOWED_TAGS: ['span'] }),
+              }}
+            />
+            {/* 関連アビリティ */}
+            {catalog.ability && (
+              <RelatedAbilities abilityText={catalog.ability} isVirus={catalog.type === 'virus'} />
+            )}
+          </div>
+        </div>
+
+        {/* BP */}
+        <div className="justify-between">
+          <div className="flex flex-row items-center">
+            <Level lv={1} bp={catalog.bp && catalog.bp[0]} active={true} />
+            <Level lv={2} bp={catalog.bp && catalog.bp[1]} />
+            <Level lv={3} bp={catalog.bp && catalog.bp[2]} />
+          </div>
+        </div>
+      </div>
+    </>
+  ) : (
+    <ImagePane
+      handleMouseDown={handleMouseDown}
+      catalogId={catalogId}
+      setAbilityMode={setAbilityMode}
+    />
+  );
+};
+
+const ImagePane = ({
+  handleMouseDown,
+  catalogId,
+  setAbilityMode,
+}: {
+  handleMouseDown: MouseEventHandler<HTMLDivElement>;
+  catalogId: string;
+  setAbilityMode: Dispatch<SetStateAction<boolean>>;
+}) => {
+  const catalog = master.get(catalogId);
+
+  if (!catalog) return null;
+
+  return (
+    <div
+      className={`flex justify-between items-center p-3 h-140 ${colorTable.ui.background} cursor-move`}
+      style={{
+        backgroundImage: `url(https://coj.sega.jp/player/img/${catalog.img})`,
+        backgroundSize: 'cover',
+      }}
+      onMouseDown={handleMouseDown}
+      onClick={() => setAbilityMode(true)}
+    />
   );
 };
