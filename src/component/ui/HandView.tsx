@@ -2,6 +2,7 @@ import { useSystemContext } from '@/hooks/system/hooks';
 import { useDraggable, useDroppable } from '@dnd-kit/core';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { CardView } from './CardView';
+import { ChainOverlay } from './ChainOverlay';
 import { ICard } from '@/submodule/suit/types';
 import { GameState, useGameStore } from '@/hooks/game';
 import { LocalStorageHelper } from '@/service/local-storage';
@@ -11,11 +12,12 @@ import { isMitigated } from '@/helper/game';
 interface Props {
   card: ICard;
   isHighlighted?: boolean;
+  isSmall?: boolean;
 }
 
 const empty: ICard[] = [];
 
-export const HandView = ({ card }: Props) => {
+export const HandView = ({ card, isSmall = false }: Props) => {
   const [isHighlighted, setHighlighted] = useState(false);
 
   const cpSelector = useCallback(
@@ -103,7 +105,11 @@ export const HandView = ({ card }: Props) => {
         isHighlighting={isHighlighted}
         isSelecting={isOver}
         isMitigated={mitigate}
+        isSmall={isSmall}
       />
+      {card.delta?.some(delta => delta.effect.type === 'banned') && (
+        <ChainOverlay isSmall={isSmall} />
+      )}
     </div>
   );
 };
