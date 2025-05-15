@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { IUnit } from '@/submodule/suit/types';
 import { useDroppable } from '@dnd-kit/core';
 
@@ -13,6 +13,7 @@ import { OverclockEffect } from './OverclockEffect';
 import { MultipleStatusChange } from './StatusChangeEffect';
 import { BattleIconsView } from './BattleIconsView';
 import { CountersView } from './CountersView';
+import { useUnitPosition } from '@/hooks/unit-position';
 import { useUnitSelection } from '@/hooks/unit-selection';
 import { useSystemContext } from '@/hooks/system/hooks';
 import { useUnitAttackAnimationStyle, useBPViewAnimationStyle } from '@/hooks/attack-animation';
@@ -32,6 +33,12 @@ const UnitViewComponent = ({ unit, isOwnUnit = false }: UnitViewProps) => {
     useUnitSelection();
   const { setSelectedCard, setDetailCard, operable, activeCard } = useSystemContext();
   const unitRef = useRef<HTMLDivElement>(null);
+  const { registerUnitRef } = useUnitPosition();
+
+  // ユニットの位置情報をコンテキストに登録
+  useEffect(() => {
+    registerUnitRef(unit.id, unitRef as React.RefObject<HTMLDivElement>);
+  }, [unit.id, registerUnitRef]);
 
   const color: string =
     {
@@ -106,7 +113,7 @@ const UnitViewComponent = ({ unit, isOwnUnit = false }: UnitViewProps) => {
           }}
           className="absolute inset-0 z-0"
           onClick={handleUnitClick}
-          style={useUnitAttackAnimationStyle(unit.id, isOwnUnit)}
+          style={useUnitAttackAnimationStyle(unit.id)}
         >
           {/* Animation effect layers (highest z-index) */}
           <div className="absolute inset-0 z-10 pointer-events-none">

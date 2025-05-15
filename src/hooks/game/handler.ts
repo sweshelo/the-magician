@@ -16,8 +16,10 @@ import { useAttackAnimation } from '../attack-animation';
 
 import { useChoicePanel } from '@/feature/ChoicePanel/context';
 import { useStatusChange } from '../status-change';
+import { useUnitPosition } from '../unit-position';
 
 export const useHandler = () => {
+  const { getUnitCenterPosition: getUnitPosition } = useUnitPosition();
   const { setShowMulligan } = useMulligan();
   const { startTimer, isTimerRunning } = useMulliganTimer();
   const { sync } = useGameStore();
@@ -43,10 +45,9 @@ export const useHandler = () => {
     });
   };
 
-  // ユニット座標取得関数（window.unitPositionMapを参照）
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // ユニット座標取得関数 - UnitPositionContextから取得
   const getUnitCenterPosition = (unitId: string): { x: number; y: number } | undefined => {
-    return undefined;
+    return getUnitPosition(unitId);
   };
 
   // 画面中央座標取得
@@ -210,15 +211,28 @@ export const useHandler = () => {
           }
           case 'launch': {
             const blockerId = body.blockerId;
+            const attackerId = body.attackerId || '';
             let targetPosition: { x: number; y: number };
+
             if (blockerId) {
-              // blockerユニットの座標
+              // blockerユニットの座標 - 直接攻撃ではなくユニットへの攻撃
               const blockerPos = getUnitCenterPosition(blockerId);
               targetPosition = blockerPos || { x: getScreenCenterX(), y: 0 };
             } else {
               // blockerIdがundefined: プレイヤー直接攻撃
-              // Y座標の決定はUI層（isOwnUnit）で行うため、ここでは中央Xのみ渡す
-              targetPosition = { x: getScreenCenterX(), y: 0 };
+              // 攻撃元が自分のユニットかどうかで攻撃先座標を決定
+              const isPlayerAttack =
+                attackerId && attackerId.startsWith(LocalStorageHelper.playerId());
+              const screenWidth = window.innerWidth;
+              const screenHeight = window.innerHeight;
+
+              if (isPlayerAttack) {
+                // 自分のユニットからの攻撃: top: 40px, left: 50%
+                targetPosition = { x: screenWidth / 2, y: 40 };
+              } else {
+                // 相手のユニットからの攻撃: bottom: 100px, left: 50%
+                targetPosition = { x: screenWidth / 2, y: screenHeight - 300 };
+              }
             }
             proceedToPreparation(targetPosition);
             break;
