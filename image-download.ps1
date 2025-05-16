@@ -1,0 +1,1 @@
+cat .\src\submodule\suit\catalog\catalog.json | ConvertFrom-Json | %{ curl "https://coj.sega.jp/player/img$($_.img)" -o ".\public\image\card\full\$($_.id).jpg"}

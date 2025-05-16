@@ -90,7 +90,9 @@ export const CardView = ({
       <div
         className={`${sizeClass} border-2 border-slate-600 rounded justify-center items-center text-slate-500 relative ${isSelecting ? 'animate-pulse-border' : ''}`}
         style={{
-          backgroundImage: `url('https://coj.sega.jp/player/img/${catalog?.img}')`,
+          backgroundImage: process.env.NEXT_PUBLIC_IMAGE_SELF_HOSTING
+            ? `url(https://coj.sega.jp/player/img/${catalog?.img})`
+            : `url(/image/card/full/${catalog?.id}.jpg)`,
           backgroundSize: 'cover',
         }}
         onClick={() => {
