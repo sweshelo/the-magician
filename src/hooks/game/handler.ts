@@ -220,17 +220,22 @@ export const useHandler = () => {
               targetPosition = blockerPos || { x: getScreenCenterX(), y: 0 };
             } else {
               // blockerIdがundefined: プレイヤー直接攻撃
-              // 攻撃元が自分のユニットかどうかで攻撃先座標を決定
-              const isPlayerAttack =
-                attackerId && attackerId.startsWith(LocalStorageHelper.playerId());
+              // UnitView の isOwnUnit 判定を再現
               const screenWidth = window.innerWidth;
               const screenHeight = window.innerHeight;
 
-              if (isPlayerAttack) {
-                // 自分のユニットからの攻撃: top: 40px, left: 50%
-                targetPosition = { x: screenWidth / 2, y: 40 };
+              // GameState.players から自分の field を参照し、attackerId が含まれていれば isOwnUnit
+              // useGameStore.getState() で最新の GameState を取得
+              const gameState = useGameStore.getState();
+              const playerId = LocalStorageHelper.playerId();
+              const myField: IUnit[] = gameState.players?.[playerId]?.field ?? [];
+              const isOwnUnit = myField.some((unit: IUnit) => unit.id === attackerId);
+
+              if (isOwnUnit) {
+                // isOwnUnit: 仮値 y: 30
+                targetPosition = { x: screenWidth / 2, y: 100 };
               } else {
-                // 相手のユニットからの攻撃: bottom: 100px, left: 50%
+                // !isOwnUnit: 現状の値
                 targetPosition = { x: screenWidth / 2, y: screenHeight - 300 };
               }
             }
