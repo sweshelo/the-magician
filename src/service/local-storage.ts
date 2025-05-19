@@ -1,3 +1,5 @@
+import { nanoid } from 'nanoid';
+
 // Deck type definition
 export type DeckData = {
   id: string;
@@ -17,7 +19,7 @@ export const LocalStorageHelper = {
       return id;
     } else {
       // Generate UUID safely
-      const newId = crypto.randomUUID();
+      const newId = nanoid();
       window.localStorage.setItem('playerId', newId);
       return newId;
     }
@@ -49,7 +51,7 @@ export const LocalStorageHelper = {
 
     const decks = LocalStorageHelper.getAllDecks();
     const existingDeckIndex = decks.findIndex(deck => deck.title === title);
-    const id = existingDeckIndex >= 0 ? decks[existingDeckIndex].id : crypto.randomUUID();
+    const id = existingDeckIndex >= 0 ? decks[existingDeckIndex].id : nanoid();
 
     if (existingDeckIndex >= 0) {
       // Update existing deck

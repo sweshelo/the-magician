@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack --experimental-https",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -16,6 +16,7 @@
     "classnames": "^2.5.1",
     "dompurify": "^3.2.5",
     "framer-motion": "^12.7.4",
+    "nanoid": "^5.1.5",
     "next": "15.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
