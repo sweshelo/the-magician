@@ -7,7 +7,9 @@ export const metadata: Metadata = {
 };
 
 async function getImplementedCardIds() {
-  const res = await fetch(`https://${process.env.NEXT_PUBLIC_WEBSOCKET_HOST}/api/cards`);
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_SECURE_CONNECTION === 'true' ? 'https://' : 'http://'}${process.env.NEXT_PUBLIC_SERVER_HOST}/api/cards`
+  );
   if (!res.ok) return [];
   return await res.json();
 }

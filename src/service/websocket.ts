@@ -61,5 +61,5 @@ class WebSocketService extends EventEmitter {
 }
 
 export const webSocketService = new WebSocketService(
-  `wss://${process.env.NEXT_PUBLIC_WEBSOCKET_HOST}`
+  `${process.env.NEXT_PUBLIC_SECURE_CONNECTION === 'true' ? 'wss://' : 'ws://'}${process.env.NEXT_PUBLIC_SERVER_HOST}`
 );
