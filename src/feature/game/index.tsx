@@ -35,6 +35,7 @@ import { LocalStorageHelper } from '@/service/local-storage';
 import { useMemo } from 'react';
 import { UnitSelectionOverlay } from '@/component/ui/UnitSelectionOverlay';
 import { ChoicePanel } from '@/feature/ChoicePanel';
+import { PurpleGaugeView } from '@/component/ui/purpleGaugeView';
 
 interface RoomProps {
   id: string;
@@ -128,7 +129,7 @@ export const Game = ({ id }: RoomProps) => {
           <div className={`flex-col p-4 border-b ${colorTable.ui.border}`}>
             {/* 対戦相手情報 */}
             <div
-              className={`flex justify-between p-2 ${colorTable.ui.playerInfoBackground} rounded-lg mb-4`}
+              className={`flex items-center justify-between p-2 ${colorTable.ui.playerInfoBackground} rounded-lg mb-4`}
             >
               <div className="player-identity">
                 <div className="font-bold text-lg">{opponent?.name ?? '対戦相手 検索中…'}</div>
@@ -199,14 +200,13 @@ export const Game = ({ id }: RoomProps) => {
                   </CardsCountView>
                 )}
               </div>
-              <div className="flex flex-col gap-2">
-                {opponent?.life !== undefined && (
-                  <LifeView current={opponent.life.current} max={opponent.life.max} />
-                )}
-                {opponent?.cp !== undefined && (
-                  <CPView current={opponent.cp.current} max={opponent.cp.max} />
-                )}
-              </div>
+              {opponent?.cp !== undefined && (
+                <CPView current={opponent.cp.current} max={opponent.cp.max} />
+              )}
+              <PurpleGaugeView max={5} current={opponent?.purple} />
+              {opponent?.life !== undefined && (
+                <LifeView current={opponent.life.current} max={opponent.life.max} />
+              )}
             </div>
           </div>
 

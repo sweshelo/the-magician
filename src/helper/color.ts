@@ -28,7 +28,7 @@ export const colorTable = {
   symbols: {
     life: 'text-red-400',
     mana: 'text-blue-400',
-    cp: 'text-yellow-400',
+    cp: 'text-pink-400',
   },
 };
 

@@ -12,6 +12,7 @@ import { MyTrash } from '../MyTrash';
 import { LocalStorageHelper } from '@/service/local-storage';
 import { ICard } from '@/submodule/suit/types';
 import { useDeck, usePlayer } from '@/hooks/game/hooks';
+import { PurpleGaugeView } from '@/component/ui/purpleGaugeView';
 
 export const MyArea = () => {
   const { openCardsDialog } = useCardsDialog();
@@ -36,7 +37,7 @@ export const MyArea = () => {
           <div className={`text-sm ${colorTable.ui.text.secondary}`}>あなたのターン</div>
         </div>
 
-        <div className="flex gap-4">
+        <div className="flex gap-4 items-center">
           {deck && (
             <CardsCountView count={(deck ?? []).length}>
               <div
@@ -48,13 +49,13 @@ export const MyArea = () => {
             </CardsCountView>
           )}
           <MyTrash />
+          {self?.cp && <CPView max={self.cp.max} current={self.cp.current} />}
+          <PurpleGaugeView max={5} current={self?.purple} />
+          <MyTriggerZone />
         </div>
-
-        <MyTriggerZone />
 
         <div className="flex flex-col gap-2">
           {self?.life && <LifeView current={self.life.current} max={self.life.max} />}
-          {self?.cp && <CPView current={self.cp.current} max={self.cp.max} />}
         </div>
       </div>
 
