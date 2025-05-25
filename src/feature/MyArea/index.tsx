@@ -13,6 +13,7 @@ import { LocalStorageHelper } from '@/service/local-storage';
 import { ICard } from '@/submodule/suit/types';
 import { useDeck, usePlayer } from '@/hooks/game/hooks';
 import { PurpleGaugeView } from '@/component/ui/purpleGaugeView';
+import { JokerArea } from '../JokerArea';
 
 export const MyArea = () => {
   const { openCardsDialog } = useCardsDialog();
@@ -60,20 +61,9 @@ export const MyArea = () => {
       </div>
 
       {/* 自分の手札エリア */}
-      <div className="flex justify-center">
+      <div className="flex justify-center items-end">
         <HandArea playerId={playerId} />
-        {/*
-        <div className="flex gap-2">
-          <HandView
-            key={`hand-card-jk1`}
-            card={{ id: "jk1", catalogId: "", lv: 1 }}
-          />
-          <HandView
-            key={`hand-card-jk2`}
-            card={{ id: "jk2", catalogId: "", lv: 1 }}
-          />
-        </div>
-        */}
+        <JokerArea />
       </div>
     </div>
   );

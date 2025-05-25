@@ -22,7 +22,8 @@ export const MyFieldWrapper = ({ children }: MyFieldWrapperProps) => {
     },
     disabled:
       field >= rule.player.max.field ||
-      catalog.get(activeCard?.data.current?.type)?.type !== 'unit',
+      (catalog.get(activeCard?.data.current?.type)?.type !== 'unit' &&
+        catalog.get(activeCard?.data.current?.type)?.type !== 'joker'),
   });
 
   return (

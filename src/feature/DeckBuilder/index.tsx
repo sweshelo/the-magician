@@ -395,7 +395,7 @@ export const DeckBuilder = ({ implementedIds }: DeckBuilderProps) => {
 
   // 効果実装済みのみ表示フラグ
   const [showImplemented, setShowImplemented] = useState(true);
-  const [showNotImplemented, setShowNotImplemented] = useState(true);
+  const [showNotImplemented, setShowNotImplemented] = useState(false);
 
   // テスト用フラグ
   const searchParams = useSearchParams();

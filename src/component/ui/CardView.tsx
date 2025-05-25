@@ -136,7 +136,7 @@ export const CardView = ({
           </div>
         </div>
         <div className="border-gray-700 absolute bottom-0 w-full">
-          {catalog && (
+          {catalog && catalog.type !== 'joker' && (
             <ul
               className={`w-full h-7 flex items-center justify-center font-bold text-white bg-gray-700`}
             >

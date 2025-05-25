@@ -21,7 +21,7 @@ export const HandArea = ({ playerId }: HandAreaProps) => {
   }, [rule.player.max.hand]);
 
   return (
-    <div className="min-h-[180px] relative" style={{ minWidth: `${containerWidth}px` }}>
+    <div className="relative" style={{ minWidth: `${containerWidth}px` }}>
       {/* Mulligan UI */}
       <MulliganView />
       {/* Placeholders - always display for all slots - left aligned */}

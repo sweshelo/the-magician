@@ -192,6 +192,7 @@ const AbilityPane = ({
     trigger: 'トリガーカード',
     intercept: 'インターセプトカード',
     virus: 'ウィルスユニット',
+    joker: 'ジョーカーカード',
   };
 
   const catalog = master.get(catalogId);
@@ -220,7 +221,7 @@ const AbilityPane = ({
         <h3 className="font-bold bg-black/50 px-6 py-2 flex flex-col items-center justify-center">
           <div className="flex items-center justify-center">
             <span className="mr-2">{catalog.name}</span>
-            {catalog.type !== 'virus' && (
+            {catalog.type !== 'virus' && catalog.type !== 'joker' && (
               <Image
                 src={`https://coj.sega.jp/player/images/common/card/r_${catalog.rarity}.png`}
                 alt={catalog.rarity}
@@ -261,13 +262,15 @@ const AbilityPane = ({
         </div>
 
         {/* BP */}
-        <div className="justify-between">
-          <div className="flex flex-row items-center">
-            <Level lv={1} bp={catalog.bp && catalog.bp[0]} active={true} />
-            <Level lv={2} bp={catalog.bp && catalog.bp[1]} />
-            <Level lv={3} bp={catalog.bp && catalog.bp[2]} />
+        {catalog.type !== 'joker' && (
+          <div className="justify-between">
+            <div className="flex flex-row items-center">
+              <Level lv={1} bp={catalog.bp && catalog.bp[0]} active={true} />
+              <Level lv={2} bp={catalog.bp && catalog.bp[1]} />
+              <Level lv={3} bp={catalog.bp && catalog.bp[2]} />
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </>
   ) : (
