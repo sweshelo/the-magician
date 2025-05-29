@@ -1,3 +1,5 @@
+'use client';
+
 import { useSystemContext } from '@/hooks/system/hooks';
 import { useDraggable, useDroppable } from '@dnd-kit/core';
 import { useCallback, useEffect, useMemo, useState } from 'react';
