@@ -101,7 +101,7 @@ const UnitViewComponent = ({ unit, isOwnUnit = false }: UnitViewProps) => {
               unit={unit}
               unitRef={unitRef}
               canAttack={unit.active}
-              canBoot={unit.isBootable === true}
+              canBoot={unit.hasBootAbility === true ? (unit.isBooted ? false : true) : undefined}
               canWithdraw={true}
             />
           </div>
