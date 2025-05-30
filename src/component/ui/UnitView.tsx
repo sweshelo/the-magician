@@ -77,7 +77,10 @@ const UnitViewComponent = ({ unit, isOwnUnit = false }: UnitViewProps) => {
   });
 
   // Handle unit click to show action buttons
-  const handleUnitClick = () => {
+  const handleUnitClick = (e: React.MouseEvent | React.TouchEvent) => {
+    // Prevent event if drag is in progress
+    if (e.defaultPrevented) return;
+
     if (isOwnUnit && !candidate && operable) {
       setActiveUnit(prev => (prev?.id !== unit.id ? unit : undefined));
     }
@@ -111,7 +114,7 @@ const UnitViewComponent = ({ unit, isOwnUnit = false }: UnitViewProps) => {
             unitRef.current = node;
             setDroppableRef(node);
           }}
-          className="absolute inset-0 z-0"
+          className="absolute inset-0 z-0 dnd-droppable"
           onClick={handleUnitClick}
           style={useUnitAttackAnimationStyle(unit.id)}
         >

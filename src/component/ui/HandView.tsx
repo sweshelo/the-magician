@@ -93,7 +93,7 @@ export const HandView = ({ card, isSmall = false }: Props) => {
 
   return (
     <div
-      className={`relative ${activeCard?.id === card.id && 'opacity-75'}`}
+      className={`relative ${activeCard?.id === card.id && 'opacity-75'} dnd-draggable`}
       ref={setNodeRef}
       style={style}
       {...attributes}

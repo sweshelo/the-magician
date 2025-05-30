@@ -8,7 +8,7 @@ interface Props {
   card: IAtom;
   isSelecting?: boolean;
   isHighlighting?: boolean;
-  onClick?: () => void;
+  onClick?: (e?: React.MouseEvent) => void;
   isSmall?: boolean;
   isMitigated?: boolean;
 }
@@ -88,18 +88,25 @@ export const CardView = ({
   return (
     <>
       <div
-        className={`${sizeClass} border-2 border-slate-600 rounded justify-center items-center text-slate-500 relative ${isSelecting ? 'animate-pulse-border' : ''}`}
+        className={`${sizeClass} border-2 border-slate-600 rounded justify-center items-center text-slate-500 relative ${isSelecting ? 'animate-pulse-border' : ''} dnd-clickable`}
         style={{
           backgroundImage: process.env.NEXT_PUBLIC_IMAGE_SELF_HOSTING
             ? `url(https://coj.sega.jp/player/img/${catalog?.img})`
             : `url(/image/card/full/${catalog?.id}.jpg)`,
           backgroundSize: 'cover',
         }}
-        onClick={() => {
-          handleCardClick();
-          onClick?.();
+        onClick={e => {
+          // Only handle click if not being dragged
+          if (!e.defaultPrevented) {
+            handleCardClick();
+            onClick?.(e);
+          }
         }}
         onContextMenu={handleContextMenu}
+        onTouchStart={e => {
+          // Prevent context menu on long press for touch devices
+          e.preventDefault();
+        }}
       >
         <div
           className={`w-full h-full rounded flex flex-col text-xs shadow-lg relative cursor-pointer`}
