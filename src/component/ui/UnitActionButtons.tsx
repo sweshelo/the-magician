@@ -14,12 +14,12 @@ interface UnitActionButtonsProps {
 
 export const UnitActionButtons = ({
   unit,
-  canAttack = true,
-  canBoot = true,
+  canAttack = false,
+  canBoot = false,
   canWithdraw = true,
 }: UnitActionButtonsProps) => {
   const { setActiveUnit } = useUnitSelection();
-  const { withdrawal, send } = useWebSocketGame();
+  const { withdrawal, boot, send } = useWebSocketGame();
 
   // Handle action button clicks
   const handleAttack = () => {
@@ -51,6 +51,7 @@ export const UnitActionButtons = ({
     console.log(`Unit ${unit.id} booting`);
     // Implement boot logic here
     setActiveUnit(undefined);
+    boot({ target: unit });
   };
 
   return (

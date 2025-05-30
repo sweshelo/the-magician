@@ -2,7 +2,7 @@ import master from '@/submodule/suit/catalog/catalog';
 import { getColorCode } from '@/helper/color';
 import { IAtom, ICard } from '@/submodule/suit/types';
 import { useSystemContext } from '@/hooks/system/hooks';
-import { useCallback, MouseEvent } from 'react';
+import { useCallback, MouseEvent, useMemo } from 'react';
 
 interface Props {
   card: IAtom;
@@ -77,12 +77,22 @@ export const CardView = ({
     [card, setDetailCard, setDetailPosition]
   );
 
+  const reduced = useMemo(() => {
+    return (
+      (card as ICard).delta
+        ?.map(delta => (delta.effect.type === 'cost' ? delta.effect.value : 0))
+        .reduce((acc, current) => acc + current, 0) ?? 0
+    );
+  }, [card]);
+
   return (
     <>
       <div
         className={`${sizeClass} border-2 border-slate-600 rounded justify-center items-center text-slate-500 relative ${isSelecting ? 'animate-pulse-border' : ''}`}
         style={{
-          backgroundImage: `url('https://coj.sega.jp/player/img/${catalog?.img}')`,
+          backgroundImage: process.env.NEXT_PUBLIC_IMAGE_SELF_HOSTING
+            ? `url(https://coj.sega.jp/player/img/${catalog?.img})`
+            : `url(/image/card/full/${catalog?.id}.jpg)`,
           backgroundSize: 'cover',
         }}
         onClick={() => {
@@ -95,19 +105,38 @@ export const CardView = ({
           className={`w-full h-full rounded flex flex-col text-xs shadow-lg relative cursor-pointer`}
         >
           <div className="flex justify-between mb-1">
-            <div className="border-3 border-gray-700">
+            <div className="border-3 border-gray-700 relative">
+              {reduced !== 0 && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    left: '50%',
+                    top: '50%',
+                    width: 25,
+                    height: 25,
+                    transform: 'translate(-50%, -50%)',
+                    borderRadius: '50%',
+                    boxShadow: `0 0 12px 6px ${
+                      reduced > 0 ? 'rgba(255,0,0,0.7)' : 'rgba(0,128,255,0.7)'
+                    }`,
+                    pointerEvents: 'none',
+                    zIndex: 2,
+                  }}
+                />
+              )}
               {catalog && (
                 <div
                   className={`w-5 h-5 flex items-center justify-center font-bold text-white ${catalog ? getColorCode(catalog.color) : ''}`}
+                  style={{ position: 'relative', zIndex: 1 }}
                 >
-                  {(catalog?.cost ?? 0) - (isMitigated ? 1 : 0)}
+                  {Math.max((catalog?.cost ?? 0) - (isMitigated ? 1 : 0) + reduced, 0)}
                 </div>
               )}
             </div>
           </div>
         </div>
         <div className="border-gray-700 absolute bottom-0 w-full">
-          {catalog && (
+          {catalog && catalog.type !== 'joker' && (
             <ul
               className={`w-full h-7 flex items-center justify-center font-bold text-white bg-gray-700`}
             >

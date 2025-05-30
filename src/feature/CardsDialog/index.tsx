@@ -1,8 +1,8 @@
-import { CardView } from "@/component/ui/CardView";
-import { useCallback, useEffect, useState, useRef } from "react";
-import { useCardsDialog } from "@/hooks/cards-dialog";
-import { ICard } from "@/submodule/suit/types";
-import { ProgressConfirmButton } from "@/component/ui/ProgressConfirmButton";
+import { useCallback, useEffect, useState, useRef } from 'react';
+import { useCardsDialog } from '@/hooks/cards-dialog';
+import { ICard } from '@/submodule/suit/types';
+import { ProgressConfirmButton } from '@/component/ui/ProgressConfirmButton';
+import { CardsDialogView } from '@/component/ui/CardsDialog';
 
 export const CardsDialog = () => {
   const {
@@ -26,23 +26,21 @@ export const CardsDialog = () => {
   const handleCardClick = useCallback(
     (card: ICard) => {
       if (isSelector) {
-        setSelection((prev) =>
-          [...prev.filter((c) => c !== card.id), card.id].slice(-1 * count),
-        );
+        setSelection(prev => [...prev.filter(c => c !== card.id), card.id].slice(-1 * count));
       }
     },
-    [count, isSelector, setSelection],
+    [count, isSelector, setSelection]
   );
 
   // Handle time expiration and auto-confirm
   const handleTimeExpiration = useCallback(() => {
-    console.log("Time expired!");
+    console.log('Time expired!');
     // 時間切れで確定された時、足りない分のカードを先頭から自動で選択する
     confirmSelection([
       ...selection,
       ...(cards
-        ?.map((card) => card.id)
-        .filter((id) => !selection.includes(id))
+        ?.map(card => card.id)
+        .filter(id => !selection.includes(id))
         .slice(0, count - selection.length) ?? []),
     ]);
   }, [cards, confirmSelection, count, selection]);
@@ -59,7 +57,7 @@ export const CardsDialog = () => {
         () => {
           handleTimeExpiration();
         },
-        timeLimit * 1000 + 100,
+        timeLimit * 1000 + 100
       ); // Add a small buffer to ensure animation completes first
     } else if (!isOpen) {
       // Reset when dialog closes
@@ -113,8 +111,8 @@ export const CardsDialog = () => {
         className="flex flex-col items-center max-w-full w-full pointer-events-auto"
         style={{
           transform: `scaleX(${isAnimating ? 1 : 0})`,
-          transition: "transform 100ms ease-in-out",
-          transformOrigin: "center",
+          transition: 'transform 100ms ease-in-out',
+          transformOrigin: 'center',
         }}
       >
         {/* Title positioned outside the main panel */}
@@ -122,36 +120,19 @@ export const CardsDialog = () => {
           className="bg-slate-700 text-white px-4 py-2 rounded-t-lg font-bold z-10 mb-[-1px]"
           style={{
             opacity: isAnimating ? 1 : 0,
-            transition: "opacity 100ms ease-in-out",
+            transition: 'opacity 100ms ease-in-out',
           }}
         >
           {dialogTitle}
         </div>
 
-        {/* Main panel content */}
-        <div
-          className="bg-slate-800/35 w-full p-4 overflow-auto h-[520] border-y-3 border-white p-3"
-          style={{
-            opacity: isAnimating ? 1 : 0,
-            transition: "opacity 100ms ease-in-out",
-          }}
-        >
-          {/* Center container */}
-          <div className="flex justify-center">
-            {/* Card container with max-width for 10 cards, left-aligned */}
-            <div className="flex flex-wrap justify-start gap-2 w-[calc(10*112px+9*8px)]">
-              {cards?.map((card) => (
-                <CardView
-                  card={card}
-                  key={card.id}
-                  onClick={() => handleCardClick(card)}
-                  isHighlighting={selection.includes(card.id)}
-                  isSelecting={selection.includes(card.id)}
-                />
-              ))}
-            </div>
-          </div>
-        </div>
+        <CardsDialogView
+          cards={cards ?? []}
+          isAnimating={isAnimating}
+          selection={selection}
+          handleCardClick={handleCardClick}
+        />
+
         {/* 確定ボタン */}
         {(isOpen || isAnimating) && isSelector && (
           <ProgressConfirmButton

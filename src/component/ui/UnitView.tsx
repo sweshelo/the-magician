@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { IUnit } from '@/submodule/suit/types';
 import { useDroppable } from '@dnd-kit/core';
 
@@ -8,10 +8,18 @@ import { UnitActivatedView } from './UnitActivatedView';
 import { UnitActionButtons } from './UnitActionButtons';
 import { UnitSelectionButton } from './UnitSelectionButton';
 import { UnitIconEffect } from './UnitIconEffect';
+import { SelectEffect } from './SelectEffect';
+import { OverclockEffect } from './OverclockEffect';
+import { MultipleStatusChange } from './StatusChangeEffect';
 import { BattleIconsView } from './BattleIconsView';
+import { CountersView } from './CountersView';
+import { useUnitPosition } from '@/hooks/unit-position';
 import { useUnitSelection } from '@/hooks/unit-selection';
 import { useSystemContext } from '@/hooks/system/hooks';
 import { useUnitAttackAnimationStyle, useBPViewAnimationStyle } from '@/hooks/attack-animation';
+import { useSelectEffect } from '@/hooks/select-effect';
+import { useOverclockEffect } from '@/hooks/overclock-effect';
+import { useStatusChange } from '@/hooks/status-change';
 import master from '@/submodule/suit/catalog/catalog';
 
 interface UnitViewProps {
@@ -25,6 +33,12 @@ const UnitViewComponent = ({ unit, isOwnUnit = false }: UnitViewProps) => {
     useUnitSelection();
   const { setSelectedCard, setDetailCard, operable, activeCard } = useSystemContext();
   const unitRef = useRef<HTMLDivElement>(null);
+  const { registerUnitRef } = useUnitPosition();
+
+  // ユニットの位置情報をコンテキストに登録
+  useEffect(() => {
+    registerUnitRef(unit.id, unitRef as React.RefObject<HTMLDivElement>);
+  }, [unit.id, registerUnitRef]);
 
   const color: string =
     {
@@ -74,6 +88,12 @@ const UnitViewComponent = ({ unit, isOwnUnit = false }: UnitViewProps) => {
   return (
     <div className="flex flex-col items-center">
       <div className="relative w-32 h-32 unit-wrapper">
+        {/* COPY banner for copy units */}
+        {unit.isCopy && (
+          <div className="absolute inset-0 z-1 pointer-events-none flex items-center justify-center">
+            <div className="copy-banner">COPY</div>
+          </div>
+        )}
         {/* Action buttons (Attack/Withdrawal/Boot) - only shown for own units */}
         {isOwnUnit && activeUnit === unit && !candidate && (
           <div className="absolute inset-0 z-20 pointer-events-auto">
@@ -81,7 +101,7 @@ const UnitViewComponent = ({ unit, isOwnUnit = false }: UnitViewProps) => {
               unit={unit}
               unitRef={unitRef}
               canAttack={unit.active}
-              canBoot={!unit.active}
+              canBoot={unit.isBootable === true}
               canWithdraw={true}
             />
           </div>
@@ -95,19 +115,56 @@ const UnitViewComponent = ({ unit, isOwnUnit = false }: UnitViewProps) => {
           onClick={handleUnitClick}
           style={useUnitAttackAnimationStyle(unit.id)}
         >
-          {/* Animation effect layer (highest z-index) */}
+          {/* Animation effect layers (highest z-index) */}
           <div className="absolute inset-0 z-10 pointer-events-none">
+            {/* 既存の効果発動アニメーション（長方形パターン） - unit-selection/context由来 */}
             <UnitIconEffect
               show={animationUnit === unit.id}
               onComplete={() => setAnimationUnit(undefined)}
             />
+
+            {/* 新しい選択エフェクト（円形拡散） - select-effect/context由来 */}
+            {useSelectEffect().targetUnitId === unit.id && (
+              <SelectEffect
+                unitId={unit.id}
+                onComplete={() => {
+                  /* 完了ハンドラは内部でコンテキストをリセット */
+                }}
+              />
+            )}
+
+            {/* オーバークロックエフェクト - overclock-effect/context由来 */}
+            {useOverclockEffect().activeUnits.includes(unit.id) && (
+              <OverclockEffect
+                unitId={unit.id}
+                onComplete={() => {
+                  /* 完了ハンドラは内部でコンテキストをリセット */
+                }}
+              />
+            )}
+
+            {/* ステータス変更エフェクト - status-change/context由来 */}
+            {useStatusChange()
+              .getStatusChangesForUnit(unit.id)
+              .map(statusItem => (
+                <MultipleStatusChange
+                  key={statusItem.id}
+                  unitId={unit.id}
+                  changes={statusItem.changes}
+                  statusChangeId={statusItem.id}
+                />
+              ))}
           </div>
 
           {/* Position components to layer correctly */}
           <div className="absolute inset-0 z-1">
             <UnitIconView
               color={color}
-              image={`https://coj.sega.jp/player/img/${master.get(unit.catalogId)?.img}`}
+              image={
+                process.env.NEXT_PUBLIC_IMAGE_SELF_HOSTING
+                  ? `https://coj.sega.jp/player/img/${master.get(unit.catalogId)?.img}`
+                  : `/image/card/full/${unit.catalogId}.jpg`
+              }
               reversed={false}
             />
           </div>
@@ -132,13 +189,51 @@ const UnitViewComponent = ({ unit, isOwnUnit = false }: UnitViewProps) => {
       <div className="-mt-8" style={useBPViewAnimationStyle(unit.id)}>
         {unit.delta && <BattleIconsView delta={unit.delta} />}
         <BPView
-          bp={unit.bp.base + unit.bp.diff - unit.bp.damage}
-          diff={unit.bp.diff - unit.bp.damage}
+          bp={unit.bp}
+          diff={
+            unit.delta
+              ?.map(delta => {
+                if (delta.effect.type === 'bp') return delta.effect.diff;
+                if (delta.effect.type === 'damage') return -delta.effect.value;
+                return 0;
+              })
+              .reduce((acc, current) => (acc += current), 0) ?? 0
+          }
           lv={unit.lv}
         />
+        <CountersView delta={unit.delta} />
       </div>
     </div>
   );
 };
 
+// CSS for the copy banner animation
+const copyBannerStyle = `
+  @keyframes copyPulse {
+    0% { opacity: 0.6; }
+    50% { opacity: 0.9; }
+    100% { opacity: 0.6; }
+  }
+  
+  .copy-banner {
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    font-weight: bold;
+    padding: 2px 8px;
+    width: 80%;
+    text-align: center;
+    font-size: 1rem;
+    letter-spacing: 1px;
+    animation: copyPulse 3s ease-in-out infinite;
+    z-index: 30;
+  }
+`;
+
 export const UnitView = React.memo(UnitViewComponent);
+
+// Add the CSS to the document
+if (typeof document !== 'undefined') {
+  const style = document.createElement('style');
+  style.textContent = copyBannerStyle;
+  document.head.appendChild(style);
+}

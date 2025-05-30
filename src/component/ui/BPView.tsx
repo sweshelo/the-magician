@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { motion, useMotionValue, animate } from 'framer-motion';
 
 interface BPViewProps {
@@ -8,12 +8,18 @@ interface BPViewProps {
 }
 
 export const BPView = ({ bp, lv, diff }: BPViewProps) => {
-  const motionBp = useMotionValue(bp);
+  const motionBp = useMotionValue(bp + diff);
+  const [displayBp, setDisplayBp] = useState(bp + diff);
 
   useEffect(() => {
-    const controls = animate(motionBp, bp, { duration: 0.2 });
+    const controls = animate(motionBp, bp + diff, { duration: 0.2 });
     return controls.stop;
-  }, [bp, motionBp]);
+  }, [bp, diff, motionBp]);
+
+  useEffect(() => {
+    const unsubscribe = motionBp.on('change', v => setDisplayBp(v));
+    return unsubscribe;
+  }, [motionBp]);
 
   const blue = diff > 0 ? 'text-cyan-300' : undefined;
   const red = diff < 0 ? 'text-red-400' : undefined;
@@ -28,7 +34,7 @@ export const BPView = ({ bp, lv, diff }: BPViewProps) => {
           className={`ml-2 bold text-lg font-bold font-mono ${fontColor} w-16 text-right`}
           style={{}}
         >
-          {motionBp.get() < 0 ? 0 : Math.round(motionBp.get())}
+          {displayBp < 0 ? 0 : Math.round(displayBp)}
         </motion.span>
       </div>
     </div>

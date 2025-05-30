@@ -2,11 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import { colorTable } from '@/helper/color';
-import { usePlayers, usePlayer } from '@/hooks/game/hooks';
 import { useWebSocketGame } from '@/hooks/game';
 import { useSoundV2 } from '@/hooks/soundV2/hooks';
 import { useSystemContext } from '@/hooks/system/hooks';
 import { useAttackAnimation } from '@/hooks/attack-animation';
+import { useUnitSelection } from '@/hooks/unit-selection';
+import { useSelectEffect } from '@/hooks/select-effect';
+import { useOverclockEffect } from '@/hooks/overclock-effect';
+import { useStatusChange } from '@/hooks/status-change';
 import { LocalStorageHelper } from '@/service/local-storage';
 
 export const DebugDialog = () => {
@@ -14,12 +17,15 @@ export const DebugDialog = () => {
   const { play, setVolume, getVolume, bgm, stopBgm, isPlaying } = useSoundV2();
   const { cursorCollisionSize, setCursorCollisionSize, setOperable } = useSystemContext();
   const { state: attackState, proceedToPreparation } = useAttackAnimation();
+  const { setAnimationUnit } = useUnitSelection(); // 既存の効果発動アニメーション用
+  const { setTargetUnitId } = useSelectEffect(); // 選択エフェクト用
+  const { addOverclockUnit, removeOverclockUnit } = useOverclockEffect(); // オーバークロック用
+  const { addStatusChange } = useStatusChange(); // ステータス変更用
   const [bgmVolume, setBgmVolume] = useState(getVolume());
   const [isBgmPlaying, setIsBgmPlaying] = useState(false);
   const [hide, setHide] = useState(false);
   const [targetX, setTargetX] = useState('0');
   const [targetY, setTargetY] = useState('0');
-  const playerId = Object.keys(usePlayers() ?? {});
 
   // Check and update BGM playing status
   useEffect(() => {
@@ -37,12 +43,8 @@ export const DebugDialog = () => {
     return () => clearInterval(intervalId);
   }, [isPlaying]);
 
-  const self = usePlayer(playerId.find((id: string) => id === LocalStorageHelper.playerId())!);
-  const opponent = usePlayer(playerId.find((id: string) => id !== LocalStorageHelper.playerId())!);
-
-  const handleDebugButtonClick = () => {
-    console.log('self: ', self, '\nopponent: ', opponent);
-  };
+  const [debugDriveId, setDebugDriveId] = useState('');
+  const [debugMakeId, setDebugMakeId] = useState('');
 
   const handleDrawButtonClick = () => {
     play('draw');
@@ -58,14 +60,30 @@ export const DebugDialog = () => {
     });
   };
 
-  const handleTurnEndClick = () => {
+  const handleDebugDriveButtonClick = () => {
     send({
       action: {
         handler: 'core',
-        type: 'event',
+        type: 'debug',
       },
       payload: {
-        type: 'TurnEnd',
+        type: 'DebugDrive',
+        player: LocalStorageHelper.playerId(),
+        catalogId: debugDriveId,
+      },
+    });
+  };
+
+  const handleDebugMakeButtonClick = () => {
+    send({
+      action: {
+        handler: 'core',
+        type: 'debug',
+      },
+      payload: {
+        type: 'DebugMake',
+        player: LocalStorageHelper.playerId(),
+        catalogId: debugMakeId,
       },
     });
   };
@@ -116,23 +134,44 @@ export const DebugDialog = () => {
             Debug Console
           </div>
           <div className="flex flex-col gap-2">
-            <button
-              onClick={handleDebugButtonClick}
-              className={`px-3 py-1 rounded ${colorTable.ui.border} bg-slate-600 hover:bg-slate-500 transition-colors`}
-            >
-              Console
-            </button>
+            {/* DebugDrive送信UI */}
+            <div className="flex gap-2 items-center">
+              <input
+                type="text"
+                value={debugDriveId}
+                onChange={e => setDebugDriveId(e.target.value)}
+                className="w-32 px-2 py-1 bg-slate-700 rounded text-white"
+                placeholder="DebugDrive ID"
+              />
+              <button
+                onClick={handleDebugDriveButtonClick}
+                className={`px-3 py-1 rounded ${colorTable.ui.border} bg-blue-600 hover:bg-blue-500 transition-colors`}
+              >
+                DebugDrive送信
+              </button>
+            </div>
+
+            {/* DebugMake送信UI */}
+            <div className="flex gap-2 items-center">
+              <input
+                type="text"
+                value={debugMakeId}
+                onChange={e => setDebugMakeId(e.target.value)}
+                className="w-32 px-2 py-1 bg-slate-700 rounded text-white"
+                placeholder="DebugMake ID"
+              />
+              <button
+                onClick={handleDebugMakeButtonClick}
+                className={`px-3 py-1 rounded ${colorTable.ui.border} bg-purple-600 hover:bg-purple-500 transition-colors`}
+              >
+                DebugMake送信
+              </button>
+            </div>
             <button
               onClick={handleDrawButtonClick}
               className={`px-3 py-1 rounded ${colorTable.ui.border} bg-slate-600 hover:bg-slate-500 transition-colors`}
             >
               Draw
-            </button>
-            <button
-              onClick={handleTurnEndClick}
-              className={`px-3 py-1 rounded ${colorTable.ui.border} bg-lime-600 hover:bg-lime-500 transition-colors`}
-            >
-              Turn End
             </button>
             <button
               onClick={() => setOperable(true)}
@@ -142,23 +181,179 @@ export const DebugDialog = () => {
             </button>
 
             {/* カーソル判定サイズコントロール */}
-            <div className="mt-2 border-t pt-2 border-gray-700">
-              <div className="text-sm mb-1">カーソル判定サイズ: {cursorCollisionSize}px</div>
-              <div className="flex gap-2">
-                <button
-                  onClick={decreaseCursorSize}
-                  className={`px-3 py-1 rounded ${colorTable.ui.border} bg-slate-600 hover:bg-slate-500 transition-colors`}
-                >
-                  -
-                </button>
-                <button
-                  onClick={increaseCursorSize}
-                  className={`px-3 py-1 rounded ${colorTable.ui.border} bg-slate-600 hover:bg-slate-500 transition-colors`}
-                >
-                  +
-                </button>
+            <details>
+              <summary>UI調整</summary>
+              <div className="mt-2 border-t pt-2 border-gray-700">
+                <div className="text-sm mb-1">カーソル判定サイズ: {cursorCollisionSize}px</div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={decreaseCursorSize}
+                    className={`px-3 py-1 rounded ${colorTable.ui.border} bg-slate-600 hover:bg-slate-500 transition-colors`}
+                  >
+                    -
+                  </button>
+                  <button
+                    onClick={increaseCursorSize}
+                    className={`px-3 py-1 rounded ${colorTable.ui.border} bg-slate-600 hover:bg-slate-500 transition-colors`}
+                  >
+                    +
+                  </button>
+                </div>
+                {/* Attack Animation Debug Controls */}
+                <div className="mt-2 border-t pt-2 border-gray-700">
+                  <div className="text-sm mb-1">アタックアニメーション: {attackState.phase}</div>
+                  <div className="flex flex-col gap-2">
+                    <div className="flex gap-2 items-center">
+                      <label className="text-sm whitespace-nowrap">
+                        ターゲット座標 (絶対座標):
+                      </label>
+                      <input
+                        type="number"
+                        value={targetX}
+                        onChange={e => setTargetX(e.target.value)}
+                        className="w-16 px-2 py-1 bg-slate-700 rounded text-white"
+                        placeholder="X"
+                      />
+                      <input
+                        type="number"
+                        value={targetY}
+                        onChange={e => setTargetY(e.target.value)}
+                        className="w-16 px-2 py-1 bg-slate-700 rounded text-white"
+                        placeholder="Y"
+                      />
+                    </div>
+
+                    {attackState.phase === 'declaration' && (
+                      <button
+                        onClick={() =>
+                          proceedToPreparation({ x: Number(targetX), y: Number(targetY) })
+                        }
+                        className={`px-3 py-1 rounded ${colorTable.ui.border} bg-green-600 hover:bg-green-500 transition-colors`}
+                      >
+                        続行
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Animation Effects Debug Controls */}
+                <div className="mt-2 border-t pt-2 border-gray-700">
+                  <div className="text-sm mb-1">アニメーションエフェクト</div>
+                  <div className="flex flex-col gap-2">
+                    <div className="flex gap-2 items-center">
+                      <input
+                        type="text"
+                        placeholder="ユニットID"
+                        id="animationUnitId"
+                        className="w-28 px-2 py-1 bg-slate-700 rounded text-white"
+                      />
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        onClick={() => {
+                          const unitId = (
+                            document.getElementById('animationUnitId') as HTMLInputElement
+                          ).value;
+                          if (unitId) setAnimationUnit(unitId);
+                        }}
+                        className={`px-3 py-1 rounded ${colorTable.ui.border} bg-gray-600 hover:bg-gray-500 transition-colors`}
+                      >
+                        既存エフェクト
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          const unitId = (
+                            document.getElementById('animationUnitId') as HTMLInputElement
+                          ).value;
+                          if (unitId) setTargetUnitId(unitId);
+                        }}
+                        className={`px-3 py-1 rounded ${colorTable.ui.border} bg-blue-600 hover:bg-blue-500 transition-colors`}
+                      >
+                        選択エフェクト
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          const unitId = (
+                            document.getElementById('animationUnitId') as HTMLInputElement
+                          ).value;
+                          if (!unitId) return;
+
+                          // オーバークロックエフェクトを5秒間表示
+                          addOverclockUnit(unitId);
+
+                          // 5秒後に自動的に削除
+                          setTimeout(() => {
+                            removeOverclockUnit(unitId);
+                          }, 5000);
+                        }}
+                        className={`px-3 py-1 rounded ${colorTable.ui.border} bg-yellow-600 hover:bg-yellow-500 transition-colors`}
+                      >
+                        OC表現
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          const unitId = (
+                            document.getElementById('animationUnitId') as HTMLInputElement
+                          ).value;
+                          if (!unitId) return;
+
+                          // ランダムなステータス効果を生成
+                          const changes = [
+                            // { type: 'damage' as const, value: (-Math.floor(Math.random() * 10) - 1) * 1000 },
+                            // { type: 'bp' as const, value: Math.floor(Math.random() * 5) + 1 },
+                            { type: 'level' as const, value: 1 },
+                          ];
+
+                          // ステータス変更をコンテキストに追加
+                          addStatusChange({
+                            unitId,
+                            changes,
+                          });
+
+                          // 注: StatusChangeEffectコンポーネントが自動的にコンテキストから削除
+                        }}
+                        className={`px-3 py-1 rounded ${colorTable.ui.border} bg-green-600 hover:bg-green-500 transition-colors`}
+                      >
+                        ステータス変化
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          // 全てのエフェクトを同時に表示するテスト
+                          const unitId = (
+                            document.getElementById('animationUnitId') as HTMLInputElement
+                          ).value;
+                          if (!unitId) return;
+
+                          // オーバークロックエフェクト
+                          addOverclockUnit(unitId);
+
+                          // ステータス変更
+                          addStatusChange({
+                            unitId,
+                            changes: [
+                              { type: 'damage' as const, value: -5 },
+                              { type: 'bp' as const, value: 3 },
+                            ],
+                          });
+
+                          // 5秒後に自動的に削除
+                          setTimeout(() => {
+                            removeOverclockUnit(unitId);
+                          }, 5000);
+                        }}
+                        className={`px-3 py-1 rounded ${colorTable.ui.border} bg-purple-600 hover:bg-purple-500 transition-colors`}
+                      >
+                        複合エフェクト
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
+            </details>
 
             {/* BGMボリュームコントロール */}
             <div className="mt-2 border-t pt-2 border-gray-700">
@@ -176,13 +371,6 @@ export const DebugDialog = () => {
                 >
                   +
                 </button>
-              </div>
-            </div>
-
-            {/* BGM再生コントロール */}
-            <div className="mt-2 border-t pt-2 border-gray-700">
-              <div className="text-sm mb-1">BGM再生: {isBgmPlaying ? '再生中' : '停止中'}</div>
-              <div className="flex gap-2">
                 <button
                   onClick={toggleBgm}
                   className={`px-3 py-1 rounded ${colorTable.ui.border} ${
@@ -192,39 +380,6 @@ export const DebugDialog = () => {
                   {isBgmPlaying ? '停止' : '再生'}
                 </button>
               </div>
-            </div>
-          </div>
-
-          {/* Attack Animation Debug Controls */}
-          <div className="mt-2 border-t pt-2 border-gray-700">
-            <div className="text-sm mb-1">アタックアニメーション: {attackState.phase}</div>
-            <div className="flex flex-col gap-2">
-              <div className="flex gap-2 items-center">
-                <label className="text-sm whitespace-nowrap">ターゲット座標 (絶対座標):</label>
-                <input
-                  type="number"
-                  value={targetX}
-                  onChange={e => setTargetX(e.target.value)}
-                  className="w-16 px-2 py-1 bg-slate-700 rounded text-white"
-                  placeholder="X"
-                />
-                <input
-                  type="number"
-                  value={targetY}
-                  onChange={e => setTargetY(e.target.value)}
-                  className="w-16 px-2 py-1 bg-slate-700 rounded text-white"
-                  placeholder="Y"
-                />
-              </div>
-
-              {attackState.phase === 'declaration' && (
-                <button
-                  onClick={() => proceedToPreparation({ x: Number(targetX), y: Number(targetY) })}
-                  className={`px-3 py-1 rounded ${colorTable.ui.border} bg-green-600 hover:bg-green-500 transition-colors`}
-                >
-                  続行
-                </button>
-              )}
             </div>
           </div>
         </div>

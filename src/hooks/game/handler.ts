@@ -8,14 +8,20 @@ import { SelectionMode, useUnitSelection } from '../unit-selection';
 import { useSystemContext } from '../system/hooks';
 import { useCardUsageEffect } from '../card-usage-effect';
 import { LocalStorageHelper } from '@/service/local-storage';
-import { useTimer } from '@/feature/Timer/hooks';
+import { useTimer as useGameTimer } from '@/feature/Timer/hooks';
 import { GameState, useGameStore } from './context';
+import { useMulligan, useTimer as useMulliganTimer } from '../mulligan/context';
 
 import { useAttackAnimation } from '../attack-animation';
 
 import { useChoicePanel } from '@/feature/ChoicePanel/context';
+import { useStatusChange } from '../status-change';
+import { useUnitPosition } from '../unit-position';
 
 export const useHandler = () => {
+  const { getUnitCenterPosition: getUnitPosition } = useUnitPosition();
+  const { setShowMulligan } = useMulligan();
+  const { startTimer, isTimerRunning } = useMulliganTimer();
   const { sync } = useGameStore();
   const { continueGame, choose } = useWebSocketGame();
   const { showDialog } = useCardEffectDialog();
@@ -26,10 +32,11 @@ export const useHandler = () => {
   const { showCardUsageEffect } = useCardUsageEffect();
   const { play } = useSoundV2();
   const { setOperable } = useSystemContext();
-  const { pauseTimer, resumeTimer } = useTimer();
+  const { pauseTimer, resumeTimer } = useGameTimer();
   const { closeCardsDialog } = useCardsDialog();
-  const { startAttackDeclaration, proceedToPreparation } = useAttackAnimation();
+  const { startAttackDeclaration, proceedToPreparation, cancelLaunch } = useAttackAnimation();
   const { setOptions, clear, setOnSelectCallback } = useChoicePanel();
+  const { addStatusChange } = useStatusChange();
 
   // 選択肢選択をPromiseで待つ
   const handleOptionSelection = (): Promise<string | null> => {
@@ -38,14 +45,9 @@ export const useHandler = () => {
     });
   };
 
-  // 仮のユニット座標取得関数（後で実装/差し替え）
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // ユニット座標取得関数 - UnitPositionContextから取得
   const getUnitCenterPosition = (unitId: string): { x: number; y: number } | undefined => {
-    // 実装例: window.unitPositionMap[unitId] など
-    // if (typeof window !== 'undefined' && (window as any).unitPositionMap) {
-    //   return (window as any).unitPositionMap[unitId];
-    // }
-    return undefined;
+    return getUnitPosition(unitId);
   };
 
   // 画面中央座標取得
@@ -56,6 +58,21 @@ export const useHandler = () => {
 
     // 標準のメッセージ型の処理
     switch (payload.type) {
+      case 'MulliganStart': {
+        // Always show the UI when receiving a MulliganStart message
+        setShowMulligan(true);
+
+        // Only start a fresh 10-second timer if no timer is already running
+        // This ensures the timer continues running even after pressing "はい"
+        if (!isTimerRunning()) {
+          console.log('Starting a new 10-second timer');
+          startTimer(10);
+        } else {
+          console.log('Timer already running, not resetting');
+        }
+        break;
+      }
+
       case 'Sync': {
         const game: GameState = {
           ...payload.body,
@@ -128,7 +145,12 @@ export const useHandler = () => {
 
           case 'unit': {
             if (payload.player !== LocalStorageHelper.playerId()) return;
-            const selectedUnit = await handleUnitSelection(choices.items);
+            const selectedUnit = await handleUnitSelection(
+              choices.items,
+              choices.title,
+              'target',
+              choices.isCancelable
+            );
             choose({
               promptId: payload.promptId,
               choice: selectedUnit ? [selectedUnit] : undefined,
@@ -138,7 +160,12 @@ export const useHandler = () => {
 
           case 'block': {
             if (payload.player !== LocalStorageHelper.playerId()) return;
-            const selectedUnit = await handleUnitSelection(choices.items, 'block');
+            const selectedUnit = await handleUnitSelection(
+              choices.items,
+              choices.title,
+              'block',
+              choices.isCancelable
+            );
             choose({
               promptId: payload.promptId,
               choice: selectedUnit ? [selectedUnit] : undefined,
@@ -183,25 +210,43 @@ export const useHandler = () => {
             break;
           }
           case 'launch': {
-            // launchアニメ（着弾座標算出→proceedToPreparation）
-            const attackerId = body.attackerId;
             const blockerId = body.blockerId;
+            const attackerId = body.attackerId || '';
             let targetPosition: { x: number; y: number };
+
             if (blockerId) {
-              // blockerユニットの座標
+              // blockerユニットの座標 - 直接攻撃ではなくユニットへの攻撃
               const blockerPos = getUnitCenterPosition(blockerId);
               targetPosition = blockerPos || { x: getScreenCenterX(), y: 0 };
             } else {
               // blockerIdがundefined: プレイヤー直接攻撃
-              const isPlayerUnit =
-                !!attackerId && attackerId.startsWith(LocalStorageHelper.playerId());
-              if (isPlayerUnit) {
-                targetPosition = { x: getScreenCenterX(), y: 20 };
+              // UnitView の isOwnUnit 判定を再現
+              const screenWidth = window.innerWidth;
+              const screenHeight = window.innerHeight;
+
+              // GameState.players から自分の field を参照し、attackerId が含まれていれば isOwnUnit
+              // useGameStore.getState() で最新の GameState を取得
+              const gameState = useGameStore.getState();
+              const playerId = LocalStorageHelper.playerId();
+              const myField: IUnit[] = gameState.players?.[playerId]?.field ?? [];
+              const isOwnUnit = myField.some((unit: IUnit) => unit.id === attackerId);
+
+              if (isOwnUnit) {
+                // isOwnUnit: 仮値 y: 30
+                targetPosition = { x: screenWidth / 2, y: 100 };
               } else {
-                targetPosition = { x: getScreenCenterX(), y: 600 };
+                // !isOwnUnit: 現状の値
+                targetPosition = { x: screenWidth / 2, y: screenHeight - 300 };
               }
             }
             proceedToPreparation(targetPosition);
+            break;
+          }
+          case 'status': {
+            addStatusChange({
+              unitId: body.unitId,
+              changes: [{ type: body.type, value: body.value }],
+            });
             break;
           }
           case 'drive': {
@@ -219,6 +264,11 @@ export const useHandler = () => {
                 position,
               });
             }
+            break;
+          }
+          case 'launch-cancel': {
+            // 攻撃アニメーションをキャンセルして元の位置に戻す
+            cancelLaunch();
             break;
           }
         }
@@ -261,7 +311,9 @@ export const useHandler = () => {
 
   const handleUnitSelection = (
     units: IUnit[],
-    mode: SelectionMode = 'target'
+    title?: string,
+    mode: SelectionMode = 'target',
+    isCancelable: boolean = false
   ): Promise<IUnit['id'] | undefined> => {
     return new Promise(resolve => {
       // Setup handler functions that resolve the promise
@@ -271,9 +323,14 @@ export const useHandler = () => {
         setHandleSelected(undefined);
       };
 
-      setAvailableUnits(units, handleSelect, mode);
+      setAvailableUnits(units, handleSelect, mode, title, isCancelable);
     });
   };
 
-  return { handle, showDialog, handleInterceptSelection, handleUnitSelection };
+  return {
+    handle,
+    showDialog,
+    handleInterceptSelection,
+    handleUnitSelection,
+  };
 };

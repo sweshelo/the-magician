@@ -46,7 +46,7 @@ export const useUnitAttackAnimationStyle = (unitId: string) => {
     case 'launch':
       // Move to absolute target position by calculating distance from initial position
       if (state.targetPosition && state.initialPosition) {
-        // Calculate the distance between target and initial position
+        // 攻撃先座標を直接使用（Y座標のオーバーライドをやめる）
         const deltaX = state.targetPosition.x - state.initialPosition.x;
         const deltaY = state.targetPosition.y - state.initialPosition.y;
 

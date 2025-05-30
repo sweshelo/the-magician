@@ -7,6 +7,12 @@ import { InterceptUsageProvider } from '../intercept-usage';
 import { TimerProvider } from '@/feature/Timer/context';
 import { UnitSelectionProvider } from '../unit-selection';
 import { ChoicePanelProvider } from '@/feature/ChoicePanel/context';
+import { MulliganProvider } from '../mulligan/context';
+import { AnimationProvider } from '../animation';
+import { SelectEffectProvider } from '../select-effect';
+import { OverclockEffectProvider } from '../overclock-effect';
+import { StatusChangeProvider } from '../status-change';
+import { UnitPositionProvider } from '../unit-position';
 
 interface Props {
   children: ReactNode;
@@ -21,7 +27,19 @@ export const GameContextProvider = ({ children }: Props) => {
             <InterceptUsageProvider>
               <TimerProvider>
                 <ChoicePanelProvider>
-                  <UnitSelectionProvider>{children}</UnitSelectionProvider>
+                  <MulliganProvider>
+                    <UnitSelectionProvider>
+                      <AnimationProvider>
+                        <SelectEffectProvider>
+                          <OverclockEffectProvider>
+                            <StatusChangeProvider>
+                              <UnitPositionProvider>{children}</UnitPositionProvider>
+                            </StatusChangeProvider>
+                          </OverclockEffectProvider>
+                        </SelectEffectProvider>
+                      </AnimationProvider>
+                    </UnitSelectionProvider>
+                  </MulliganProvider>
                 </ChoicePanelProvider>
               </TimerProvider>
             </InterceptUsageProvider>

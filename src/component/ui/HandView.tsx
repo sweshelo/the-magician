@@ -2,6 +2,7 @@ import { useSystemContext } from '@/hooks/system/hooks';
 import { useDraggable, useDroppable } from '@dnd-kit/core';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { CardView } from './CardView';
+import { ChainOverlay } from './ChainOverlay';
 import { ICard } from '@/submodule/suit/types';
 import { GameState, useGameStore } from '@/hooks/game';
 import { LocalStorageHelper } from '@/service/local-storage';
@@ -11,11 +12,12 @@ import { isMitigated } from '@/helper/game';
 interface Props {
   card: ICard;
   isHighlighted?: boolean;
+  isSmall?: boolean;
 }
 
 const empty: ICard[] = [];
 
-export const HandView = ({ card }: Props) => {
+export const HandView = ({ card, isSmall = false }: Props) => {
   const [isHighlighted, setHighlighted] = useState(false);
 
   const cpSelector = useCallback(
@@ -79,6 +81,13 @@ export const HandView = ({ card }: Props) => {
   }, [activeCard?.data, activeCard?.id, card.catalogId, card.id, isSameCard, isStrictOverride]);
 
   const mitigate = useMemo(() => isMitigated(card, trigger), [card, trigger]);
+  const reduced = useMemo(() => {
+    return (
+      (card as ICard).delta
+        ?.map(delta => (delta.effect.type === 'cost' ? delta.effect.value : 0))
+        .reduce((acc, current) => acc + current, 0) ?? 0
+    );
+  }, [card]);
 
   return (
     <div
@@ -88,7 +97,7 @@ export const HandView = ({ card }: Props) => {
       {...attributes}
       {...listeners}
     >
-      {cp < (master.get(card.catalogId)?.cost ?? 0) - (mitigate ? 1 : 0) && (
+      {cp < (master.get(card.catalogId)?.cost ?? 0) - (mitigate ? 1 : 0) + reduced && (
         <div className="absolute inset-0 bg-black opacity-30 z-1 pointer-events-none" />
       )}
       <CardView
@@ -96,7 +105,11 @@ export const HandView = ({ card }: Props) => {
         isHighlighting={isHighlighted}
         isSelecting={isOver}
         isMitigated={mitigate}
+        isSmall={isSmall}
       />
+      {card.delta?.some(delta => delta.effect.type === 'banned') && (
+        <ChainOverlay isSmall={isSmall} />
+      )}
     </div>
   );
 };

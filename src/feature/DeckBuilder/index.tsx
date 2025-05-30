@@ -5,9 +5,11 @@ import { CardView } from '@/component/ui/CardView';
 import { colorTable } from '@/helper/color';
 import master from '@/submodule/suit/catalog/catalog';
 import { ICard, Catalog } from '@/submodule/suit/types';
-import { useCallback, useEffect, useMemo, useState, memo } from 'react';
+import { useCallback, useEffect, useMemo, useState, memo, useRef, useLayoutEffect } from 'react';
 import { DeckSaveDialog, DeckLoadDialog } from './DeckDialogs';
 import { LocalStorageHelper } from '@/service/local-storage';
+import { DeckPreview } from './DeckPreview';
+import { useSearchParams } from 'next/navigation';
 
 // Memoized Card Component to prevent unnecessary re-renders
 const MemoizedCardView = memo(
@@ -61,6 +63,10 @@ const FilterControls = memo(
     toggleType,
     selectedCosts,
     toggleCost,
+    showImplemented,
+    setShowImplemented,
+    showNotImplemented,
+    setShowNotImplemented,
   }: {
     searchQuery: string;
     setSearchQuery: (query: string) => void;
@@ -81,149 +87,181 @@ const FilterControls = memo(
     toggleType: (type: string) => void;
     selectedCosts: (number | string)[];
     toggleCost: (cost: number | string) => void;
+    showImplemented: boolean;
+    setShowImplemented: (v: boolean) => void;
+    showNotImplemented: boolean;
+    setShowNotImplemented: (v: boolean) => void;
   }) => {
     return (
       <>
-        {/* 検索ボックス */}
-        <div className="w-full max-w-6xl px-4 mb-6">
-          <input
-            type="text"
-            placeholder="カード名や効果テキストで検索"
-            className="border-2 border-gray-300 rounded p-2 w-full"
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-          />
-        </div>
+        <details className="w-full max-w-6xl p-4">
+          <summary className="p-2 border border-2 rounded-lg">フィルタ</summary>
+          <div className="w-full max-w-6xl mt-5">
+            {/* 効果実装済みのみ表示チェックボックス */}
+            <div className="px-4 my-2 flex items-center">
+              <input
+                id="show-implemented"
+                type="checkbox"
+                className="mr-2"
+                checked={showImplemented}
+                onChange={e => setShowImplemented(e.target.checked)}
+              />
+              <label htmlFor="show-implemented" className="select-none cursor-pointer">
+                効果実装済みを表示
+              </label>
+            </div>
+            {/* 効果実装済みのみ表示チェックボックス */}
+            <div className="px-4 my-2 flex items-center">
+              <input
+                id="show-not-implemented"
+                type="checkbox"
+                className="mr-2"
+                checked={showNotImplemented}
+                onChange={e => setShowNotImplemented(e.target.checked)}
+              />
+              <label htmlFor="show-not-implemented" className="select-none cursor-pointer">
+                効果未実装を表示
+              </label>
+            </div>
+            {/* 検索ボックス */}
+            <div className="px-4 my-6">
+              <input
+                type="text"
+                placeholder="カード名や効果テキストで検索"
+                className="border-2 border-gray-300 rounded p-2 w-full"
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+              />
+            </div>
 
-        <details>
-          <summary>フィルタ</summary>
-          {/* フィルターコントロール */}
-          <div className="w-full max-w-6xl px-4 mb-6 flex flex-wrap gap-6">
-            {/* レアリティフィルタ */}
-            <div className="filter-group">
-              <h3 className="font-bold mb-2">レアリティ</h3>
+            {/* フィルターコントロール */}
+            <div className="px-4 mb-6 flex flex-wrap gap-6">
+              {/* レアリティフィルタ */}
+              <div className="filter-group">
+                <h3 className="font-bold mb-2">レアリティ</h3>
+                <div className="flex flex-wrap gap-2">
+                  {['c', 'uc', 'r', 'vr', 'sr', 'sp', 'pr'].map(rarity => (
+                    <button
+                      key={rarity}
+                      className={`px-3 py-1 border rounded ${selectedRarities.includes(rarity) ? 'bg-blue-500 text-white' : 'bg-gray-500'}`}
+                      onClick={() => toggleRarity(rarity)}
+                    >
+                      {rarity.toUpperCase()}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* 属性フィルタ */}
+              <div className="filter-group">
+                <h3 className="font-bold mb-2">属性</h3>
+                <div className="flex flex-wrap gap-2">
+                  {[1, 2, 3, 4, 5, 6].map(color => (
+                    <button
+                      key={color}
+                      className={`px-3 py-1 border rounded ${selectedColors.includes(color) ? 'bg-blue-500 text-white' : 'bg-gray-500'}`}
+                      onClick={() => toggleColor(color)}
+                    >
+                      {color === 1
+                        ? '赤'
+                        : color === 2
+                          ? '黄'
+                          : color === 3
+                            ? '青'
+                            : color === 4
+                              ? '緑'
+                              : color === 5
+                                ? '紫'
+                                : '無色'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* OP (Originality) フィルタ */}
+              <div className="filter-group">
+                <h3 className="font-bold mb-2">オリジナリティ</h3>
+                <div className="flex flex-wrap gap-2">
+                  {availableOriginalities.map(op => (
+                    <button
+                      key={op}
+                      className={`px-3 py-1 border rounded ${selectedOriginalities.includes(op) ? 'bg-blue-500 text-white' : 'bg-gray-500'}`}
+                      onClick={() => toggleOriginality(op)}
+                    >
+                      {op}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* バージョンフィルタ */}
+              <div className="filter-group">
+                <h3 className="font-bold mb-2">バージョン</h3>
+                <div className="flex flex-wrap gap-2">
+                  {availableVersions.map(version => (
+                    <button
+                      key={version}
+                      className={`px-3 py-1 border rounded ${selectedVersions.includes(version) ? 'bg-blue-500 text-white' : 'bg-gray-500'}`}
+                      onClick={() => toggleVersion(version)}
+                    >
+                      {version}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* コストフィルタ */}
+            <div className="px-4 mb-6">
+              <h3 className="font-bold mb-2">コスト</h3>
               <div className="flex flex-wrap gap-2">
-                {['c', 'uc', 'r', 'vr', 'sr', 'sp', 'pr'].map(rarity => (
+                {[0, 1, 2, 3, 4, 5, 6, 7, '7+'].map(cost => (
                   <button
-                    key={rarity}
-                    className={`px-3 py-1 border rounded ${selectedRarities.includes(rarity) ? 'bg-blue-500 text-white' : 'bg-gray-500'}`}
-                    onClick={() => toggleRarity(rarity)}
+                    key={cost.toString()}
+                    className={`px-3 py-1 border rounded ${selectedCosts.includes(cost) ? 'bg-blue-500 text-white' : 'bg-gray-500'}`}
+                    onClick={() => toggleCost(cost)}
                   >
-                    {rarity.toUpperCase()}
+                    {cost.toString()}
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* 属性フィルタ */}
-            <div className="filter-group">
-              <h3 className="font-bold mb-2">属性</h3>
-              <div className="flex flex-wrap gap-2">
-                {[1, 2, 3, 4, 5, 6].map(color => (
+            {/* 種族フィルタ */}
+            <div className="px-4 mb-6">
+              <h3 className="font-bold mb-2">種族</h3>
+              <div className="flex flex-wrap gap-2 max-h-24 overflow-y-auto border p-2 rounded">
+                {availableSpecies.map(species => (
                   <button
-                    key={color}
-                    className={`px-3 py-1 border rounded ${selectedColors.includes(color) ? 'bg-blue-500 text-white' : 'bg-gray-500'}`}
-                    onClick={() => toggleColor(color)}
+                    key={species}
+                    className={`px-3 py-1 border rounded ${selectedSpecies.includes(species) ? 'bg-blue-500 text-white' : 'bg-gray-500'}`}
+                    onClick={() => toggleSpecies(species)}
                   >
-                    {color === 1
-                      ? '赤'
-                      : color === 2
-                        ? '黄'
-                        : color === 3
-                          ? '青'
-                          : color === 4
-                            ? '緑'
-                            : color === 5
-                              ? '紫'
-                              : '無色'}
+                    {species}
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* OP (Originality) フィルタ */}
-            <div className="filter-group">
-              <h3 className="font-bold mb-2">オリジナリティ</h3>
-              <div className="flex flex-wrap gap-2">
-                {availableOriginalities.map(op => (
+            {/* タイプフィルタ */}
+            <div className="px-4 mb-6">
+              <h3 className="font-bold mb-2">カードタイプ</h3>
+              <div className="flex flex-wrap gap-2 max-h-24 overflow-y-auto border p-2 rounded">
+                {[
+                  { name: 'ユニット', value: 'unit' },
+                  { name: 'トリガー', value: 'trigger' },
+                  { name: 'インターセプト', value: 'intercept' },
+                  { name: '進化', value: 'advanced_unit' },
+                ].map(type => (
                   <button
-                    key={op}
-                    className={`px-3 py-1 border rounded ${selectedOriginalities.includes(op) ? 'bg-blue-500 text-white' : 'bg-gray-500'}`}
-                    onClick={() => toggleOriginality(op)}
+                    key={type.value}
+                    className={`px-3 py-1 border rounded ${selectedTypes.includes(type.value) ? 'bg-blue-500 text-white' : 'bg-gray-500'}`}
+                    onClick={() => toggleType(type.value)}
                   >
-                    {op}
+                    {type.name}
                   </button>
                 ))}
               </div>
-            </div>
-
-            {/* バージョンフィルタ */}
-            <div className="filter-group">
-              <h3 className="font-bold mb-2">バージョン</h3>
-              <div className="flex flex-wrap gap-2">
-                {availableVersions.map(version => (
-                  <button
-                    key={version}
-                    className={`px-3 py-1 border rounded ${selectedVersions.includes(version) ? 'bg-blue-500 text-white' : 'bg-gray-500'}`}
-                    onClick={() => toggleVersion(version)}
-                  >
-                    {version}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* コストフィルタ */}
-          <div className="w-full max-w-6xl px-4 mb-6">
-            <h3 className="font-bold mb-2">コスト</h3>
-            <div className="flex flex-wrap gap-2">
-              {[0, 1, 2, 3, 4, 5, 6, 7, '7+'].map(cost => (
-                <button
-                  key={cost.toString()}
-                  className={`px-3 py-1 border rounded ${selectedCosts.includes(cost) ? 'bg-blue-500 text-white' : 'bg-gray-500'}`}
-                  onClick={() => toggleCost(cost)}
-                >
-                  {cost.toString()}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* 種族フィルタ */}
-          <div className="w-full max-w-6xl px-4 mb-6">
-            <h3 className="font-bold mb-2">種族</h3>
-            <div className="flex flex-wrap gap-2 max-h-24 overflow-y-auto border p-2 rounded">
-              {availableSpecies.map(species => (
-                <button
-                  key={species}
-                  className={`px-3 py-1 border rounded ${selectedSpecies.includes(species) ? 'bg-blue-500 text-white' : 'bg-gray-500'}`}
-                  onClick={() => toggleSpecies(species)}
-                >
-                  {species}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* タイプフィルタ */}
-          <div className="w-full max-w-6xl px-4 mb-6">
-            <h3 className="font-bold mb-2">カードタイプ</h3>
-            <div className="flex flex-wrap gap-2 max-h-24 overflow-y-auto border p-2 rounded">
-              {[
-                { name: 'ユニット', value: 'unit' },
-                { name: 'トリガー', value: 'trigger' },
-                { name: 'インターセプト', value: 'intercept' },
-                { name: '進化', value: 'advanced_unit' },
-              ].map(type => (
-                <button
-                  key={type.value}
-                  className={`px-3 py-1 border rounded ${selectedTypes.includes(type.value) ? 'bg-blue-500 text-white' : 'bg-gray-500'}`}
-                  onClick={() => toggleType(type.value)}
-                >
-                  {type.name}
-                </button>
-              ))}
             </div>
           </div>
         </details>
@@ -262,40 +300,18 @@ const DeckView = memo(
 // Set display name for the deck view
 DeckView.displayName = 'DeckView';
 
-export const DeckBuilder = () => {
+type DeckBuilderProps = {
+  implementedIds?: string[];
+};
+
+export const DeckBuilder = ({ implementedIds }: DeckBuilderProps) => {
   // Dialog visibility states
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
+
+  // DeckView高さ管理
+  const [deckViewHeight, setDeckViewHeight] = useState(0);
+  const deckViewRef = useRef<HTMLDivElement>(null);
   const [loadDialogOpen, setLoadDialogOpen] = useState(false);
-
-  // Current deck info - if loaded from saved decks
-  const [currentDeckTitle, setCurrentDeckTitle] = useState<string | null>(null);
-  const [currentDeckId, setCurrentDeckId] = useState<string | null>(null);
-
-  // Card search and filtering
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedRarities, setSelectedRarities] = useState<string[]>([]);
-  const [selectedColors, setSelectedColors] = useState<number[]>([]);
-  const [selectedSpecies, setSelectedSpecies] = useState<string[]>([]);
-  const [selectedOriginalities, setSelectedOriginalities] = useState<number[]>([]);
-  const [selectedVersions, setSelectedVersions] = useState<number[]>([
-    6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
-  ]);
-  const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
-  const [selectedCosts, setSelectedCosts] = useState<(number | string)[]>([]);
-
-  // Available filter options
-  const [availableSpecies, setAvailableSpecies] = useState<string[]>([]);
-  const [availableOriginalities, setAvailableOriginalities] = useState<number[]>([]);
-  const [availableVersions, setAvailableVersions] = useState<number[]>([]);
-
-  // Load available filter options
-  useEffect(() => {
-    setAvailableSpecies(getUniqueValues(catalog => catalog.species).sort());
-    setAvailableOriginalities(
-      getUniqueValues(catalog => catalog.originality).sort((a, b) => a - b)
-    );
-    setAvailableVersions(getUniqueValues(catalog => catalog.info.version).sort((a, b) => a - b));
-  }, []);
 
   // Deck state
   const [deck, setDeck] = useState<string[]>([
@@ -341,6 +357,59 @@ export const DeckBuilder = () => {
     '1-2-071',
   ]);
 
+  // DeckView高さを追従
+  useLayoutEffect(() => {
+    const updateHeight = () => {
+      if (deckViewRef.current) {
+        setDeckViewHeight(deckViewRef.current.offsetHeight);
+      }
+    };
+    updateHeight();
+    window.addEventListener('resize', updateHeight);
+    return () => window.removeEventListener('resize', updateHeight);
+  }, [deck]);
+
+  // Current deck info - if loaded from saved decks
+  const [currentDeckTitle, setCurrentDeckTitle] = useState<string | null>(null);
+  const [currentDeckId, setCurrentDeckId] = useState<string | null>(null);
+
+  // Card search and filtering
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedRarities, setSelectedRarities] = useState<string[]>([]);
+  const [selectedColors, setSelectedColors] = useState<number[]>([]);
+  const [selectedSpecies, setSelectedSpecies] = useState<string[]>([]);
+  const [selectedOriginalities, setSelectedOriginalities] = useState<number[]>([]);
+  const [selectedVersions, setSelectedVersions] = useState<number[]>([
+    6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
+  ]);
+  const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
+  const [selectedCosts, setSelectedCosts] = useState<(number | string)[]>([]);
+
+  // Available filter options
+  const [availableSpecies, setAvailableSpecies] = useState<string[]>([]);
+  const [availableOriginalities, setAvailableOriginalities] = useState<number[]>([]);
+  const [availableVersions, setAvailableVersions] = useState<number[]>([]);
+
+  // Deck preview state
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+
+  // 効果実装済みのみ表示フラグ
+  const [showImplemented, setShowImplemented] = useState(true);
+  const [showNotImplemented, setShowNotImplemented] = useState(false);
+
+  // テスト用フラグ
+  const searchParams = useSearchParams();
+  const limitBreak = Boolean(searchParams.get('limitbreak'));
+
+  // Load available filter options
+  useEffect(() => {
+    setAvailableSpecies(getUniqueValues(catalog => catalog.species).sort());
+    setAvailableOriginalities(
+      getUniqueValues(catalog => catalog.originality).sort((a, b) => a - b)
+    );
+    setAvailableVersions(getUniqueValues(catalog => catalog.info.version).sort((a, b) => a - b));
+  }, []);
+
   // Load main deck on component mount
   useEffect(() => {
     const mainDeck = LocalStorageHelper.getMainDeck();
@@ -361,11 +430,11 @@ export const DeckBuilder = () => {
 
   const addToDeck = useCallback(
     (catalogId: string) => {
-      if (deck.length < 40 && deck.filter(id => id === catalogId).length < 3) {
+      if ((limitBreak || deck.length < 40) && deck.filter(id => id === catalogId).length < 3) {
         setDeck(prevDeck => [...prevDeck, catalogId]);
       }
     },
-    [deck]
+    [deck, limitBreak]
   );
 
   // Toggle filter selection - all memoized with useCallback
@@ -418,7 +487,7 @@ export const DeckBuilder = () => {
 
   // Filtered catalog data
   const filteredCatalogs = useMemo(() => {
-    return Array.from(master.values()).filter(catalog => {
+    let catalogs = Array.from(master.values()).filter(catalog => {
       // Search query filter
       const matchesSearch =
         searchQuery === '' ||
@@ -469,7 +538,17 @@ export const DeckBuilder = () => {
         matchesCost
       );
     });
+
+    if (implementedIds && implementedIds.length > 0) {
+      catalogs = catalogs.filter(catalog => {
+        const isImplemented = implementedIds.includes(catalog.id);
+        return (showImplemented && isImplemented) || (showNotImplemented && !isImplemented);
+      });
+    }
+
+    return catalogs;
   }, [
+    implementedIds,
     searchQuery,
     selectedRarities,
     selectedColors,
@@ -478,6 +557,8 @@ export const DeckBuilder = () => {
     selectedVersions,
     selectedTypes,
     selectedCosts,
+    showImplemented,
+    showNotImplemented,
   ]);
 
   // Card List component
@@ -617,50 +698,59 @@ export const DeckBuilder = () => {
   return (
     <div className={`w-full flex flex-col justify-center ${colorTable.ui.text.primary}`}>
       <CardDetailWindow />
-      <div className="w-full flex items-center justify-center fixed top-0 left-0 right-0 z-10 bg-gray-800 bg-opacity-90 p-4 shadow-lg">
+      <div
+        ref={deckViewRef}
+        className="w-full flex flex-col items-center justify-center fixed top-0 left-0 right-0 z-10 bg-gray-800 bg-opacity-90 p-4 shadow-lg"
+      >
         <DeckView deck={deck} handleCardClick={handleCardClick} />
+
+        <div className="items-center justify-center flex my-2 gap-3">
+          <button
+            className="px-3 py-1 border rounde text-white rounded bg-blue-500 disabled:bg-indigo-900"
+            onClick={handleOpenSaveDialog}
+            disabled={deck.length !== 40}
+          >
+            保存する
+          </button>
+          <button
+            className="px-3 py-1 border rounde text-white rounded bg-gray-500"
+            onClick={sortDeck}
+          >
+            ソート
+          </button>
+          <button
+            className="px-3 py-1 border rounde text-white rounded bg-red-500"
+            onClick={deleteDeck}
+          >
+            デッキをリセット
+          </button>
+          <button
+            className="px-3 py-1 border rounde text-white rounded bg-green-500"
+            onClick={() => setLoadDialogOpen(true)}
+          >
+            デッキ一覧
+          </button>
+          <button
+            className="px-3 py-1 border rounde text-white rounded bg-black-700"
+            onClick={() => setIsPreviewOpen(true)}
+          >
+            プレビュー
+          </button>
+          {currentDeckTitle && (
+            <span className="ml-2 text-gray-300">
+              現在のデッキ: {currentDeckTitle}
+              {currentDeckId === LocalStorageHelper.getMainDeckId() && (
+                <span className="ml-2 bg-yellow-600 text-white text-xs px-2 py-1 rounded">
+                  メイン
+                </span>
+              )}
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Spacer div to push content below the fixed deck view */}
-      <div className="h-70"></div>
-
-      <div className="items-center justify-center flex my-2 gap-3">
-        <button
-          className="px-3 py-1 border rounde text-white rounded bg-blue-500 disabled:bg-indigo-900"
-          onClick={handleOpenSaveDialog}
-          disabled={deck.length !== 40}
-        >
-          保存する
-        </button>
-        <button
-          className="px-3 py-1 border rounde text-white rounded bg-gray-500"
-          onClick={sortDeck}
-        >
-          ソート
-        </button>
-        <button
-          className="px-3 py-1 border rounde text-white rounded bg-red-500"
-          onClick={deleteDeck}
-        >
-          デッキをリセット
-        </button>
-        <button
-          className="px-3 py-1 border rounde text-white rounded bg-green-500"
-          onClick={() => setLoadDialogOpen(true)}
-        >
-          デッキ一覧
-        </button>
-        {currentDeckTitle && (
-          <span className="ml-2 text-gray-300">
-            現在のデッキ: {currentDeckTitle}
-            {currentDeckId === LocalStorageHelper.getMainDeckId() && (
-              <span className="ml-2 bg-yellow-600 text-white text-xs px-2 py-1 rounded">
-                メイン
-              </span>
-            )}
-          </span>
-        )}
-      </div>
+      <div style={{ height: deckViewHeight }}></div>
 
       <div className="w-full flex flex-col items-center">
         <FilterControls
@@ -683,6 +773,10 @@ export const DeckBuilder = () => {
           toggleType={toggleType}
           selectedCosts={selectedCosts}
           toggleCost={toggleCost}
+          showImplemented={showImplemented}
+          setShowImplemented={setShowImplemented}
+          showNotImplemented={showNotImplemented}
+          setShowNotImplemented={setShowNotImplemented}
         />
 
         <CardList catalogs={filteredCatalogs} addToDeck={addToDeck} />
@@ -700,6 +794,13 @@ export const DeckBuilder = () => {
         onClose={() => setLoadDialogOpen(false)}
         onLoad={handleLoadDeck}
       />
+
+      {isPreviewOpen && (
+        <DeckPreview
+          cards={deck.map((id, index) => ({ id: index.toString(), catalogId: id, lv: 1 }) as ICard)}
+          onClose={() => setIsPreviewOpen(false)}
+        />
+      )}
     </div>
   );
 };

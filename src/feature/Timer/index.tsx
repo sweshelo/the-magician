@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTimer } from './hooks';
-import { useWebSocketGame } from '@/hooks/game';
+import { useGameStore, useWebSocketGame } from '@/hooks/game';
+import { useSystemContext } from '@/hooks/system/hooks';
 
 const getRemainTime = (
   startDate: Date | null,
@@ -22,6 +23,8 @@ const getRemainTime = (
 
 const CircularTimer = () => {
   const { startDate, initialTime, isRunning } = useTimer();
+  const { operable } = useSystemContext();
+  const { game } = useGameStore();
 
   // 一時停止時の残り秒数を保持
   const [pauseRemain, setPauseRemain] = useState<number | null>(null);
@@ -136,10 +139,12 @@ const CircularTimer = () => {
 
         {/* 中央の時間表示 */}
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
-          <div className="text-2xl font-bold mb-2">{timeDisplay}</div>
+          <div className="text-sm">{`ラウンド ${game.round}`}</div>
+          <div className="text-3xl font-bold">{timeDisplay}</div>
           <button
             onClick={turnEnd}
-            className="bg-blue-500 bg-lime-600 hover:bg-lime-500 text-white font-medium py-2 px-4 rounded shadow w-30"
+            className="bg-blue-500 bg-lime-600 hover:bg-lime-500 text-white font-medium py-2 px-4 rounded shadow w-30 disabled:bg-lime-700"
+            disabled={!operable}
           >
             ターン終了
           </button>

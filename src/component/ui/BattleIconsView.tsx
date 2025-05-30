@@ -63,7 +63,7 @@ const BattleIconsViewComponent = ({ delta }: BattleIconsViewProps) => {
             alt={item}
             width={24}
             height={24}
-            className="inline-block"
+            className="inline-block z-0"
             data-tooltip-id={`keyword-tooltip-${item}`}
           />
         ))}
@@ -77,7 +77,7 @@ const BattleIconsViewComponent = ({ delta }: BattleIconsViewProps) => {
             key={`tooltip-${item}`}
             id={`keyword-tooltip-${item}`}
             place="top"
-            className="z-50 max-w-xs"
+            className="z-1 max-w-xs"
           >
             {keyword ? <BattleIconDetail name={keyword.title} /> : item}
           </Tooltip>
