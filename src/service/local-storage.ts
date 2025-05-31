@@ -8,6 +8,24 @@ export type DeckData = {
 };
 
 export const LocalStorageHelper = {
+  playerName: (): string => {
+    // Check if code is running in a browser environment
+    if (typeof window === 'undefined') {
+      return '';
+    }
+
+    const id = window.localStorage.getItem('playerName');
+    if (id !== null) {
+      return id;
+    } else {
+      return 'エージェント候補生';
+    }
+  },
+
+  setPlayerName: (name: string) => {
+    window.localStorage.setItem('playerName', name);
+  },
+
   playerId: (): string => {
     // Check if code is running in a browser environment
     if (typeof window === 'undefined') {
