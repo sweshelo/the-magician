@@ -1,5 +1,4 @@
 import { ReactNode } from 'react';
-import { SoundManagerV2Provider } from '../soundV2';
 import { CardsDialogProvider } from '../cards-dialog';
 import { CardEffectDialogProvider } from '../card-effect-dialog';
 import { CardUsageEffectProvider } from '../card-usage-effect';
@@ -20,32 +19,30 @@ interface Props {
 
 export const GameContextProvider = ({ children }: Props) => {
   return (
-    <SoundManagerV2Provider>
-      <CardsDialogProvider>
-        <CardEffectDialogProvider>
-          <CardUsageEffectProvider>
-            <InterceptUsageProvider>
-              <TimerProvider>
-                <ChoicePanelProvider>
-                  <MulliganProvider>
-                    <UnitSelectionProvider>
-                      <AnimationProvider>
-                        <SelectEffectProvider>
-                          <OverclockEffectProvider>
-                            <StatusChangeProvider>
-                              <UnitPositionProvider>{children}</UnitPositionProvider>
-                            </StatusChangeProvider>
-                          </OverclockEffectProvider>
-                        </SelectEffectProvider>
-                      </AnimationProvider>
-                    </UnitSelectionProvider>
-                  </MulliganProvider>
-                </ChoicePanelProvider>
-              </TimerProvider>
-            </InterceptUsageProvider>
-          </CardUsageEffectProvider>
-        </CardEffectDialogProvider>
-      </CardsDialogProvider>
-    </SoundManagerV2Provider>
+    <CardsDialogProvider>
+      <CardEffectDialogProvider>
+        <CardUsageEffectProvider>
+          <InterceptUsageProvider>
+            <TimerProvider>
+              <ChoicePanelProvider>
+                <MulliganProvider>
+                  <UnitSelectionProvider>
+                    <AnimationProvider>
+                      <SelectEffectProvider>
+                        <OverclockEffectProvider>
+                          <StatusChangeProvider>
+                            <UnitPositionProvider>{children}</UnitPositionProvider>
+                          </StatusChangeProvider>
+                        </OverclockEffectProvider>
+                      </SelectEffectProvider>
+                    </AnimationProvider>
+                  </UnitSelectionProvider>
+                </MulliganProvider>
+              </ChoicePanelProvider>
+            </TimerProvider>
+          </InterceptUsageProvider>
+        </CardUsageEffectProvider>
+      </CardEffectDialogProvider>
+    </CardsDialogProvider>
   );
 };

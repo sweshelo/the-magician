@@ -1,3 +1,4 @@
+import { STARTER_DECK } from '@/constants/deck';
 import { useHandler } from '@/hooks/game/handler';
 import { useWebSocket } from '@/hooks/websocket/hooks';
 import { LocalStorageHelper } from '@/service/local-storage';
@@ -29,9 +30,9 @@ export const useGameComponentHook = ({ id }: Props) => {
           type: 'PlayerEntry',
           roomId: id,
           player: {
-            name: 'Sweshelo',
+            name: LocalStorageHelper.playerName(),
             id: LocalStorageHelper.playerId(),
-            deck: LocalStorageHelper.getMainDeck()?.cards ?? [],
+            deck: LocalStorageHelper.getMainDeck()?.cards ?? STARTER_DECK,
           },
         },
       } satisfies Message<PlayerEntryPayload>);
