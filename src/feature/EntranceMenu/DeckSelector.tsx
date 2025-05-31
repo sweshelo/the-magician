@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { LocalStorageHelper, DeckData } from '@/service/local-storage';
 import { DeckPreview } from '@/feature/DeckBuilder/DeckPreview';
 import { ICard } from '@/submodule/suit/types';
+import catalog from '@/submodule/suit/catalog/catalog';
 
 export const DeckSelector = () => {
   const [mainDeck, setMainDeck] = useState<DeckData | null>(null);
@@ -42,6 +43,53 @@ export const DeckSelector = () => {
     }));
   };
 
+  const checkDeckRegulation = (cards: string[]) => {
+    // カード情報を取得
+    const cardInfos = cards
+      .map(catalogId => {
+        const cardData = catalog.get(catalogId);
+        if (!cardData) {
+          console.warn(`カタログに存在しないカードID: ${catalogId}`);
+          return null;
+        }
+        return cardData;
+      })
+      .filter(Boolean); // nullを除外
+
+    // 1. バージョン0チェック
+    const hasVersionZero = cardInfos.some(card => card!.info.version === 0);
+    if (hasVersionZero) {
+      return { text: '使用不可', color: 'text-gray-400' };
+    }
+
+    // 2. 同名カード4枚以上チェック
+    const cardNameCounts = new Map<string, number>();
+    cardInfos.forEach(card => {
+      if (card) {
+        const count = cardNameCounts.get(card.name) || 0;
+        cardNameCounts.set(card.name, count + 1);
+      }
+    });
+
+    const hasTooManyDuplicates = Array.from(cardNameCounts.values()).some(count => count >= 4);
+    if (hasTooManyDuplicates) {
+      return { text: 'レギュレーション違反', color: 'text-red-400' };
+    }
+
+    // 3. バージョン1-5チェック
+    const hasLimitedVersions = cardInfos.some(card => {
+      if (!card) return false;
+      const version = card.info.version;
+      return version >= 1 && version <= 5;
+    });
+    if (hasLimitedVersions) {
+      return { text: 'レギュレーション制限', color: 'text-yellow-400' };
+    }
+
+    // 4. 制限なし
+    return { text: '使用可能', color: 'text-green-400' };
+  };
+
   const getDeckStatus = () => {
     if (!mainDeck) {
       return { text: 'デッキが設定されていません', color: 'text-red-400' };
@@ -52,7 +100,9 @@ export const DeckSelector = () => {
         color: 'text-yellow-400',
       };
     }
-    return { text: '使用可能', color: 'text-green-400' };
+
+    // レギュレーションチェックを実行
+    return checkDeckRegulation(mainDeck.cards);
   };
 
   const status = getDeckStatus();
