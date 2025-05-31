@@ -19,6 +19,7 @@ import {
   CollisionDetection,
   rectIntersection,
   ClientRect,
+  DragEndEvent,
 } from '@dnd-kit/core';
 import { restrictToWindowEdges } from '@dnd-kit/modifiers';
 import { useGameComponentHook } from './hook';
@@ -45,7 +46,7 @@ interface RoomProps {
 export const Game = ({ id }: RoomProps) => {
   useGameComponentHook({ id });
   const { openCardsDialog } = useCardsDialog();
-  const { cursorCollisionSize } = useSystemContext();
+  const { cursorCollisionSize, setDetailPosition } = useSystemContext();
 
   // Get current player ID
   const currentPlayerId = LocalStorageHelper.playerId();
@@ -102,17 +103,30 @@ export const Game = ({ id }: RoomProps) => {
     });
   };
 
+  // Handle drag end to save CardDetailWindow position
+  const handleDragEnd = (event: DragEndEvent) => {
+    // Check if the dragged item is a CardDetailWindow
+    if (event.active.id.toString().startsWith('card-detail-')) {
+      // Update the detail position by adding the drag delta to the current position
+      setDetailPosition(prevPosition => ({
+        x: prevPosition.x + event.delta.x,
+        y: prevPosition.y + event.delta.y,
+      }));
+    }
+  };
+
   return (
     <DndContext
       sensors={sensors}
       collisionDetection={cursorCollisionDetection}
       modifiers={[restrictToWindowEdges]}
+      onDragEnd={handleDragEnd}
     >
       <div
         className={`flex h-screen ${colorTable.ui.background} ${colorTable.ui.text.primary} relative overflow-hidden select-none dnd-game-container`}
       >
         {/* カード詳細ウィンドウ */}
-        <CardDetailWindow x={30} y={530} />
+        <CardDetailWindow />
 
         {/* デバッグダイアログ */}
         <DebugDialog />

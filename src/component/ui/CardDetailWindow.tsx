@@ -5,15 +5,10 @@ import classNames from 'classnames';
 import { colorTable, getColorCode } from '@/helper/color';
 import Image from 'next/image';
 import { useSystemContext } from '@/hooks/system/hooks';
-import {
-  Dispatch,
-  MouseEventHandler,
-  SetStateAction,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import { useDraggable } from '@dnd-kit/core';
+import { Dispatch, SetStateAction, useState } from 'react';
+import { DraggableAttributes } from '@dnd-kit/core';
+import { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities';
 import keywordsData from '@/submodule/suit/catalog/keywords.json';
 import { BattleIconDetail } from './BattleIconsView';
 import { Tooltip } from 'react-tooltip';
@@ -42,83 +37,37 @@ export const Level = ({ bp, lv, active }: LevelProps) => {
   );
 };
 
-interface CardDetailWindowProps {
-  x?: number;
-  y?: number;
-}
-
-export const CardDetailWindow = ({ x = 0, y = 0 }: CardDetailWindowProps) => {
+export const CardDetailWindow = () => {
   const { detailCard, setDetailCard, detailPosition } = useSystemContext();
-  const [position, setPosition] = useState({ x, y });
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragOffset, setDragOffset] = useState({ x, y });
   const [abilityMode, setAbilityMode] = useState(true);
 
-  const windowRef = useRef<HTMLDivElement>(null);
-
-  // Handle mouse events for dragging
-  const handleMouseDown: MouseEventHandler<HTMLDivElement> = e => {
-    if (windowRef.current) {
-      const rect = windowRef.current.getBoundingClientRect();
-      setDragOffset({
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
-      });
-      setIsDragging(true);
-    }
-  };
-
-  const handleMouseMove = useCallback(
-    (e: MouseEvent) => {
-      if (isDragging) {
-        setPosition({
-          x: e.clientX - dragOffset.x,
-          y: e.clientY - dragOffset.y,
-        });
-      }
+  const { attributes, listeners, setNodeRef, transform } = useDraggable({
+    id: `card-detail-${detailCard?.id || 'window'}`,
+    disabled: !detailCard,
+    data: {
+      type: 'card-detail-window',
+      cardId: detailCard?.catalogId,
     },
-    [isDragging, dragOffset]
-  );
+  });
 
-  const handleMouseUp = useCallback(() => {
-    setIsDragging(false);
-  }, []);
-
-  // Only set the initial position once when component mounts or when card changes but position hasn't been set yet
-  useEffect(() => {
-    // Initialize position only if it hasn't been set yet (x and y are both 0)
-    if (position.x === 0 && position.y === 0) {
-      setPosition(detailPosition);
-    }
-  }, [detailPosition, position.x, position.y]);
-
-  // Add and remove global event listeners
-  useEffect(() => {
-    if (isDragging) {
-      window.addEventListener('mousemove', handleMouseMove);
-      window.addEventListener('mouseup', handleMouseUp);
-    }
-
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-    };
-  }, [isDragging, handleMouseMove, handleMouseUp]);
+  const style = {
+    transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
+    left: `${detailPosition.x}px`,
+    top: `${detailPosition.y}px`,
+  };
 
   // If no card is selected, don't render anything
   if (!detailCard) return null;
 
   return (
     <div
-      ref={windowRef}
-      className={`fixed transform w-100 ${colorTable.ui.playerInfoBackground} rounded-lg shadow-lg z-50 border ${colorTable.ui.border} overflow-hidden`}
-      style={{
-        left: `${position.x}px`,
-        top: `${position.y}px`,
-      }}
+      ref={setNodeRef}
+      className={`fixed w-100 ${colorTable.ui.playerInfoBackground} rounded-lg shadow-lg z-50 border ${colorTable.ui.border} overflow-hidden`}
+      style={style}
     >
       <AbilityPane
-        handleMouseDown={handleMouseDown}
+        attributes={attributes}
+        listeners={listeners}
         catalogId={detailCard.catalogId}
         setDetailCard={setDetailCard}
         abilityMode={abilityMode}
@@ -174,13 +123,15 @@ const RelatedAbilities = ({ abilityText, isVirus }: { abilityText: string; isVir
 };
 
 const AbilityPane = ({
-  handleMouseDown,
+  attributes,
+  listeners,
   catalogId,
   setDetailCard,
   abilityMode,
   setAbilityMode,
 }: {
-  handleMouseDown: MouseEventHandler<HTMLDivElement>;
+  attributes: DraggableAttributes;
+  listeners: SyntheticListenerMap | undefined;
   catalogId: string;
   setDetailCard: Dispatch<SetStateAction<ICard | undefined>>;
   abilityMode: boolean;
@@ -208,7 +159,8 @@ const AbilityPane = ({
           backgroundSize: 'cover',
           backgroundPosition: '0% -140px',
         }}
-        onMouseDown={handleMouseDown}
+        {...attributes}
+        {...listeners}
         onDoubleClick={() => setAbilityMode(false)}
       >
         <div className="rounded-sm border-3 border-gray">
@@ -236,6 +188,7 @@ const AbilityPane = ({
         </h3>
         <button
           onClick={() => setDetailCard(undefined)}
+          onTouchStart={() => setDetailCard(undefined)}
           className={`${colorTable.ui.text.secondary} hover:${colorTable.ui.text.primary} cursor-pointer`}
         >
           ✕
@@ -275,7 +228,8 @@ const AbilityPane = ({
     </>
   ) : (
     <ImagePane
-      handleMouseDown={handleMouseDown}
+      attributes={attributes}
+      listeners={listeners}
       catalogId={catalogId}
       setAbilityMode={setAbilityMode}
     />
@@ -283,11 +237,13 @@ const AbilityPane = ({
 };
 
 const ImagePane = ({
-  handleMouseDown,
+  attributes,
+  listeners,
   catalogId,
   setAbilityMode,
 }: {
-  handleMouseDown: MouseEventHandler<HTMLDivElement>;
+  attributes: DraggableAttributes;
+  listeners: SyntheticListenerMap | undefined;
   catalogId: string;
   setAbilityMode: Dispatch<SetStateAction<boolean>>;
 }) => {
@@ -295,17 +251,31 @@ const ImagePane = ({
 
   if (!catalog) return null;
 
+  const handleClick = () => {
+    setAbilityMode(true);
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    // Handle tablet touch end event with small delay to ensure it's not part of a drag
+    e.preventDefault();
+    setTimeout(() => {
+      setAbilityMode(true);
+    }, 10);
+  };
+
   return (
     <div
-      className={`flex justify-between items-center p-3 h-140 ${colorTable.ui.background} cursor-move`}
+      className={`flex justify-between items-center p-3 h-140 ${colorTable.ui.background} cursor-pointer`}
       style={{
         backgroundImage: process.env.NEXT_PUBLIC_IMAGE_SELF_HOSTING
           ? `url(https://coj.sega.jp/player/img/${master.get(catalogId)?.img})`
           : `url(/image/card/full/${catalogId}.jpg)`,
         backgroundSize: 'cover',
       }}
-      onMouseDown={handleMouseDown}
-      onClick={() => setAbilityMode(true)}
+      {...attributes}
+      {...listeners}
+      onClick={handleClick}
+      onTouchEnd={handleTouchEnd}
     />
   );
 };
