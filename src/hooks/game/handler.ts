@@ -38,7 +38,7 @@ export const useHandler = () => {
   const { startAttackDeclaration, proceedToPreparation, cancelLaunch } = useAttackAnimation();
   const { setOptions, clear, setOnSelectCallback } = useChoicePanel();
   const { addStatusChange } = useStatusChange();
-  const { setTargetUnitId } = useSelectEffect();
+  const { addTargetUnit } = useSelectEffect();
 
   // 選択肢選択をPromiseで待つ
   const handleOptionSelection = (): Promise<string | null> => {
@@ -275,7 +275,7 @@ export const useHandler = () => {
           }
           case 'select': {
             // 円形拡散選択エフェクトを発動
-            setTargetUnitId(body.unitId);
+            addTargetUnit(body.unitId);
             break;
           }
         }

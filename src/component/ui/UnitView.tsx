@@ -34,7 +34,7 @@ const UnitViewComponent = ({ unit, isOwnUnit = false }: UnitViewProps) => {
   const { setSelectedCard, setDetailCard, operable, activeCard } = useSystemContext();
   const unitRef = useRef<HTMLDivElement>(null);
   const { registerUnitRef } = useUnitPosition();
-  const { setTargetUnitId } = useSelectEffect();
+  const { targetUnitIds, removeTargetUnit } = useSelectEffect();
 
   // ユニットの位置情報をコンテキストに登録
   useEffect(() => {
@@ -128,12 +128,12 @@ const UnitViewComponent = ({ unit, isOwnUnit = false }: UnitViewProps) => {
             />
 
             {/* 新しい選択エフェクト（円形拡散） - select-effect/context由来 */}
-            {useSelectEffect().targetUnitId === unit.id && (
+            {targetUnitIds.includes(unit.id) && (
               <SelectEffect
                 unitId={unit.id}
                 onComplete={() => {
                   // 完了ハンドラでこのアニメーション対象のIDをリセット
-                  setTargetUnitId(undefined);
+                  removeTargetUnit(unit.id);
                 }}
               />
             )}

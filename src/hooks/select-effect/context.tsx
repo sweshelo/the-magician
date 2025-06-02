@@ -1,19 +1,31 @@
 'use client';
 
-import React, { createContext, useState, useContext, ReactNode } from 'react';
+import React, { createContext, useState, useContext, ReactNode, useCallback } from 'react';
 
 export interface SelectEffectContextType {
-  targetUnitId: string | undefined;
-  setTargetUnitId: (unitId: string | undefined) => void;
+  targetUnitIds: string[]; // 複数ユニットが同時に選択エフェクト可能
+  addTargetUnit: (unitId: string) => void;
+  removeTargetUnit: (unitId: string) => void;
 }
 
 const SelectEffectContext = createContext<SelectEffectContextType | undefined>(undefined);
 
 export const SelectEffectProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [targetUnitId, setTargetUnitId] = useState<string | undefined>(undefined);
+  const [targetUnitIds, setTargetUnitIds] = useState<string[]>([]);
+
+  const addTargetUnit = useCallback((unitId: string) => {
+    setTargetUnitIds(prev => {
+      if (prev.includes(unitId)) return prev;
+      return [...prev, unitId];
+    });
+  }, []);
+
+  const removeTargetUnit = useCallback((unitId: string) => {
+    setTargetUnitIds(prev => prev.filter(id => id !== unitId));
+  }, []);
 
   return (
-    <SelectEffectContext.Provider value={{ targetUnitId, setTargetUnitId }}>
+    <SelectEffectContext.Provider value={{ targetUnitIds, addTargetUnit, removeTargetUnit }}>
       {children}
     </SelectEffectContext.Provider>
   );
