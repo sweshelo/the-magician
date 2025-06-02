@@ -34,6 +34,7 @@ const UnitViewComponent = ({ unit, isOwnUnit = false }: UnitViewProps) => {
   const { setSelectedCard, setDetailCard, operable, activeCard } = useSystemContext();
   const unitRef = useRef<HTMLDivElement>(null);
   const { registerUnitRef } = useUnitPosition();
+  const { setTargetUnitId } = useSelectEffect();
 
   // ユニットの位置情報をコンテキストに登録
   useEffect(() => {
@@ -131,7 +132,8 @@ const UnitViewComponent = ({ unit, isOwnUnit = false }: UnitViewProps) => {
               <SelectEffect
                 unitId={unit.id}
                 onComplete={() => {
-                  /* 完了ハンドラは内部でコンテキストをリセット */
+                  // 完了ハンドラでこのアニメーション対象のIDをリセット
+                  setTargetUnitId(undefined);
                 }}
               />
             )}
