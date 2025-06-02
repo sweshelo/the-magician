@@ -18,7 +18,7 @@ export const DebugDialog = () => {
   const { cursorCollisionSize, setCursorCollisionSize, setOperable } = useSystemContext();
   const { state: attackState, proceedToPreparation } = useAttackAnimation();
   const { setAnimationUnit } = useUnitSelection(); // 既存の効果発動アニメーション用
-  const { setTargetUnitId } = useSelectEffect(); // 選択エフェクト用
+  const { addTargetUnit } = useSelectEffect(); // 選択エフェクト用
   const { addOverclockUnit, removeOverclockUnit } = useOverclockEffect(); // オーバークロック用
   const { addStatusChange } = useStatusChange(); // ステータス変更用
   const [bgmVolume, setBgmVolume] = useState(getVolume());
@@ -266,7 +266,7 @@ export const DebugDialog = () => {
                           const unitId = (
                             document.getElementById('animationUnitId') as HTMLInputElement
                           ).value;
-                          if (unitId) setTargetUnitId(unitId);
+                          if (unitId) addTargetUnit(unitId);
                         }}
                         className={`px-3 py-1 rounded ${colorTable.ui.border} bg-blue-600 hover:bg-blue-500 transition-colors`}
                       >

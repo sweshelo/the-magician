@@ -10,7 +10,7 @@ interface SelectEffectProps {
 
 export const SelectEffect: React.FC<SelectEffectProps> = ({ unitId, onComplete }) => {
   // 選択エフェクトコンテキストを使用
-  const { setTargetUnitId } = useSelectEffect();
+  const { removeTargetUnit } = useSelectEffect();
   // フェーズ状態の管理
   const [phase, setPhase] = useState<'initial' | 'appear' | 'expand' | 'pulse' | 'fadeOut'>(
     'initial'
@@ -49,7 +49,7 @@ export const SelectEffect: React.FC<SelectEffectProps> = ({ unitId, onComplete }
     } else if (phase === 'fadeOut') {
       // フェードアウトフェーズから完了
       timeout = setTimeout(() => {
-        setTargetUnitId(undefined); // コンテキストをリセット
+        removeTargetUnit(unitId); // コンテキストをリセット
         if (onComplete) onComplete();
       }, 200);
       timeoutsRef.current.push(timeout);

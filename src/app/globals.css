@@ -220,3 +220,35 @@ body {
   background-color: white;
   margin-right: 5px;
 }
+
+/* Touch Action Settings for dnd-kit tablet compatibility */
+
+/* Draggable elements - prevent all touch gestures during drag */
+.dnd-draggable {
+  touch-action: none;
+}
+
+/* Droppable zones - allow pan gestures but prevent zoom/tap delays */
+.dnd-droppable {
+  touch-action: manipulation;
+}
+
+/* Scrollable containers - allow vertical scroll only */
+.dnd-scrollable {
+  touch-action: pan-y;
+}
+
+/* Click-only elements - fast clicks, no zoom or long press */
+.dnd-clickable {
+  touch-action: manipulation;
+}
+
+/* Game main container - allow vertical scroll */
+.dnd-game-container {
+  touch-action: pan-y;
+}
+
+/* Field areas - manipulation only for drag and drop */
+.dnd-field {
+  touch-action: manipulation;
+}
