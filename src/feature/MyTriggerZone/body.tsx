@@ -1,5 +1,6 @@
 import { BackFlipedCard } from '@/component/ui/BackFlipedCard';
 import { CardView } from '@/component/ui/CardView';
+import { ChainOverlay } from '@/component/ui/ChainOverlay';
 import { RotatedSquareHighlight } from '@/component/ui/RotatedSquareHighlight';
 import { useTrigger, useRule } from '@/hooks/game/hooks';
 import { useInterceptUsage } from '@/hooks/intercept-usage';
@@ -34,6 +35,9 @@ export const MyTriggerZoneBody = () => {
               onClick={() => card && isAvailable && activateIntercept(card.id)}
             >
               <CardView card={card} isSmall isHighlighting={isAvailable} />
+              {card.delta?.some(delta => delta.effect.type === 'banned') && (
+                <ChainOverlay isSmall={true} />
+              )}
             </RotatedSquareHighlight>
           )
         ) : (

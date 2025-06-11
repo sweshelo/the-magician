@@ -13,9 +13,9 @@ export const ChainOverlay: React.FC<ChainOverlayProps> = ({ isSmall = false }) =
   const cardHeight = isSmall ? 104 : 156;
 
   // チェーンの輪（四角形）の数
-  const numLinks = isSmall ? 5 : 20;
+  const numLinks = isSmall ? 15 : 20;
   // 四角形のサイズ
-  const linkSize = isSmall ? 5 : 7;
+  const linkSize = isSmall ? 6 : 7;
   // 四角形の角丸
   const linkRadius = linkSize * 0.25;
 
