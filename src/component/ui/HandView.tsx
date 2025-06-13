@@ -1,3 +1,5 @@
+'use client';
+
 import { useSystemContext } from '@/hooks/system/hooks';
 import { useDraggable, useDroppable } from '@dnd-kit/core';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -91,7 +93,7 @@ export const HandView = ({ card, isSmall = false }: Props) => {
 
   return (
     <div
-      className={`relative ${activeCard?.id === card.id && 'opacity-75'}`}
+      className={`relative ${activeCard?.id === card.id && 'opacity-75'} dnd-draggable`}
       ref={setNodeRef}
       style={style}
       {...attributes}

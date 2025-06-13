@@ -13,6 +13,7 @@ import { MyArea } from '../MyArea';
 import {
   DndContext,
   PointerSensor,
+  TouchSensor,
   useSensor,
   useSensors,
   CollisionDetection,
@@ -59,9 +60,13 @@ export const Game = ({ id }: RoomProps) => {
   const opponent = usePlayer(oppenentId);
 
   const sensors = useSensors(
-    useSensor(PointerSensor, {
+    // Primary sensor for desktop and touch devices
+    useSensor(PointerSensor),
+    // Fallback sensor specifically for touch devices
+    useSensor(TouchSensor, {
       activationConstraint: {
-        distance: 5,
+        delay: 150, // Longer delay for touch to prevent conflicts
+        tolerance: 5,
       },
     })
   );
@@ -104,7 +109,7 @@ export const Game = ({ id }: RoomProps) => {
       modifiers={[restrictToWindowEdges]}
     >
       <div
-        className={`flex h-screen ${colorTable.ui.background} ${colorTable.ui.text.primary} relative overflow-hidden select-none`}
+        className={`flex h-screen ${colorTable.ui.background} ${colorTable.ui.text.primary} relative overflow-hidden select-none dnd-game-container`}
       >
         {/* カード詳細ウィンドウ */}
         <CardDetailWindow x={30} y={530} />

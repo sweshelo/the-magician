@@ -23,7 +23,7 @@ export const MyTriggerZoneWrapper = ({ children }: MyTriggerZoneWrapperProps) =>
   });
 
   return (
-    <div ref={setNodeRef} className="relative">
+    <div ref={setNodeRef} className="relative dnd-droppable">
       {/* Field content */}
       {children}
 

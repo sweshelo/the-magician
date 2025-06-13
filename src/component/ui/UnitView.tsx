@@ -34,6 +34,7 @@ const UnitViewComponent = ({ unit, isOwnUnit = false }: UnitViewProps) => {
   const { setSelectedCard, setDetailCard, operable, activeCard } = useSystemContext();
   const unitRef = useRef<HTMLDivElement>(null);
   const { registerUnitRef } = useUnitPosition();
+  const { targetUnitIds, removeTargetUnit } = useSelectEffect();
 
   // ユニットの位置情報をコンテキストに登録
   useEffect(() => {
@@ -77,7 +78,10 @@ const UnitViewComponent = ({ unit, isOwnUnit = false }: UnitViewProps) => {
   });
 
   // Handle unit click to show action buttons
-  const handleUnitClick = () => {
+  const handleUnitClick = (e: React.MouseEvent | React.TouchEvent) => {
+    // Prevent event if drag is in progress
+    if (e.defaultPrevented) return;
+
     if (isOwnUnit && !candidate && operable) {
       setActiveUnit(prev => (prev?.id !== unit.id ? unit : undefined));
     }
@@ -101,7 +105,7 @@ const UnitViewComponent = ({ unit, isOwnUnit = false }: UnitViewProps) => {
               unit={unit}
               unitRef={unitRef}
               canAttack={unit.active}
-              canBoot={unit.isBootable === true}
+              canBoot={unit.hasBootAbility === true ? (unit.isBooted ? false : true) : undefined}
               canWithdraw={true}
             />
           </div>
@@ -111,7 +115,7 @@ const UnitViewComponent = ({ unit, isOwnUnit = false }: UnitViewProps) => {
             unitRef.current = node;
             setDroppableRef(node);
           }}
-          className="absolute inset-0 z-0"
+          className="absolute inset-0 z-0 dnd-droppable"
           onClick={handleUnitClick}
           style={useUnitAttackAnimationStyle(unit.id)}
         >
@@ -124,11 +128,12 @@ const UnitViewComponent = ({ unit, isOwnUnit = false }: UnitViewProps) => {
             />
 
             {/* 新しい選択エフェクト（円形拡散） - select-effect/context由来 */}
-            {useSelectEffect().targetUnitId === unit.id && (
+            {targetUnitIds.includes(unit.id) && (
               <SelectEffect
                 unitId={unit.id}
                 onComplete={() => {
-                  /* 完了ハンドラは内部でコンテキストをリセット */
+                  // 完了ハンドラでこのアニメーション対象のIDをリセット
+                  removeTargetUnit(unit.id);
                 }}
               />
             )}

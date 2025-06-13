@@ -42,10 +42,11 @@ export const MyTrash = () => {
   });
 
   return (
-    <div ref={setNodeRef} className="relative">
+    <div className="relative">
       <CardsCountView count={trash.length}>
         <div
-          className="flex justify-center items-center cursor-pointer w-full h-full"
+          ref={setNodeRef}
+          className={`flex justify-center items-center cursor-pointer w-full h-full dnd-droppable`}
           onClick={handleTrashClick}
         >
           {activeCard ? (

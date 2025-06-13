@@ -15,7 +15,7 @@ interface UnitActionButtonsProps {
 export const UnitActionButtons = ({
   unit,
   canAttack = false,
-  canBoot = false,
+  canBoot,
   canWithdraw = true,
 }: UnitActionButtonsProps) => {
   const { setActiveUnit } = useUnitSelection();
@@ -69,10 +69,11 @@ export const UnitActionButtons = ({
       )}
 
       {/* Boot Button (middle) */}
-      {canBoot ? (
+      {canBoot !== undefined ? (
         <button
-          className="action-button bg-pink-500 text-white py-1 rounded-md shadow-md border border-pink-700 hover:bg-pink-600 w-full opacity-90"
+          className="action-button bg-pink-500 text-white py-1 rounded-md shadow-md border border-pink-700 hover:bg-pink-600 disabled:bg-pink-700 w-full opacity-90"
           onClick={handleBoot}
+          disabled={!canBoot}
         >
           起動
         </button>
