@@ -21,6 +21,7 @@ import { useSelectEffect } from '@/hooks/select-effect';
 import { useOverclockEffect } from '@/hooks/overclock-effect';
 import { useStatusChange } from '@/hooks/status-change';
 import master from '@/submodule/suit/catalog/catalog';
+import { getImageUrl } from '@/helper/image';
 
 interface UnitViewProps {
   unit: IUnit;
@@ -163,15 +164,7 @@ const UnitViewComponent = ({ unit, isOwnUnit = false }: UnitViewProps) => {
 
           {/* Position components to layer correctly */}
           <div className="absolute inset-0 z-1">
-            <UnitIconView
-              color={color}
-              image={
-                process.env.NEXT_PUBLIC_IMAGE_SELF_HOSTING
-                  ? `https://coj.sega.jp/player/img/${master.get(unit.catalogId)?.img}`
-                  : `/image/card/full/${unit.catalogId}.jpg`
-              }
-              reversed={false}
-            />
+            <UnitIconView color={color} image={getImageUrl(unit.catalogId)} reversed={false} />
           </div>
           <div className="absolute inset-0 z-0">
             <UnitActivatedView color={color} active={unit.active} />

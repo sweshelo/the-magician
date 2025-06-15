@@ -3,6 +3,7 @@ import { getColorCode } from '@/helper/color';
 import { IAtom, ICard } from '@/submodule/suit/types';
 import { useSystemContext } from '@/hooks/system/hooks';
 import { useCallback, MouseEvent, useMemo } from 'react';
+import { getImageUrl } from '@/helper/image';
 
 interface Props {
   card: IAtom;
@@ -90,9 +91,9 @@ export const CardView = ({
       <div
         className={`${sizeClass} border-2 border-slate-600 rounded justify-center items-center text-slate-500 relative ${isSelecting ? 'animate-pulse-border' : ''} dnd-clickable`}
         style={{
-          backgroundImage: process.env.NEXT_PUBLIC_IMAGE_SELF_HOSTING
-            ? `url(https://coj.sega.jp/player/img/${catalog?.img})`
-            : `url(/image/card/full/${catalog?.id}.jpg)`,
+          backgroundImage: cardAsICard?.catalogId
+            ? `url(${getImageUrl(cardAsICard?.catalogId)}`
+            : '',
           backgroundSize: 'cover',
         }}
         onClick={e => {

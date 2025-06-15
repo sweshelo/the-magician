@@ -19,6 +19,7 @@ import { BattleIconDetail } from './BattleIconsView';
 import { Tooltip } from 'react-tooltip';
 import DOMPurify from 'dompurify';
 import { ICard } from '@/submodule/suit/types';
+import { getImageUrl } from '@/helper/image';
 
 interface LevelProps {
   lv: number;
@@ -202,9 +203,7 @@ const AbilityPane = ({
       <div
         className={`flex justify-between items-center p-3 h-20 ${colorTable.ui.background} cursor-move`}
         style={{
-          backgroundImage: process.env.NEXT_PUBLIC_IMAGE_SELF_HOSTING
-            ? `url(https://coj.sega.jp/player/img/${master.get(catalogId)?.img})`
-            : `url(/image/card/full/${catalogId}.jpg)`,
+          backgroundImage: `url${getImageUrl(catalogId)}`,
           backgroundSize: 'cover',
           backgroundPosition: '0% -140px',
         }}
@@ -299,9 +298,7 @@ const ImagePane = ({
     <div
       className={`flex justify-between items-center p-3 h-140 ${colorTable.ui.background} cursor-move`}
       style={{
-        backgroundImage: process.env.NEXT_PUBLIC_IMAGE_SELF_HOSTING
-          ? `url(https://coj.sega.jp/player/img/${master.get(catalogId)?.img})`
-          : `url(/image/card/full/${catalogId}.jpg)`,
+        backgroundImage: `url(${getImageUrl(catalogId)}`,
         backgroundSize: 'cover',
       }}
       onMouseDown={handleMouseDown}
