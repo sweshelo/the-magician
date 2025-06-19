@@ -8,11 +8,6 @@ export const metadata: Metadata = {
 };
 
 async function getImplementedCardIds() {
-  // Skip API access during build time to prevent ECONNREFUSED errors
-  if (process.env.NODE_ENV === 'production' && typeof window === 'undefined') {
-    return [];
-  }
-
   try {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_SECURE_CONNECTION === 'true' ? 'https://' : 'http://'}${process.env.NEXT_PUBLIC_SERVER_HOST}/api/cards`
