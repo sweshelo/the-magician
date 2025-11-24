@@ -92,7 +92,7 @@ export const CardView = ({
         className={`${sizeClass} border-2 border-slate-600 rounded justify-center items-center text-slate-500 relative ${isSelecting ? 'animate-pulse-border' : ''} dnd-clickable`}
         style={{
           backgroundImage: cardAsICard?.catalogId
-            ? `url(${getImageUrl(cardAsICard?.catalogId)}`
+            ? `url(${getImageUrl(cardAsICard?.catalogId)})`
             : '',
           backgroundSize: 'cover',
         }}
