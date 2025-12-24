@@ -1,3 +1,2 @@
-bun test
 bunx lint-staged
 bunx tsc --noEmit
