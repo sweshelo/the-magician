@@ -115,7 +115,7 @@ export const Game = ({ id }: RoomProps) => {
         <CardDetailWindow x={30} y={530} />
 
         {/* デバッグダイアログ */}
-        <DebugDialog />
+        {rule.debug?.enable && <DebugDialog />}
 
         {/* カード効果表示ダイアログ */}
         <CardEffectDialog />
@@ -138,7 +138,7 @@ export const Game = ({ id }: RoomProps) => {
             >
               <div className="player-identity">
                 <div className="font-bold text-lg">{opponent?.name ?? '対戦相手 検索中…'}</div>
-                <div className={`text-sm ${colorTable.ui.text.secondary}`}>オンライン</div>
+                {/* <div className={`text-sm ${colorTable.ui.text.secondary}`}>オンライン</div> */}
               </div>
               {/* 対戦相手の手札エリア */}
               <div className="flex justify-center gap-2">
