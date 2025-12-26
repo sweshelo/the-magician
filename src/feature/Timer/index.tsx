@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTimer } from './hooks';
 import { useGameStore, useWebSocketGame } from '@/hooks/game';
 import { useSystemContext } from '@/hooks/system/hooks';
+import { LocalStorageHelper } from '@/service/local-storage';
 
 const getRemainTime = (
   startDate: Date | null,
@@ -24,7 +25,13 @@ const getRemainTime = (
 const CircularTimer = () => {
   const { startDate, initialTime, isRunning } = useTimer();
   const { operable } = useSystemContext();
-  const { game } = useGameStore();
+  const { game, players } = useGameStore();
+
+  const turnPlayer = useMemo(
+    () => Object.keys(players ?? {})?.[(game.turn - 1) % 2],
+    [game, players]
+  );
+  const isMyTurn = LocalStorageHelper.playerId() === turnPlayer;
 
   // 一時停止時の残り秒数を保持
   const [pauseRemain, setPauseRemain] = useState<number | null>(null);
@@ -146,7 +153,7 @@ const CircularTimer = () => {
             className="bg-blue-500 bg-lime-600 hover:bg-lime-500 text-white font-medium py-2 px-4 rounded shadow w-30 disabled:bg-lime-700"
             disabled={!operable}
           >
-            ターン終了
+            {isMyTurn ? 'ターン終了' : <span className="text-xs">対戦相手行動中</span>}
           </button>
         </div>
       </div>

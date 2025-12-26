@@ -35,7 +35,7 @@ export const MyArea = () => {
       >
         <div className="player-identity">
           <div className="font-bold text-lg">{self?.name || ''}</div>
-          <div className={`text-sm ${colorTable.ui.text.secondary}`}>あなたのターン</div>
+          <div className={`text-sm ${colorTable.ui.text.secondary}`}>あなた</div>
         </div>
 
         <div className="flex gap-4 items-center">
