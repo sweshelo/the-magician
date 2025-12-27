@@ -18,8 +18,10 @@ class WebSocketService extends EventEmitter {
     });
 
     this.socket.addEventListener('message', (event: MessageEvent<string>) => {
-      console.log(JSON.parse(event.data));
-      this.emit('message', JSON.parse(event.data));
+      const body = JSON.parse(event.data);
+      console.log(body);
+      if (body.action?.type === 'error') alert('エラーが発生しました');
+      this.emit('message', body);
     });
   }
 
