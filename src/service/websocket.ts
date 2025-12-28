@@ -1,5 +1,6 @@
 import { Message, RequestPayload, ResponsePayload } from '@/submodule/suit/types';
 import EventEmitter from 'events';
+import { LocalStorageHelper } from './local-storage';
 
 class WebSocketService extends EventEmitter {
   private readonly socket: WebSocket;
@@ -63,5 +64,5 @@ class WebSocketService extends EventEmitter {
 }
 
 export const webSocketService = new WebSocketService(
-  `${process.env.NEXT_PUBLIC_SECURE_CONNECTION === 'true' ? 'wss://' : 'ws://'}${process.env.NEXT_PUBLIC_SERVER_HOST}`
+  `${process.env.NEXT_PUBLIC_SECURE_CONNECTION === 'true' ? 'wss://' : 'ws://'}${LocalStorageHelper.serverAddress() || process.env.NEXT_PUBLIC_SERVER_HOST}`
 );
