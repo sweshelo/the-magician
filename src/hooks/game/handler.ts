@@ -35,7 +35,8 @@ export const useHandler = () => {
   const { setOperable } = useSystemContext();
   const { pauseTimer, resumeTimer } = useGameTimer();
   const { closeCardsDialog } = useCardsDialog();
-  const { startAttackDeclaration, proceedToPreparation, cancelLaunch } = useAttackAnimation();
+  const { startAttackDeclaration, startBlockDeclaration, proceedToPreparation, cancelLaunch } =
+    useAttackAnimation();
   const { setOptions, clear, setOnSelectCallback } = useChoicePanel();
   const { addStatusChange } = useStatusChange();
   const { addTargetUnit } = useSelectEffect();
@@ -209,6 +210,19 @@ export const useHandler = () => {
               isPlayerUnit,
               attackerPos || { x: getScreenCenterX(), y: 0 }
             );
+            break;
+          }
+          case 'block': {
+            // ブロック宣言アニメ - Blockerユニットを拡大表示
+            const blockerId = body.blockerId;
+            if (blockerId) {
+              startBlockDeclaration(blockerId);
+              // BLOCK表示エフェクトを追加
+              addStatusChange({
+                unitId: blockerId,
+                changes: [{ type: 'block', value: 0 }],
+              });
+            }
             break;
           }
           case 'launch': {

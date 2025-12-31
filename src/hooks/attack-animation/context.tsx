@@ -15,6 +15,7 @@ export interface Position {
 export interface AttackAnimationState {
   phase: AttackAnimationPhase;
   attackingUnitId: string | null;
+  blockingUnitId: string | null; // Blocker unit that needs to be enlarged
   targetPosition: Position | null;
   initialPosition: Position | null;
   isPlayerUnit: boolean; // True if it's the player's unit attacking
@@ -24,6 +25,7 @@ export interface AttackAnimationState {
 export interface AttackAnimationContextType {
   state: AttackAnimationState;
   startAttackDeclaration: (unitId: string, isPlayerUnit: boolean, position: Position) => void;
+  startBlockDeclaration: (unitId: string) => void;
   proceedToPreparation: (targetPosition: Position) => void;
   cancelLaunch: () => void;
   resetAnimation: () => void;
@@ -33,6 +35,7 @@ export interface AttackAnimationContextType {
 const initialState: AttackAnimationState = {
   phase: 'idle',
   attackingUnitId: null,
+  blockingUnitId: null,
   targetPosition: null,
   initialPosition: null,
   isPlayerUnit: true,
@@ -42,6 +45,7 @@ const initialState: AttackAnimationState = {
 export const AttackAnimationContext = createContext<AttackAnimationContextType>({
   state: initialState,
   startAttackDeclaration: () => {},
+  startBlockDeclaration: () => {},
   proceedToPreparation: () => {},
   cancelLaunch: () => {},
   resetAnimation: () => {},
@@ -57,6 +61,7 @@ export const AttackAnimationProvider: React.FC<{ children: ReactNode }> = ({ chi
       setState({
         phase: 'declaration',
         attackingUnitId: unitId,
+        blockingUnitId: null,
         targetPosition: null,
         initialPosition: position,
         isPlayerUnit,
@@ -64,6 +69,14 @@ export const AttackAnimationProvider: React.FC<{ children: ReactNode }> = ({ chi
     },
     []
   );
+
+  // Start the block declaration (blocker unit expands)
+  const startBlockDeclaration = useCallback((unitId: string) => {
+    setState(prevState => ({
+      ...prevState,
+      blockingUnitId: unitId,
+    }));
+  }, []);
 
   // Proceed to the preparation phase with target position (unit returns to original position, then launches)
   const proceedToPreparation = useCallback((targetPosition: Position) => {
@@ -137,6 +150,7 @@ export const AttackAnimationProvider: React.FC<{ children: ReactNode }> = ({ chi
       value={{
         state,
         startAttackDeclaration,
+        startBlockDeclaration,
         proceedToPreparation,
         cancelLaunch,
         resetAnimation,
