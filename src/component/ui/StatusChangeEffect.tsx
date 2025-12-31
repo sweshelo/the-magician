@@ -3,7 +3,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { StatusChange, useStatusChange } from '@/hooks/status-change';
 
-export type StatusChangeType = 'damage' | 'level' | 'bp' | 'base-bp';
+export type StatusChangeType = 'damage' | 'level' | 'bp' | 'base-bp' | 'block';
 
 interface StatusChangeEffectProps {
   unitId: string;
@@ -91,30 +91,38 @@ export const StatusChangeEffect: React.FC<StatusChangeEffectProps> = ({
     }
   }, [phase, effectPosition]);
 
-  const DisplayContent = ({ type, value }: { type: string; value: number }) => {
+  const DisplayContent = ({ type, value }: { type: string; value: number | string }) => {
     // Determine label text based on type and value
     let labelText = '';
 
     switch (type) {
       case 'bp':
-        labelText = value > 0 ? 'BPアップ' : 'BPダウン';
+        labelText = typeof value === 'number' && value > 0 ? 'BPアップ' : 'BPダウン';
         break;
       case 'base-bp':
-        labelText = value > 0 ? '基本BPアップ' : '基本BPダウン';
+        labelText = typeof value === 'number' && value > 0 ? '基本BPアップ' : '基本BPダウン';
         break;
       case 'damage':
         labelText = 'BPダメージ';
         break;
       case 'level':
-        labelText = value > 0 ? 'クロックアップ' : 'クロックダウン';
+        labelText = typeof value === 'number' && value > 0 ? 'クロックアップ' : 'クロックダウン';
+        break;
+      case 'block':
+        labelText = 'BLOCK';
         break;
       default:
         return null;
     }
 
     // Define text shadow styles based on value
-    // Label color is based on value (cyan for positive, red for negative)
-    const labelShadowColor = value > 0 ? 'rgba(6, 182, 212, 0.9)' : 'rgba(239, 68, 68, 0.9)'; // cyan-500 or red-500
+    // Label color is based on type and value
+    const labelShadowColor =
+      type === 'block'
+        ? 'rgba(59, 130, 246, 0.9)' // blue-500 for block
+        : typeof value === 'number' && value > 0
+          ? 'rgba(6, 182, 212, 0.9)' // cyan-500 for positive
+          : 'rgba(239, 68, 68, 0.9)'; // red-500 for negative
     // Value shadow is always red
     const valueShadowColor = 'rgba(239, 68, 68, 0.9)'; // red-500
 
@@ -130,17 +138,19 @@ export const StatusChangeEffect: React.FC<StatusChangeEffectProps> = ({
       color: 'white',
     };
 
-    // Determine value text
-    const valueText = type === 'level' ? `Lv ${value}` : value;
+    // Determine value text - block type doesn't show value
+    const valueText = type === 'block' ? '' : type === 'level' ? `Lv ${value}` : value;
 
     return (
       <>
         <div className="text-md text-center border-b-1 w-full" style={labelStyle}>
           {labelText}
         </div>
-        <div className="text-lg" style={valueStyle}>
-          {valueText}
-        </div>
+        {valueText && (
+          <div className="text-lg" style={valueStyle}>
+            {valueText}
+          </div>
+        )}
       </>
     );
   };
