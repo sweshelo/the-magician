@@ -22,6 +22,19 @@ export const useIsUnitAttacking = (unitId: string) => {
 export const useUnitAttackAnimationStyle = (unitId: string) => {
   const { state } = useAttackAnimation();
 
+  // Check if this is a blocking unit (should be enlarged but not moved)
+  if (state.blockingUnitId === unitId) {
+    // Blocker stays enlarged until animation resets
+    if (state.phase !== 'idle') {
+      return {
+        transform: `scale(1.25)`,
+        transformOrigin: 'center center',
+        transition: 'transform 0.3s ease-out',
+      };
+    }
+    return {};
+  }
+
   if (state.attackingUnitId !== unitId) {
     return {}; // Return empty style object if not the attacking unit
   }
