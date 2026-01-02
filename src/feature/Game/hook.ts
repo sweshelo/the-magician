@@ -34,6 +34,7 @@ export const useGameComponentHook = ({ id }: Props) => {
             id: LocalStorageHelper.playerId(),
             deck: LocalStorageHelper.getMainDeck()?.cards ?? STARTER_DECK,
           },
+          jokersOwned: ['ルインリード', 'グラフィティ・アース'],
         },
       } satisfies Message<PlayerEntryPayload>);
     }

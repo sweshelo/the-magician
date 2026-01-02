@@ -15,11 +15,12 @@ interface Props {
   card: ICard;
   isHighlighted?: boolean;
   isSmall?: boolean;
+  source?: 'hand' | 'joker';
 }
 
 const empty: ICard[] = [];
 
-export const HandView = ({ card, isSmall = false }: Props) => {
+export const HandView = ({ card, isSmall = false, source = 'hand' }: Props) => {
   const [isHighlighted, setHighlighted] = useState(false);
 
   const cpSelector = useCallback(
@@ -54,6 +55,7 @@ export const HandView = ({ card, isSmall = false }: Props) => {
     disabled: !operable,
     data: {
       type: card.catalogId,
+      source,
     },
   });
   const { isOver, setNodeRef: setDroppableRef } = useDroppable({
