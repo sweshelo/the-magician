@@ -1,3 +1,4 @@
+import { CardView } from '@/component/ui/CardView';
 import { HandView } from '@/component/ui/HandView';
 import { JokerGauge } from '@/component/ui/JokerGauge';
 import { usePlayer } from '@/hooks/game/hooks';
@@ -12,13 +13,14 @@ export const JokerArea = () => {
       <JokerGauge percentage={player?.joker.gauge || 0} />
       <div className="flex gap-2">
         {(player?.joker.card || []).map(card => (
-          <div
-            key={card.id}
-            className={`relative ${!card.isAvailable ? 'pointer-events-none' : ''}`}
-          >
-            <HandView card={card} source="joker" />
-            {!card.isAvailable && (
-              <div className="absolute inset-0 bg-black opacity-50 z-10 pointer-events-none" />
+          <div key={card.id} className={`relative`}>
+            {card.isAvailable ? (
+              <HandView card={card} source="joker" />
+            ) : (
+              <>
+                <div className="absolute inset-0 bg-black opacity-50 z-10 pointer-events-none" />
+                <CardView card={card} />
+              </>
             )}
           </div>
         ))}
