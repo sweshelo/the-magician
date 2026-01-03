@@ -277,22 +277,33 @@ FilterControls.displayName = 'FilterControls';
 // Deck View component
 const DeckView = memo(
   ({ deck, handleCardClick }: { deck: string[]; handleCardClick: (index: number) => void }) => {
-    return (
-      <div className="grid grid-cols-[repeat(20,minmax(0,1fr))] grid-rows-2 gap-2 justify-items-center m-4">
-        {deck.map((catalogId, index) => {
-          // Create a stable card object with a consistent ID pattern
+    // デッキを2行に分割 (前半20枚、後半20枚)
+    const firstRow = deck.slice(0, 20);
+    const secondRow = deck.slice(20, 40);
+
+    const renderRow = (cards: string[], startIndex: number) => (
+      <div className="flex gap-2 justify-start">
+        {cards.map((catalogId, index) => {
+          const actualIndex = startIndex + index;
           const card: ICard = {
-            id: `deck-${catalogId}-${index}`, // Use a stable ID format
+            id: `deck-${catalogId}-${actualIndex}`,
             catalogId,
             lv: 1,
           };
 
           return (
-            <div key={`deck-${catalogId}-${index}`}>
-              <MemoizedCardView card={card} onClick={() => handleCardClick(index)} />
+            <div key={`deck-${catalogId}-${actualIndex}`} className="flex-shrink-0">
+              <MemoizedCardView card={card} onClick={() => handleCardClick(actualIndex)} />
             </div>
           );
         })}
+      </div>
+    );
+
+    return (
+      <div className="flex flex-col gap-2">
+        {renderRow(firstRow, 0)}
+        {renderRow(secondRow, 20)}
       </div>
     );
   }
@@ -662,7 +673,11 @@ export const DeckBuilder = ({ implementedIds }: DeckBuilderProps) => {
         ref={deckViewRef}
         className="w-full flex flex-col items-center justify-center fixed top-0 left-0 right-0 z-10 bg-gray-800 bg-opacity-90 p-4 shadow-lg"
       >
-        <DeckView deck={deck} handleCardClick={handleCardClick} />
+        <div className="w-full overflow-x-auto px-4 text-center">
+          <div className="inline-block">
+            <DeckView deck={deck} handleCardClick={handleCardClick} />
+          </div>
+        </div>
 
         <div className="items-center justify-center flex my-2 gap-3">
           <button
