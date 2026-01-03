@@ -8,7 +8,7 @@ import catalog from '@/submodule/suit/catalog/catalog';
 
 export const useMyArea = () => {
   const { activeCard, setActiveCard } = useSystemContext();
-  const { override, unitDrive, setTrigger, discard, evolution } = useWebSocketGame();
+  const { override, unitDrive, jokerDrive, setTrigger, discard, evolution } = useWebSocketGame();
 
   // Get current player ID
   const currentPlayerId = LocalStorageHelper.playerId();
@@ -22,9 +22,14 @@ export const useMyArea = () => {
     },
     onDragEnd(e: DragEndEvent) {
       const { over } = e;
+      const cardSource = e.active.data.current?.source;
       switch (over?.data.current?.type) {
         case 'field':
-          unitDrive({ target: activeCard?.id as string });
+          if (cardSource === 'joker') {
+            jokerDrive({ target: activeCard?.id as string });
+          } else {
+            unitDrive({ target: activeCard?.id as string });
+          }
           break;
         case 'card':
           override({

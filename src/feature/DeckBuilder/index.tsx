@@ -7,10 +7,11 @@ import master from '@/submodule/suit/catalog/catalog';
 import { ICard, Catalog } from '@/submodule/suit/types';
 import { useCallback, useEffect, useMemo, useState, memo, useRef, useLayoutEffect } from 'react';
 import { DeckSaveDialog, DeckLoadDialog } from './DeckDialogs';
-import { LocalStorageHelper } from '@/service/local-storage';
+import { LocalStorageHelper, DeckData } from '@/service/local-storage';
 import { DeckPreview } from './DeckPreview';
 import { useSearchParams } from 'next/navigation';
 import { STARTER_DECK } from '@/constants/deck';
+import { JokerSelectDialog } from './JokerSelectDialog';
 
 // Memoized Card Component to prevent unnecessary re-renders
 const MemoizedCardView = memo(
@@ -276,23 +277,84 @@ FilterControls.displayName = 'FilterControls';
 
 // Deck View component
 const DeckView = memo(
-  ({ deck, handleCardClick }: { deck: string[]; handleCardClick: (index: number) => void }) => {
-    return (
-      <div className="grid grid-cols-[repeat(20,minmax(0,1fr))] grid-rows-2 gap-2 justify-items-center m-4">
-        {deck.map((catalogId, index) => {
-          // Create a stable card object with a consistent ID pattern
+  ({
+    deck,
+    jokers,
+    handleCardClick,
+    handleJokerClick,
+    onOpenJokerDialog,
+  }: {
+    deck: string[];
+    jokers: string[];
+    handleCardClick: (index: number) => void;
+    handleJokerClick: (index: number) => void;
+    onOpenJokerDialog: () => void;
+  }) => {
+    // デッキを2行に分割 (前半20枚、後半20枚)
+    const firstRow = deck.slice(0, 20);
+    const secondRow = deck.slice(20, 40);
+
+    const renderRow = (cards: string[], startIndex: number) => (
+      <div className="flex gap-2 justify-start">
+        {cards.map((catalogId, index) => {
+          const actualIndex = startIndex + index;
           const card: ICard = {
-            id: `deck-${catalogId}-${index}`, // Use a stable ID format
+            id: `deck-${catalogId}-${actualIndex}`,
             catalogId,
             lv: 1,
           };
 
           return (
-            <div key={`deck-${catalogId}-${index}`}>
-              <MemoizedCardView card={card} onClick={() => handleCardClick(index)} />
+            <div key={`deck-${catalogId}-${actualIndex}`} className="flex-shrink-0">
+              <MemoizedCardView card={card} onClick={() => handleCardClick(actualIndex)} />
             </div>
           );
         })}
+      </div>
+    );
+
+    const renderJokerSlot = (index: 0 | 1) => {
+      const catalogId = jokers[index];
+
+      // JOKERが設定されている場合
+      if (catalogId) {
+        const card: ICard = {
+          id: `joker-${catalogId}-${index}`,
+          catalogId,
+          lv: 1,
+        };
+        return (
+          <div key={`joker-${index}`} className="flex-shrink-0">
+            <MemoizedCardView card={card} onClick={() => handleJokerClick(index)} />
+          </div>
+        );
+      }
+
+      // 空のJOKERスロット
+      return (
+        <div
+          key={`joker-empty-${index}`}
+          className="flex-shrink-0 w-19 h-26 border-2 border-dashed border-gray-500 rounded flex items-center justify-center cursor-pointer hover:border-gray-300 transition-colors"
+          onClick={onOpenJokerDialog}
+        >
+          <span className="text-gray-400 text-xs font-bold">JOKER</span>
+        </div>
+      );
+    };
+
+    return (
+      <div className="flex gap-4">
+        {/* JOKER枠（左端の縦2スロット） */}
+        <div className="flex flex-col gap-2 flex-shrink-0">
+          {renderJokerSlot(0)}
+          {renderJokerSlot(1)}
+        </div>
+
+        {/* 既存のカード40枚表示 */}
+        <div className="flex flex-col gap-2">
+          {renderRow(firstRow, 0)}
+          {renderRow(secondRow, 20)}
+        </div>
       </div>
     );
   }
@@ -316,6 +378,10 @@ export const DeckBuilder = ({ implementedIds }: DeckBuilderProps) => {
 
   // Deck state
   const [deck, setDeck] = useState<string[]>(STARTER_DECK);
+
+  // JOKER state
+  const [jokers, setJokers] = useState<string[]>([]);
+  const [jokerDialogOpen, setJokerDialogOpen] = useState(false);
 
   // DeckView高さを追従
   useLayoutEffect(() => {
@@ -375,6 +441,7 @@ export const DeckBuilder = ({ implementedIds }: DeckBuilderProps) => {
     const mainDeck = LocalStorageHelper.getMainDeck();
     if (mainDeck) {
       setDeck(mainDeck.cards);
+      setJokers(mainDeck.jokers || []);
       setCurrentDeckTitle(mainDeck.title);
       setCurrentDeckId(mainDeck.id);
     }
@@ -396,6 +463,37 @@ export const DeckBuilder = ({ implementedIds }: DeckBuilderProps) => {
     },
     [deck, limitBreak]
   );
+
+  // JOKER削除ハンドラー
+  const handleJokerClick = useCallback((index: number) => {
+    setJokers(prev => {
+      const newJokers = [...prev];
+      newJokers.splice(index, 1);
+      return newJokers;
+    });
+  }, []);
+
+  // JOKER選択ハンドラー
+  const handleSelectJoker = useCallback(
+    (catalogId: string) => {
+      if (jokers.length < 2) {
+        setJokers(prev => [...prev, catalogId]);
+        setJokerDialogOpen(false);
+      } else {
+        alert('JOKERは最大2枚までです。');
+      }
+    },
+    [jokers]
+  );
+
+  // JOKER追加ボタンのハンドラー
+  const handleOpenJokerDialog = useCallback(() => {
+    if (jokers.length >= 2) {
+      alert('JOKERは最大2枚までです。既存のJOKERをクリックして削除してください。');
+    } else {
+      setJokerDialogOpen(true);
+    }
+  }, [jokers]);
 
   // Toggle filter selection - all memoized with useCallback
   const toggleRarity = useCallback((rarity: string) => {
@@ -525,7 +623,7 @@ export const DeckBuilder = ({ implementedIds }: DeckBuilderProps) => {
   const CardList = memo(
     ({ catalogs, addToDeck }: { catalogs: Catalog[]; addToDeck: (catalogId: string) => void }) => {
       return (
-        <div className="grid grid-cols-[repeat(20,minmax(0,1fr))] gap-2 justify-items-center m-4 px-4">
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(72px,1fr))] gap-1 justify-items-center m-4 px-4 w-full max-w-[1600px]">
           {catalogs.map(catalog => {
             // Create a stable card object using the catalog ID
             const card: ICard = {
@@ -559,7 +657,7 @@ export const DeckBuilder = ({ implementedIds }: DeckBuilderProps) => {
   const handleSaveDeck = useCallback(
     (title: string, isMainDeck: boolean) => {
       if (deck.length === 40) {
-        LocalStorageHelper.saveDeck(title, deck, isMainDeck);
+        LocalStorageHelper.saveDeck(title, deck, jokers, isMainDeck);
         setCurrentDeckTitle(title);
 
         // If this is a main deck, remember its ID
@@ -575,7 +673,7 @@ export const DeckBuilder = ({ implementedIds }: DeckBuilderProps) => {
         );
       }
     },
-    [deck]
+    [deck, jokers]
   );
 
   const sortDeck = useCallback(() => {
@@ -639,14 +737,15 @@ export const DeckBuilder = ({ implementedIds }: DeckBuilderProps) => {
     setDeck([]);
   }, []);
 
-  const handleLoadDeck = useCallback((cards: string[]) => {
-    setDeck(cards);
+  const handleLoadDeck = useCallback((deckData: DeckData) => {
+    setDeck(deckData.cards);
+    setJokers(deckData.jokers || []);
 
     // Check if this is the main deck
     const mainDeckId = LocalStorageHelper.getMainDeckId();
     const mainDeck = mainDeckId ? LocalStorageHelper.getDeckById(mainDeckId) : null;
 
-    if (mainDeck && JSON.stringify(mainDeck.cards) === JSON.stringify(cards)) {
+    if (mainDeck && JSON.stringify(mainDeck.cards) === JSON.stringify(deckData.cards)) {
       setCurrentDeckTitle(mainDeck.title);
       setCurrentDeckId(mainDeck.id);
     } else {
@@ -662,9 +761,25 @@ export const DeckBuilder = ({ implementedIds }: DeckBuilderProps) => {
         ref={deckViewRef}
         className="w-full flex flex-col items-center justify-center fixed top-0 left-0 right-0 z-10 bg-gray-800 bg-opacity-90 p-4 shadow-lg"
       >
-        <DeckView deck={deck} handleCardClick={handleCardClick} />
+        <div className="w-full overflow-x-auto px-4 text-center">
+          <div className="inline-block">
+            <DeckView
+              deck={deck}
+              jokers={jokers}
+              handleCardClick={handleCardClick}
+              handleJokerClick={handleJokerClick}
+              onOpenJokerDialog={handleOpenJokerDialog}
+            />
+          </div>
+        </div>
 
         <div className="items-center justify-center flex my-2 gap-3">
+          <button
+            className="px-3 py-1 border rounded text-white bg-purple-500 hover:bg-purple-600"
+            onClick={handleOpenJokerDialog}
+          >
+            JOKER追加 ({jokers.length}/2)
+          </button>
           <button
             className="px-3 py-1 border rounde text-white rounded bg-blue-500 disabled:bg-indigo-900"
             onClick={handleOpenSaveDialog}
@@ -742,11 +857,19 @@ export const DeckBuilder = ({ implementedIds }: DeckBuilderProps) => {
         <CardList catalogs={filteredCatalogs} addToDeck={addToDeck} />
       </div>
       {/* Deck Management Dialogs */}
+      <JokerSelectDialog
+        isOpen={jokerDialogOpen}
+        onClose={() => setJokerDialogOpen(false)}
+        onSelect={handleSelectJoker}
+        selectedJokers={jokers}
+      />
+
       <DeckSaveDialog
         isOpen={saveDialogOpen}
         onClose={() => setSaveDialogOpen(false)}
         onSave={handleSaveDeck}
         deck={deck}
+        jokers={jokers}
       />
 
       <DeckLoadDialog
@@ -757,7 +880,10 @@ export const DeckBuilder = ({ implementedIds }: DeckBuilderProps) => {
 
       {isPreviewOpen && (
         <DeckPreview
-          cards={deck.map((id, index) => ({ id: index.toString(), catalogId: id, lv: 1 }) as ICard)}
+          deck={{
+            cards: deck.map(id => ({ catalogId: id }) as ICard),
+            joker: jokers.map(id => ({ id }) as ICard),
+          }}
           onClose={() => setIsPreviewOpen(false)}
         />
       )}

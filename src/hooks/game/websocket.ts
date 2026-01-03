@@ -8,6 +8,7 @@ import {
   EvolveDrivePayload,
   ICard,
   IUnit,
+  JokerDrivePayload,
   Message,
   OverridePayload,
   UnitDrivePayload,
@@ -63,6 +64,27 @@ export const useWebSocketGame = () => {
         },
         payload: {
           type: 'UnitDrive',
+          target: { id: target },
+          player: LocalStorageHelper.playerId(),
+        },
+      };
+      send(message);
+    },
+    [send]
+  );
+
+  interface JokerDriveProps {
+    target: string;
+  }
+  const jokerDrive = useCallback(
+    ({ target }: JokerDriveProps) => {
+      const message: Message<JokerDrivePayload> = {
+        action: {
+          type: 'game',
+          handler: 'core',
+        },
+        payload: {
+          type: 'JokerDrive',
           target: { id: target },
           player: LocalStorageHelper.playerId(),
         },
@@ -222,6 +244,7 @@ export const useWebSocketGame = () => {
     send,
     override,
     unitDrive,
+    jokerDrive,
     continueGame,
     choose,
     withdrawal,

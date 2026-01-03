@@ -10,8 +10,9 @@ interface Props {
   isSelecting?: boolean;
   isHighlighting?: boolean;
   onClick?: (e?: React.MouseEvent) => void;
-  isSmall?: boolean;
   isMitigated?: boolean;
+  isSmall?: boolean;
+  isTiny?: boolean;
 }
 
 // Type guard to check if an IAtom is actually an ICard
@@ -29,6 +30,7 @@ export const CardView = ({
   isSelecting,
   isHighlighting,
   isSmall,
+  isTiny,
   isMitigated = false,
   onClick,
 }: Props) => {
@@ -36,7 +38,7 @@ export const CardView = ({
   const cardAsICard = isICard(card) ? card : null;
   const catalog = cardAsICard ? master.get(cardAsICard.catalogId) : undefined;
 
-  const sizeClass = isSmall ? 'w-19 h-26' : 'w-28 h-39';
+  const sizeClass = isSmall ? 'w-19 h-26' : isTiny ? 'w-11 h-14' : 'w-28 h-39';
 
   const { setSelectedCard, setDetailCard, setDetailPosition } = useSystemContext();
 
@@ -113,34 +115,36 @@ export const CardView = ({
           className={`w-full h-full rounded flex flex-col text-xs shadow-lg relative cursor-pointer`}
         >
           <div className="flex justify-between mb-1">
-            <div className="border-3 border-gray-700 relative">
-              {reduced !== 0 && (
-                <div
-                  style={{
-                    position: 'absolute',
-                    left: '50%',
-                    top: '50%',
-                    width: 25,
-                    height: 25,
-                    transform: 'translate(-50%, -50%)',
-                    borderRadius: '50%',
-                    boxShadow: `0 0 12px 6px ${
-                      reduced > 0 ? 'rgba(255,0,0,0.7)' : 'rgba(0,128,255,0.7)'
-                    }`,
-                    pointerEvents: 'none',
-                    zIndex: 2,
-                  }}
-                />
-              )}
-              {catalog && (
-                <div
-                  className={`w-5 h-5 flex items-center justify-center font-bold text-white ${catalog ? getColorCode(catalog.color) : ''}`}
-                  style={{ position: 'relative', zIndex: 1 }}
-                >
-                  {Math.max((catalog?.cost ?? 0) - (isMitigated ? 1 : 0) + reduced, 0)}
-                </div>
-              )}
-            </div>
+            {!isTiny && (
+              <div className="border-3 border-gray-700 relative">
+                {reduced !== 0 && (
+                  <div
+                    style={{
+                      position: 'absolute',
+                      left: '50%',
+                      top: '50%',
+                      width: 25,
+                      height: 25,
+                      transform: 'translate(-50%, -50%)',
+                      borderRadius: '50%',
+                      boxShadow: `0 0 12px 6px ${
+                        reduced > 0 ? 'rgba(255,0,0,0.7)' : 'rgba(0,128,255,0.7)'
+                      }`,
+                      pointerEvents: 'none',
+                      zIndex: 2,
+                    }}
+                  />
+                )}
+                {catalog && (
+                  <div
+                    className={`w-5 h-5 flex items-center justify-center font-bold text-white ${catalog ? getColorCode(catalog.color) : ''}`}
+                    style={{ position: 'relative', zIndex: 1 }}
+                  >
+                    {Math.max((catalog?.cost ?? 0) - (isMitigated ? 1 : 0) + reduced, 0)}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
         <div className="border-gray-700 absolute bottom-0 w-full">

@@ -197,7 +197,10 @@ export const DeckSelector = () => {
       {/* Deck Preview Modal */}
       {isPreviewOpen && mainDeck && (
         <DeckPreview
-          cards={convertToICards(mainDeck.cards)}
+          deck={{
+            cards: convertToICards(mainDeck.cards),
+            joker: mainDeck.jokers ? convertToICards(mainDeck.jokers) : undefined,
+          }}
           onClose={() => setIsPreviewOpen(false)}
         />
       )}

@@ -13,13 +13,14 @@ export const MyTriggerZoneWrapper = ({ children }: MyTriggerZoneWrapperProps) =>
   const playerId = LocalStorageHelper.playerId();
   const rule = useRule();
   const trigger = useTrigger(playerId) ?? [];
+  const isJokerCard = activeCard?.data.current?.source === 'joker';
   const { isOver, setNodeRef } = useDroppable({
     id: 'trigger-zone',
     data: {
       type: 'trigger-zone',
       accepts: ['card'],
     },
-    disabled: trigger.length >= rule.player.max.trigger,
+    disabled: trigger.length >= rule.player.max.trigger || isJokerCard,
   });
 
   return (
