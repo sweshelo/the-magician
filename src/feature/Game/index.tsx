@@ -37,6 +37,8 @@ import { useMemo } from 'react';
 import { UnitSelectionOverlay } from '@/component/ui/UnitSelectionOverlay';
 import { ChoicePanel } from '@/feature/ChoicePanel';
 import { PurpleGaugeView } from '@/component/ui/purpleGaugeView';
+import { CardView } from '@/component/ui/CardView';
+import { JokerGauge } from '@/component/ui/JokerGauge';
 
 interface RoomProps {
   id: string;
@@ -150,7 +152,7 @@ export const Game = ({ id }: RoomProps) => {
                   />
                 ))}
               </div>
-              <div className="flex">
+              <div className="flex flex-col gap-1 justify-end">
                 <div className="flex gap-1">
                   {[...Array(rule.player.max.trigger)].map((_, index) => {
                     const card = opponent?.trigger[index];
@@ -170,7 +172,22 @@ export const Game = ({ id }: RoomProps) => {
                       />
                     );
                   })}
+                  <div className="flex gap-1 mx-2">
+                    {opponent?.joker.card.map(joker => (
+                      <div key={joker.id} className="relative pointer-events-none">
+                        {joker.isAvailable ? (
+                          <CardView card={joker} isTiny />
+                        ) : (
+                          <>
+                            <div className="absolute inset-0 bg-black opacity-50 z-10" />
+                            <CardView card={joker} isTiny />
+                          </>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
+                <JokerGauge percentage={opponent?.joker.gauge || 0} />
               </div>
               <div className="flex gap-4">
                 {opponent?.deck && (
