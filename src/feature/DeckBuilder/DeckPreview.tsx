@@ -32,15 +32,14 @@ export const DeckPreview = ({ deck, onClose }: DeckPreviewProps) => {
             {/* デフォルト値の 1192 は 10*112+8*9 */}
             <div className={`flex flex-wrap justify-start gap-2`} style={{ width: 1192 }}>
               {deck.cards?.map(card => (
-                <>
-                  <div
-                    className={`w-28 h-39 border-2 border-slate-600 rounded justify-center items-center text-slate-500 relative dnd-clickable`}
-                    style={{
-                      backgroundImage: `url(${getImageUrl(card?.catalogId)})`,
-                      backgroundSize: 'cover',
-                    }}
-                  />
-                </>
+                <div
+                  key={card.catalogId}
+                  className={`w-28 h-39 border-2 border-slate-600 rounded justify-center items-center text-slate-500 relative dnd-clickable`}
+                  style={{
+                    backgroundImage: `url(${getImageUrl(card?.catalogId)})`,
+                    backgroundSize: 'cover',
+                  }}
+                />
               ))}
             </div>
           </div>
