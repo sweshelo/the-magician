@@ -880,7 +880,10 @@ export const DeckBuilder = ({ implementedIds }: DeckBuilderProps) => {
 
       {isPreviewOpen && (
         <DeckPreview
-          cards={deck.map((id, index) => ({ id: index.toString(), catalogId: id, lv: 1 }) as ICard)}
+          deck={{
+            cards: deck.map(id => ({ catalogId: id }) as ICard),
+            joker: jokers.map(id => ({ id }) as ICard),
+          }}
           onClose={() => setIsPreviewOpen(false)}
         />
       )}
