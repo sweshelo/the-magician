@@ -775,7 +775,7 @@ export const DeckBuilder = ({ implementedIds }: DeckBuilderProps) => {
 
         <div className="items-center justify-center flex my-2 gap-3">
           <button
-            className="px-3 py-1 border rounde text-white rounded bg-purple-500 hover:bg-purple-600"
+            className="px-3 py-1 border rounded text-white bg-purple-500 hover:bg-purple-600"
             onClick={handleOpenJokerDialog}
           >
             JOKER追加 ({jokers.length}/2)
