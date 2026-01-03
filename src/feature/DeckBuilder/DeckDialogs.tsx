@@ -10,15 +10,22 @@ interface DeckSaveDialogProps {
   onClose: () => void;
   onSave: (title: string, isMainDeck: boolean) => void;
   deck: string[];
+  jokers?: string[];
 }
 
 interface DeckListDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onLoad: (cards: string[]) => void;
+  onLoad: (deck: DeckData) => void;
 }
 
-export const DeckSaveDialog = ({ isOpen, onClose, onSave, deck }: DeckSaveDialogProps) => {
+export const DeckSaveDialog = ({
+  isOpen,
+  onClose,
+  onSave,
+  deck,
+  jokers = [],
+}: DeckSaveDialogProps) => {
   const [title, setTitle] = useState('');
   const [savedDecks, setSavedDecks] = useState<DeckData[]>([]);
   const [selectedDeck, setSelectedDeck] = useState<string | null>(null);
@@ -144,7 +151,7 @@ export const DeckSaveDialog = ({ isOpen, onClose, onSave, deck }: DeckSaveDialog
               className="px-3 py-1 bg-green-600 text-white rounded"
               onClick={async () => {
                 try {
-                  const json = JSON.stringify({ cards: deck }, null, 2);
+                  const json = JSON.stringify({ cards: deck, jokers }, null, 2);
                   await navigator.clipboard.writeText(json);
                   setCopyFeedback('デッキ内容をコピーしました');
                   setTimeout(() => setCopyFeedback(''), 2000);
@@ -201,6 +208,18 @@ export const DeckSaveDialog = ({ isOpen, onClose, onSave, deck }: DeckSaveDialog
                       setImportError('デッキは40枚である必要があります');
                       return;
                     }
+
+                    // JOKER検証
+                    const importJokers = obj.jokers || [];
+                    if (!Array.isArray(importJokers)) {
+                      setImportError('jokersは配列である必要があります');
+                      return;
+                    }
+                    if (importJokers.length > 2) {
+                      setImportError('JOKERは最大2枚までです');
+                      return;
+                    }
+
                     // タイトル入力
                     const newTitle = prompt('デッキ名を入力してください');
                     if (!newTitle || !newTitle.trim()) {
@@ -213,7 +232,7 @@ export const DeckSaveDialog = ({ isOpen, onClose, onSave, deck }: DeckSaveDialog
                       return;
                     }
                     // 保存
-                    LocalStorageHelper.saveDeck(newTitle.trim(), obj.cards, false);
+                    LocalStorageHelper.saveDeck(newTitle.trim(), obj.cards, importJokers, false);
                     setImportSuccess('デッキを作成しました');
                     setSavedDecks(LocalStorageHelper.getAllDecks());
                   } catch {
@@ -263,7 +282,7 @@ export const DeckLoadDialog = ({ isOpen, onClose, onLoad }: DeckListDialogProps)
   }, [isOpen]);
 
   const handleLoadDeck = (deck: DeckData) => {
-    onLoad(deck.cards);
+    onLoad(deck);
     onClose();
   };
 

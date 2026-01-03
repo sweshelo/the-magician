@@ -5,6 +5,7 @@ export type DeckData = {
   id: string;
   title: string;
   cards: string[];
+  jokers?: string[]; // JOKER IDの配列（最大2枚）
 };
 
 export const LocalStorageHelper = {
@@ -62,7 +63,12 @@ export const LocalStorageHelper = {
   },
 
   // Save a deck (new or overwrite)
-  saveDeck: (title: string, cards: string[], isMainDeck: boolean = false): void => {
+  saveDeck: (
+    title: string,
+    cards: string[],
+    jokers: string[] = [],
+    isMainDeck: boolean = false
+  ): void => {
     if (typeof window === 'undefined') {
       return;
     }
@@ -73,10 +79,10 @@ export const LocalStorageHelper = {
 
     if (existingDeckIndex >= 0) {
       // Update existing deck
-      decks[existingDeckIndex] = { id, title, cards };
+      decks[existingDeckIndex] = { id, title, cards, jokers };
     } else {
       // Add new deck
-      decks.push({ id, title, cards });
+      decks.push({ id, title, cards, jokers });
     }
 
     window.localStorage.setItem('decks', JSON.stringify(decks));
