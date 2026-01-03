@@ -18,6 +18,7 @@ export const useGameComponentHook = ({ id }: Props) => {
   useEffect(() => {
     if (websocket && isConnected && !isJoined.current && id) {
       isJoined.current = true;
+      const deck = LocalStorageHelper.getMainDeck();
       websocket?.on('message', (message: Message) => {
         handle(message);
       });
@@ -32,9 +33,9 @@ export const useGameComponentHook = ({ id }: Props) => {
           player: {
             name: LocalStorageHelper.playerName(),
             id: LocalStorageHelper.playerId(),
-            deck: LocalStorageHelper.getMainDeck()?.cards ?? STARTER_DECK,
+            deck: deck?.cards ?? STARTER_DECK,
           },
-          jokersOwned: ['ルインリード', 'グラフィティ・アース'],
+          jokersOwned: deck?.jokers ?? ['ルインリード', 'ソウルエクスキューション'],
         },
       } satisfies Message<PlayerEntryPayload>);
     }

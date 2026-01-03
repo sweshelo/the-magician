@@ -623,7 +623,7 @@ export const DeckBuilder = ({ implementedIds }: DeckBuilderProps) => {
   const CardList = memo(
     ({ catalogs, addToDeck }: { catalogs: Catalog[]; addToDeck: (catalogId: string) => void }) => {
       return (
-        <div className="grid grid-cols-[repeat(20,minmax(0,1fr))] gap-2 justify-items-center m-4 px-4">
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(72px,1fr))] gap-1 justify-items-center m-4 px-4 w-full max-w-[1600px]">
           {catalogs.map(catalog => {
             // Create a stable card object using the catalog ID
             const card: ICard = {
