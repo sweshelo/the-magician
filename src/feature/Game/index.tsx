@@ -33,12 +33,13 @@ import { MyFieldWrapper } from '../MyFieldWrapper';
 import { ICard } from '@/submodule/suit/types';
 import { Timer } from '../Timer';
 import { LocalStorageHelper } from '@/service/local-storage';
-import { useMemo } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 import { UnitSelectionOverlay } from '@/component/ui/UnitSelectionOverlay';
 import { ChoicePanel } from '@/feature/ChoicePanel';
 import { PurpleGaugeView } from '@/component/ui/purpleGaugeView';
 import { CardView } from '@/component/ui/CardView';
 import { JokerGauge } from '@/component/ui/JokerGauge';
+import { Button } from '@/component/interface/button';
 
 interface RoomProps {
   id: string;
@@ -104,6 +105,11 @@ export const Game = ({ id }: RoomProps) => {
     });
   };
 
+  const screenRef = useRef<HTMLDivElement>(null);
+  const handleFullScreen = useCallback(() => {
+    screenRef.current?.requestFullscreen();
+  }, []);
+
   return (
     <DndContext
       sensors={sensors}
@@ -112,6 +118,7 @@ export const Game = ({ id }: RoomProps) => {
     >
       <div
         className={`flex h-screen ${colorTable.ui.background} ${colorTable.ui.text.primary} relative overflow-hidden select-none dnd-game-container`}
+        ref={screenRef}
       >
         {/* カード詳細ウィンドウ */}
         <CardDetailWindow x={30} y={530} />
@@ -139,6 +146,9 @@ export const Game = ({ id }: RoomProps) => {
               className={`flex items-center justify-between gap-3 xl:p-2 p-1 ${colorTable.ui.playerInfoBackground} rounded-lg mb-4`}
             >
               <div className="player-identity">
+                <Button onClick={handleFullScreen} size="sm" className="py-2 my-1">
+                  全画面にする
+                </Button>
                 <div className="font-bold text-lg whitespace-nowrap text-ellipsis">
                   {opponent?.name ?? '対戦相手 検索中…'}
                 </div>
