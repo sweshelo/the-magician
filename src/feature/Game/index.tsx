@@ -40,6 +40,7 @@ import { PurpleGaugeView } from '@/component/ui/purpleGaugeView';
 import { CardView } from '@/component/ui/CardView';
 import { JokerGauge } from '@/component/ui/JokerGauge';
 import { Button } from '@/component/interface/button';
+import { LoadingOverlay } from '@/component/ui/LoadingOverlay';
 
 interface RoomProps {
   id: string;
@@ -55,12 +56,12 @@ export const Game = ({ id }: RoomProps) => {
 
   const rule = useRule();
   const playerIds = Object.keys(usePlayers() ?? {});
-  const oppenentId =
+  const opponentId =
     useMemo(
       () => playerIds.find((id: string) => id !== currentPlayerId),
       [playerIds, currentPlayerId]
     ) ?? '';
-  const opponent = usePlayer(oppenentId);
+  const opponent = usePlayer(opponentId);
 
   const sensors = useSensors(
     // Primary sensor for desktop and touch devices
@@ -110,6 +111,10 @@ export const Game = ({ id }: RoomProps) => {
     screenRef.current?.requestFullscreen();
   }, []);
 
+  const isMatching = useMemo(() => {
+    return opponentId == '';
+  }, [opponentId]);
+
   return (
     <DndContext
       sensors={sensors}
@@ -136,6 +141,13 @@ export const Game = ({ id }: RoomProps) => {
         <InterceptSelectionOverlay />
         <UnitSelectionOverlay />
         <ChoicePanel />
+
+        {/* ロード */}
+        <LoadingOverlay
+          isOpen={isMatching}
+          message={isMatching ? '入室を待機中…' : '復帰を待機中…'}
+          subMessage={isMatching ? '対戦相手の入室を待っています' : '対戦相手が切断しました'}
+        />
 
         {/* メインゲームコンテナ */}
         <div className="flex flex-col w-full h-full xl:p-4">
@@ -222,8 +234,8 @@ export const Game = ({ id }: RoomProps) => {
                       className="flex justify-center items-center cursor-pointer w-full h-full"
                       onClick={() => {
                         openCardsDialog(state => {
-                          const trash = (state.players?.[oppenentId]?.trash ?? []) as ICard[];
-                          const deleted = (state.players?.[oppenentId]?.delete ?? []) as ICard[];
+                          const trash = (state.players?.[opponentId]?.trash ?? []) as ICard[];
+                          const deleted = (state.players?.[opponentId]?.delete ?? []) as ICard[];
                           return [
                             ...[...trash].reverse(),
                             ...deleted.map(card => ({ ...card, deleted: true })),
@@ -250,7 +262,7 @@ export const Game = ({ id }: RoomProps) => {
             className={`relative flex flex-col p-x-6 ${colorTable.ui.fieldBackground} rounded-lg my-4`}
           >
             {/* 対戦相手のフィールド */}
-            <Field playerId={oppenentId} isOwnField={false} />
+            <Field playerId={opponentId} isOwnField={false} />
             <div className={`border-b border-dashed ${colorTable.ui.borderDashed} h-1`} />
             {/* 自分のフィールド */}
             <MyFieldWrapper>
