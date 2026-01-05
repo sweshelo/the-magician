@@ -33,14 +33,17 @@ import { MyFieldWrapper } from '../MyFieldWrapper';
 import { ICard } from '@/submodule/suit/types';
 import { Timer } from '../Timer';
 import { LocalStorageHelper } from '@/service/local-storage';
-import { useCallback, useMemo, useRef } from 'react';
+import { useCallback, useMemo, useRef, useState, useEffect } from 'react';
 import { UnitSelectionOverlay } from '@/component/ui/UnitSelectionOverlay';
+import { webSocketService } from '@/service/websocket';
 import { ChoicePanel } from '@/feature/ChoicePanel';
 import { PurpleGaugeView } from '@/component/ui/purpleGaugeView';
 import { CardView } from '@/component/ui/CardView';
 import { JokerGauge } from '@/component/ui/JokerGauge';
 import { Button } from '@/component/interface/button';
 import { LoadingOverlay } from '@/component/ui/LoadingOverlay';
+import { ErrorOverlay } from '@/component/ui/ErrorOverlay';
+import { useErrorOverlay } from '@/hooks/error-overlay';
 
 interface RoomProps {
   id: string;
@@ -50,6 +53,10 @@ export const Game = ({ id }: RoomProps) => {
   useGameComponentHook({ id });
   const { openCardsDialog } = useCardsDialog();
   const { cursorCollisionSize } = useSystemContext();
+  const { state: errorState, hideOverlay } = useErrorOverlay();
+
+  // 相手の切断状態を管理
+  const [isWaitingReconnect, setIsWaitingReconnect] = useState(false);
 
   // Get current player ID
   const currentPlayerId = LocalStorageHelper.playerId();
@@ -115,6 +122,13 @@ export const Game = ({ id }: RoomProps) => {
     return opponentId == '';
   }, [opponentId]);
 
+  // 切断ハンドラーを設定
+  useEffect(() => {
+    webSocketService.setDisconnectHandler(isWaitingReconnect => {
+      setIsWaitingReconnect(isWaitingReconnect);
+    });
+  }, []);
+
   return (
     <DndContext
       sensors={sensors}
@@ -144,9 +158,26 @@ export const Game = ({ id }: RoomProps) => {
 
         {/* ロード */}
         <LoadingOverlay
-          isOpen={isMatching}
+          isOpen={isMatching || isWaitingReconnect}
           message={isMatching ? '入室を待機中…' : '復帰を待機中…'}
           subMessage={isMatching ? '対戦相手の入室を待っています' : '対戦相手が切断しました'}
+        />
+
+        {/* エラーオーバーレイ */}
+        <ErrorOverlay
+          isOpen={errorState.isOpen}
+          type={errorState.type}
+          title={errorState.title}
+          message={errorState.message}
+          confirmButtonText={errorState.confirmButtonText}
+          onConfirm={() => {
+            if (errorState.onConfirmCallback) {
+              errorState.onConfirmCallback();
+            }
+            hideOverlay();
+          }}
+          autoClose={errorState.autoClose}
+          autoCloseDelay={errorState.autoCloseDelay}
         />
 
         {/* メインゲームコンテナ */}
