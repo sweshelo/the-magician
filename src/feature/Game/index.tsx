@@ -160,7 +160,9 @@ export const Game = ({ id }: RoomProps) => {
         <LoadingOverlay
           isOpen={isMatching || isWaitingReconnect}
           message={isMatching ? '入室を待機中…' : '復帰を待機中…'}
-          subMessage={isMatching ? '対戦相手の入室を待っています' : '対戦相手が切断しました'}
+          subMessage={
+            isMatching ? `RoomID: ${id} | 対戦相手の入室を待っています` : '対戦相手が切断しました'
+          }
         />
 
         {/* エラーオーバーレイ */}
