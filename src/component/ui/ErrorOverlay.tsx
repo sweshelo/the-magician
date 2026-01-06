@@ -1,8 +1,10 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { Button } from '@/component/interface/button';
 import { FiAlertCircle, FiAlertTriangle, FiInfo, FiCheckCircle } from 'react-icons/fi';
+import { ErrorCode, ErrorMessage } from '@/submodule/suit/constant';
+import { useRouter } from 'next/navigation';
 
 type ErrorType = 'error' | 'warning' | 'info' | 'success';
 
@@ -28,6 +30,7 @@ export const ErrorOverlay: React.FC<ErrorOverlayProps> = ({
   autoCloseDelay = 3000,
 }) => {
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const router = useRouter();
 
   // モーダルの開閉制御
   useEffect(() => {
@@ -41,6 +44,14 @@ export const ErrorOverlay: React.FC<ErrorOverlayProps> = ({
     }
   }, [isOpen]);
 
+  const handleConfirm = useCallback(() => {
+    if (message === ErrorMessage[ErrorCode.ROOM_NOT_FOUND]) {
+      router.push('/entrance');
+    } else if (onConfirm) {
+      onConfirm();
+    }
+  }, []);
+
   // 自動閉じる機能
   useEffect(() => {
     if (!autoClose || !isOpen) return;
@@ -50,7 +61,7 @@ export const ErrorOverlay: React.FC<ErrorOverlayProps> = ({
     }, autoCloseDelay);
 
     return () => clearTimeout(timer);
-  }, [autoClose, isOpen, autoCloseDelay]);
+  }, [autoClose, isOpen, autoCloseDelay, handleConfirm]);
 
   // ESCキーでの閉じるを防ぐ
   useEffect(() => {
@@ -66,13 +77,7 @@ export const ErrorOverlay: React.FC<ErrorOverlayProps> = ({
     return () => {
       dialog.removeEventListener('cancel', handleCancel);
     };
-  }, []);
-
-  const handleConfirm = () => {
-    if (onConfirm) {
-      onConfirm();
-    }
-  };
+  }, [handleConfirm]);
 
   // タイプに応じたスタイルとアイコン
   const getTypeStyles = () => {
