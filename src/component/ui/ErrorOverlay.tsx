@@ -50,7 +50,7 @@ export const ErrorOverlay: React.FC<ErrorOverlayProps> = ({
     } else if (onConfirm) {
       onConfirm();
     }
-  }, []);
+  }, [message, onConfirm, router]);
 
   // 自動閉じる機能
   useEffect(() => {
