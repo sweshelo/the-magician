@@ -18,6 +18,7 @@ import { useChoicePanel } from '@/feature/ChoicePanel/context';
 import { useStatusChange } from '../status-change';
 import { useUnitPosition } from '../unit-position';
 import { useSelectEffect } from '../select-effect';
+import { useTurnChangeEffect } from '../turn-change-effect';
 
 export const useHandler = () => {
   const { getUnitCenterPosition: getUnitPosition } = useUnitPosition();
@@ -40,6 +41,7 @@ export const useHandler = () => {
   const { setOptions, clear, setOnSelectCallback } = useChoicePanel();
   const { addStatusChange } = useStatusChange();
   const { addTargetUnit } = useSelectEffect();
+  const { showTurnChangeEffect } = useTurnChangeEffect();
 
   // 選択肢選択をPromiseで待つ
   const handleOptionSelection = (): Promise<string | null> => {
@@ -293,6 +295,11 @@ export const useHandler = () => {
             break;
           }
         }
+        break;
+      }
+      case 'TurnChange': {
+        play('turnchange');
+        showTurnChangeEffect({ turn: payload.isFirst ? 'first' : 'second' });
         break;
       }
 

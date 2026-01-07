@@ -44,6 +44,7 @@ import { Button } from '@/component/interface/button';
 import { LoadingOverlay } from '@/component/ui/LoadingOverlay';
 import { ErrorOverlay } from '@/component/ui/ErrorOverlay';
 import { useErrorOverlay } from '@/hooks/error-overlay';
+import { TurnChangeEffect } from '@/component/ui/TurnChangeEffect';
 
 interface RoomProps {
   id: string;
@@ -150,6 +151,7 @@ export const Game = ({ id }: RoomProps) => {
 
         {/* カード使用エフェクト */}
         <CardUsageEffect />
+        <TurnChangeEffect />
 
         {/* 選択オーバーレイ */}
         <InterceptSelectionOverlay />
