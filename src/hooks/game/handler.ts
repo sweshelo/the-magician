@@ -301,7 +301,7 @@ export const useHandler = () => {
         const isMyTurn = payload.player === LocalStorageHelper.playerId();
         play('turnchange');
         showTurnChangeEffect({ turn: payload.isFirst ? 'first' : 'second' });
-        setOperable(isMyTurn);
+        if (!isMyTurn) setOperable(false);
         break;
       }
 
