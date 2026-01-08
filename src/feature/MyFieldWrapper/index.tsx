@@ -21,7 +21,7 @@ export const MyFieldWrapper = ({ children }: MyFieldWrapperProps) => {
       case 'unit':
         return field >= rule.player.max.field;
       default:
-        return false;
+        return true;
     }
   }, [activeCard, field, rule.player.max.field]);
 
