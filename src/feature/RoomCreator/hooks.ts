@@ -1,11 +1,20 @@
 import { useWebSocket } from '@/hooks/websocket/hooks';
 import { LocalStorageHelper } from '@/service/local-storage';
-import { Message, RoomOpenRequestPayload, RoomOpenResponsePayload } from '@/submodule/suit/types';
+import {
+  Message,
+  RoomOpenRequestPayload,
+  RoomOpenResponsePayload,
+  ResponsePayload,
+} from '@/submodule/suit/types';
 import { useRouter } from 'next/navigation';
 import { FormEvent, FormEventHandler, useCallback } from 'react';
 
 interface Response {
   handleSubmit: FormEventHandler<HTMLFormElement>;
+}
+
+function isRoomOpenResponsePayload(payload: ResponsePayload): payload is RoomOpenResponsePayload {
+  return payload.type === 'RoomOpenResponse' && 'roomId' in payload;
 }
 
 export const useRoomCreator = (): Response => {
@@ -23,11 +32,15 @@ export const useRoomCreator = (): Response => {
       const formValues = Object.fromEntries(formData);
 
       // Extract the room name
-      const roomName = formValues.name as string;
+      const roomNameValue = formValues.name;
+      if (typeof roomNameValue !== 'string') {
+        throw new Error('Room name is required');
+      }
+      const roomName = roomNameValue;
       console.log('Form values:', formValues);
 
       try {
-        const response = await websocket.request<RoomOpenRequestPayload, RoomOpenResponsePayload>({
+        const response = await websocket.request<RoomOpenRequestPayload>({
           action: {
             handler: 'server',
             type: 'open',
@@ -87,6 +100,9 @@ export const useRoomCreator = (): Response => {
           },
         } satisfies Message<RoomOpenRequestPayload>);
 
+        if (!isRoomOpenResponsePayload(response.payload)) {
+          throw new Error('Unexpected response type');
+        }
         router.push(`/room/${response.payload.roomId}`);
       } catch (error) {
         console.error('Error creating room:', error);

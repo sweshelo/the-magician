@@ -9,6 +9,32 @@ import {
 import { ErrorCode } from '@/submodule/suit/constant/error';
 import EventEmitter from 'events';
 
+// Type guards
+function isMessage(value: unknown): value is Message {
+  if (!value || typeof value !== 'object') return false;
+  return (
+    'action' in value &&
+    typeof value.action === 'object' &&
+    value.action !== null &&
+    'payload' in value &&
+    typeof value.payload === 'object' &&
+    value.payload !== null
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function isErrorPayload(payload: unknown): payload is ErrorPayload {
+  if (!payload || typeof payload !== 'object') return false;
+  return (
+    'type' in payload &&
+    payload.type === 'Error' &&
+    'errorCode' in payload &&
+    typeof payload.errorCode === 'string' &&
+    'message' in payload &&
+    typeof payload.message === 'string'
+  );
+}
+
 class WebSocketService extends EventEmitter {
   private readonly socket: WebSocket;
   private errorHandler?: (message: string, title?: string, onConfirm?: () => void) => void;
@@ -92,19 +118,57 @@ class WebSocketService extends EventEmitter {
 
   // あるメッセージに対してサーバ側の応答を待たす
   // 主にゲーム外で利用
-  async request<T extends RequestPayload, R extends ResponsePayload>(
-    message: Message<T>
-  ): Promise<Message<R>> {
+  async request<T extends RequestPayload>(message: Message<T>): Promise<Message<ResponsePayload>> {
     this.socket.send(JSON.stringify(message));
 
     return await new Promise((resolve, reject) => {
       const handler = (e: MessageEvent): void => {
         try {
-          const response = JSON.parse(e.data) as Message<R>;
-          const { payload } = response;
-          if ('requestId' in payload) {
+          const parsed: unknown = JSON.parse(e.data);
+
+          if (!isMessage(parsed)) {
+            console.warn('Invalid message format received:', parsed);
+            return;
+          }
+
+          const { payload, action } = parsed;
+
+          // エラーレスポンスの場合
+          if (action?.type === 'error') {
             this.socket.removeEventListener('message', handler);
-            resolve(response);
+            // parsed.payloadをunknownとして直接チェックしてナローイング
+            const errorPayload: unknown = parsed.payload;
+            if (
+              errorPayload !== null &&
+              typeof errorPayload === 'object' &&
+              'message' in errorPayload &&
+              typeof errorPayload.message === 'string'
+            ) {
+              reject(new Error(errorPayload.message || 'サーバーエラーが発生しました'));
+            } else {
+              reject(new Error('サーバーエラーが発生しました'));
+            }
+            return;
+          }
+
+          // 正常なレスポンス - ResponsePayloadはrequestIdを持つ
+          if (
+            payload !== null &&
+            typeof payload === 'object' &&
+            'requestId' in payload &&
+            typeof payload.requestId === 'string' &&
+            'result' in payload &&
+            typeof payload.result === 'boolean'
+          ) {
+            this.socket.removeEventListener('message', handler);
+            resolve({
+              action: parsed.action,
+              payload: {
+                type: payload.type,
+                requestId: payload.requestId,
+                result: payload.result,
+              },
+            });
           }
         } catch (e) {
           this.socket.removeEventListener('message', handler);
@@ -196,6 +260,11 @@ class WebSocketService extends EventEmitter {
       [ErrorCode.VALID_MISSING_FIELD]: '必須項目が不足しています',
       [ErrorCode.SYS_INTERNAL_ERROR]: 'サーバーエラーが発生しました',
       [ErrorCode.SYS_UNKNOWN_ERROR]: 'エラーが発生しました',
+      [ErrorCode.MATCHING_ALREADY_QUEUED]: '既にマッチングキューに参加しています',
+      [ErrorCode.MATCHING_QUEUE_NOT_FOUND]: 'マッチングキューが見つかりません',
+      [ErrorCode.MATCHING_TIMEOUT]: 'マッチングがタイムアウトしました',
+      [ErrorCode.MATCHING_CANCELLED]: 'マッチングがキャンセルされました',
+      [ErrorCode.MATCHING_INVALID_CRITERIA]: 'マッチング条件が無効です',
     };
     return messages[errorCode] || 'エラーが発生しました';
   }
