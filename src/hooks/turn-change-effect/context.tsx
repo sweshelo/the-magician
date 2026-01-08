@@ -1,6 +1,14 @@
 'use client';
 
-import { createContext, ReactNode, useReducer, useMemo } from 'react';
+import {
+  createContext,
+  ReactNode,
+  useReducer,
+  useMemo,
+  useCallback,
+  useRef,
+  useEffect,
+} from 'react';
 
 export type TurnType = 'first' | 'second';
 
@@ -54,19 +62,34 @@ function turnChangeEffectReducer(
 
 export const TurnChangeEffectProvider = ({ children }: { children: ReactNode }) => {
   const [state, dispatch] = useReducer(turnChangeEffectReducer, initialState);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const showTurnChangeEffect = (params: TurnChangeEffectParams): Promise<void> => {
-    dispatch({ type: 'SHOW_EFFECT', params });
+  const showTurnChangeEffect = useCallback(
+    (params: TurnChangeEffectParams): Promise<void> => {
+      dispatch({ type: 'SHOW_EFFECT', params });
 
-    return new Promise(resolve => {
-      setTimeout(() => {
-        dispatch({ type: 'HIDE_EFFECT' });
-        resolve();
-      }, 1800); // 1.8秒後にエフェクトを非表示にする
-    });
-  };
+      return new Promise(resolve => {
+        timeoutRef.current = setTimeout(() => {
+          dispatch({ type: 'HIDE_EFFECT' });
+          resolve();
+        }, 1800); // 1.8秒後にエフェクトを非表示にする
+      });
+    },
+    [dispatch]
+  );
 
-  const contextValue = useMemo(() => ({ state, showTurnChangeEffect }), [state]);
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
+
+  const contextValue = useMemo(
+    () => ({ state, showTurnChangeEffect }),
+    [state, showTurnChangeEffect]
+  );
 
   return (
     <TurnChangeEffectContext.Provider value={contextValue}>
