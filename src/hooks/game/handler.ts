@@ -97,12 +97,11 @@ export const useHandler = () => {
 
       // カード効果選択
       case 'Choices': {
-        closeCardsDialog();
-
         const { choices } = payload;
 
         switch (choices.type) {
           case 'option': {
+            closeCardsDialog();
             setOptions(
               choices.items.map((item: { id: string; description: string }) => ({
                 id: item.id,
@@ -131,6 +130,7 @@ export const useHandler = () => {
 
           case 'card': {
             if (payload.player !== LocalStorageHelper.playerId()) return;
+            closeCardsDialog();
             const response = await openCardsSelector(choices.items, choices.title, choices.count, {
               timeLimit: 10,
             });
@@ -140,6 +140,7 @@ export const useHandler = () => {
 
           case 'intercept': {
             if (payload.player !== LocalStorageHelper.playerId()) return;
+            closeCardsDialog();
             const selectedCard = await handleInterceptSelection(choices.items);
             choose({
               promptId: payload.promptId,
@@ -150,6 +151,7 @@ export const useHandler = () => {
 
           case 'unit': {
             if (payload.player !== LocalStorageHelper.playerId()) return;
+            closeCardsDialog();
             const selectedUnit = await handleUnitSelection(
               choices.items,
               choices.title,
@@ -165,6 +167,7 @@ export const useHandler = () => {
 
           case 'block': {
             if (payload.player !== LocalStorageHelper.playerId()) return;
+            closeCardsDialog();
             const selectedUnit = await handleUnitSelection(
               choices.items,
               choices.title,
