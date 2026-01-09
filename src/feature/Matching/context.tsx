@@ -4,11 +4,11 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from '
 import { useWebSocket } from '@/hooks/websocket/hooks';
 import { useErrorOverlay } from '@/hooks/error-overlay';
 import type { Message } from '@/submodule/suit/types/message/message';
-import type { Payload } from '@/submodule/suit/types/message/payload';
 import type {
+  Payload,
   MatchingStatusPayload,
   MatchFoundPayload,
-} from '@/submodule/suit/types/message/payload/client';
+} from '@/submodule/suit/types/message/payload';
 
 // Type guards for payload types
 function isMatchingStatusPayload(payload: Payload): payload is MatchingStatusPayload {
