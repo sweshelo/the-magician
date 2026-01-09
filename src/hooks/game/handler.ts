@@ -97,6 +97,7 @@ export const useHandler = () => {
 
       // カード効果選択
       case 'Choices': {
+        if (payload.player !== LocalStorageHelper.playerId()) return;
         closeCardsDialog();
 
         const { choices } = payload;
