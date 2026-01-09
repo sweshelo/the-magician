@@ -4,35 +4,19 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from '
 import { useWebSocket } from '@/hooks/websocket/hooks';
 import { useErrorOverlay } from '@/hooks/error-overlay';
 import type { Message } from '@/submodule/suit/types/message/message';
+import type { Payload } from '@/submodule/suit/types/message/payload';
 import type {
   MatchingStatusPayload,
   MatchFoundPayload,
 } from '@/submodule/suit/types/message/payload/client';
 
 // Type guards for payload types
-function isMatchingStatusPayload(payload: unknown): payload is MatchingStatusPayload {
-  if (!payload || typeof payload !== 'object') return false;
-  return (
-    'type' in payload &&
-    payload.type === 'MatchingStatus' &&
-    'queueId' in payload &&
-    typeof payload.queueId === 'string' &&
-    'status' in payload &&
-    typeof payload.status === 'string'
-  );
+function isMatchingStatusPayload(payload: Payload): payload is MatchingStatusPayload {
+  return payload.type === 'MatchingStatus';
 }
 
-function isMatchFoundPayload(payload: unknown): payload is MatchFoundPayload {
-  if (!payload || typeof payload !== 'object') return false;
-  return (
-    'type' in payload &&
-    payload.type === 'MatchFound' &&
-    'roomId' in payload &&
-    typeof payload.roomId === 'string' &&
-    'opponent' in payload &&
-    typeof payload.opponent === 'object' &&
-    payload.opponent !== null
-  );
+function isMatchFoundPayload(payload: Payload): payload is MatchFoundPayload {
+  return payload.type === 'MatchFound';
 }
 
 export type MatchingMode = 'random' | 'rating' | 'rule';
