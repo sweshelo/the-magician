@@ -204,7 +204,7 @@ export const Game = ({ id }: RoomProps) => {
                 )}
               </div>
               {/* 対戦相手の手札エリア */}
-              <div className="flex justify-center gap-2">
+              <div className="flex justify-center gap-1">
                 {[...Array(rule.player.max.hand)].map((_, index) => {
                   const card = opponent?.hand?.[index];
                   return card ? (
