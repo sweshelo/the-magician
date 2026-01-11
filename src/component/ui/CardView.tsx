@@ -26,6 +26,15 @@ function isICard(card: IAtom): card is ICard {
   );
 }
 
+interface Intercept extends ICard {
+  remain: number;
+  revealed: boolean;
+}
+
+function isIntercept(card: IAtom | null): card is Intercept {
+  return !!card && 'remain' in card && 'revealed' in card;
+}
+
 export const CardView = ({
   card,
   isSelecting,
@@ -172,10 +181,21 @@ export const CardView = ({
         <div className="border-gray-700 absolute bottom-0 w-full">
           {catalog && catalog.type !== 'joker' && (
             <ul
-              className={`w-full h-7 flex items-center justify-center font-bold text-white bg-gray-700`}
+              className={`w-full ${isTiny ? 'h-3' : 'h-7'} flex items-center justify-center font-bold text-white bg-gray-700`}
             >
-              {cardAsICard && <li className="text-xs">{`Lv ${cardAsICard.lv}`}</li>}
-              {catalog.bp && <li className="ml-2">{catalog.bp?.[(cardAsICard?.lv ?? 1) - 1]}</li>}
+              {cardAsICard && (
+                <li className={isTiny ? 'text-[6px]' : 'text-xs'}>{`Lv ${cardAsICard.lv}`}</li>
+              )}
+              {catalog.bp && !isTiny && (
+                <li className="ml-2">{catalog.bp?.[(cardAsICard?.lv ?? 1) - 1]}</li>
+              )}
+              {isIntercept(cardAsICard) &&
+                (isSmall || isTiny) &&
+                (cardAsICard.revealed || cardAsICard.remain > 1) && (
+                  <li className={isTiny ? 'ml-1 text-[6px]' : 'ml-1 text-xs'}>
+                    | {`${cardAsICard.remain}`}
+                  </li>
+                )}
             </ul>
           )}
         </div>

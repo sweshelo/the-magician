@@ -205,30 +205,47 @@ export const Game = ({ id }: RoomProps) => {
               </div>
               {/* 対戦相手の手札エリア */}
               <div className="flex justify-center gap-2">
-                {/* 対戦相手の手札は裏向きに表示 */}
-                {opponent?.hand?.map(i => (
-                  <div
-                    key={`opponent-card-${i?.id}`}
-                    className={`w-8 h-12 ${colorTable.ui.opponentCardBackground} rounded flex justify-center items-center shadow-md ${colorTable.symbols.mana} text-2xl`}
-                  />
-                ))}
+                {[...Array(rule.player.max.hand)].map((_, index) => {
+                  const card = opponent?.hand?.[index];
+                  return card ? (
+                    'catalogId' in card ? (
+                      <CardView card={card} key={card.id} isTiny />
+                    ) : (
+                      <div
+                        key={`opponent-card-${card.id}`}
+                        className={`w-11 h-14 ${colorTable.ui.opponentCardBackground} rounded flex justify-center items-center shadow-md ${colorTable.symbols.mana} text-2xl`}
+                      />
+                    )
+                  ) : (
+                    <div
+                      key={`opponent-card-spacer-${index}`}
+                      className="w-11 h-14 rounded-sm bg-gray-800 opacity-50"
+                    />
+                  );
+                })}
               </div>
               <div className="flex flex-col gap-1 justify-end">
                 <div className="flex gap-1">
                   {[...Array(rule.player.max.trigger)].map((_, index) => {
                     const card = opponent?.trigger[index];
                     return card ? (
-                      <div
-                        className="w-10 h-13.5 border-1 border-white rounded-sm bg-gray-800"
-                        style={{
-                          backgroundImage: `url('/image/card/back/${'color' in card ? card.color : 'none'}.png')`,
-                          backgroundSize: 'cover',
-                        }}
-                        key={index}
-                      />
+                      'catalogId' in card ? (
+                        <CardView card={card} key={card.id} isTiny />
+                      ) : (
+                        <div
+                          className="w-11 h-14 border-1 border-white rounded-sm bg-gray-800"
+                          style={{
+                            backgroundImage: `url('/image/card/back/${
+                              'color' in card ? card.color : 'none'
+                            }.png')`,
+                            backgroundSize: 'cover',
+                          }}
+                          key={index}
+                        />
+                      )
                     ) : (
                       <div
-                        className="w-10 h-13.5 border-1 border-white rounded-sm bg-gray-800"
+                        className="w-11 h-14 border-1 border-white rounded-sm bg-gray-800"
                         key={index}
                       />
                     );
