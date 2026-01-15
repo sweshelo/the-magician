@@ -1,4 +1,4 @@
-import React, { RefObject } from 'react';
+import React, { RefObject, useState, useEffect, useCallback } from 'react';
 import { useWebSocketGame } from '@/hooks/game';
 import { useUnitSelection } from '@/hooks/unit-selection';
 import { IUnit } from '@/submodule/suit/types';
@@ -20,6 +20,24 @@ export const UnitActionButtons = ({
 }: UnitActionButtonsProps) => {
   const { setActiveUnit } = useUnitSelection();
   const { withdrawal, boot, send } = useWebSocketGame();
+
+  // タッチデバイスでの二重タップ防止: コンポーネント表示直後はタッチを無視
+  const [isReady, setIsReady] = useState(false);
+  useEffect(() => {
+    const timer = setTimeout(() => setIsReady(true), 150);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // タッチイベントの伝搬を防止するハンドラ
+  const preventTouchPropagation = useCallback(
+    (e: React.TouchEvent) => {
+      if (!isReady) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    },
+    [isReady]
+  );
 
   // Handle action button clicks
   const handleAttack = () => {
@@ -55,12 +73,17 @@ export const UnitActionButtons = ({
   };
 
   return (
-    <div className="absolute inset-0 pointer-events-auto z-5 flex flex-col justify-between px-2 py-1">
+    <div
+      className="absolute inset-0 pointer-events-auto z-5 flex flex-col justify-between px-2 py-1"
+      onTouchStart={preventTouchPropagation}
+      onTouchEnd={preventTouchPropagation}
+    >
       {/* Attack Button (top) */}
       {canAttack ? (
         <button
           className="action-button bg-red-500 text-white py-1 rounded-md shadow-md border border-red-700 hover:bg-red-600 w-full opacity-90"
           onClick={handleAttack}
+          disabled={!isReady}
         >
           アタック
         </button>
@@ -71,9 +94,9 @@ export const UnitActionButtons = ({
       {/* Boot Button (middle) */}
       {canBoot !== undefined ? (
         <button
-          className="action-button bg-pink-500 text-white py-1 rounded-md shadow-md border border-pink-700 hover:bg-pink-600 disabled:bg-pink-700 w-full opacity-90"
+          className="action-button bg-pink-500 text-white py-1 rounded-md shadow-md border border-pink-700 hover:bg-pink-600 disabled:bg-gray-500 disabled:opacity-70 w-full opacity-90"
           onClick={handleBoot}
-          disabled={!canBoot}
+          disabled={!canBoot || !isReady}
         >
           起動
         </button>
@@ -86,6 +109,7 @@ export const UnitActionButtons = ({
         <button
           className="action-button bg-blue-500 text-white py-1 rounded-md shadow-md border border-blue-700 hover:bg-blue-600 w-full opacity-90"
           onClick={handleWithdrawal}
+          disabled={!isReady}
         >
           撤退
         </button>
