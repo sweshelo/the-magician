@@ -77,12 +77,11 @@ const UnitViewComponent = ({ unit, isOwnUnit = false }: UnitViewProps) => {
   const hasActionRestriction = hasKeyword('行動制限');
   const hasAttackBan = hasKeyword('攻撃禁止');
   const hasSilence = hasKeyword('沈黙');
-  const canAttack =
-    unit.active && !hasActionRestriction && (!hasAttackBan || (hasAttackBan && hasSilence));
+  const canAttack = unit.active && !hasActionRestriction && (!hasAttackBan || hasSilence);
 
   // 撤退可能条件の判定
   const hasWithdrawBan = hasKeyword('撤退禁止');
-  const canWithdraw = !hasWithdrawBan && !hasVirusSpecies;
+  const canWithdraw = (!hasWithdrawBan || hasSilence) && !hasVirusSpecies;
 
   // Set up droppable
   const { isOver, setNodeRef: setDroppableRef } = useDroppable({
@@ -142,7 +141,16 @@ const UnitViewComponent = ({ unit, isOwnUnit = false }: UnitViewProps) => {
               unit={unit}
               unitRef={unitRef}
               canAttack={canAttack}
-              canBoot={unit.hasBootAbility === true ? (unit.isBooted ? false : true) : undefined}
+              canBoot={
+                unit.hasBootAbility === true
+                  ? unit.isBooted ||
+                    unit.delta?.some(
+                      delta => delta.effect.type === 'keyword' && delta.effect.name === '沈黙'
+                    )
+                    ? false
+                    : true
+                  : undefined
+              }
               canWithdraw={canWithdraw}
             />
           </div>
