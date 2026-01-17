@@ -69,6 +69,20 @@ const UnitViewComponent = ({ unit, isOwnUnit = false }: UnitViewProps) => {
   const canEvolve =
     isOwnUnit && isEvolutionCard && isSameColor && !hasVirusSpecies && !hasEvolutionBan;
 
+  // Helper to check if unit has a specific keyword effect
+  const hasKeyword = (name: string) =>
+    unit.delta?.some(delta => 'name' in delta.effect && delta.effect.name === name) || false;
+
+  // アタック可能条件の判定
+  const hasActionRestriction = hasKeyword('行動制限');
+  const hasAttackBan = hasKeyword('攻撃禁止');
+  const hasSilence = hasKeyword('沈黙');
+  const canAttack = unit.active && !hasActionRestriction && (!hasAttackBan || hasSilence);
+
+  // 撤退可能条件の判定
+  const hasWithdrawBan = hasKeyword('撤退禁止');
+  const canWithdraw = (!hasWithdrawBan || hasSilence) && !hasVirusSpecies;
+
   // Set up droppable
   const { isOver, setNodeRef: setDroppableRef } = useDroppable({
     id: `unit-${unit.id}`,
@@ -126,9 +140,18 @@ const UnitViewComponent = ({ unit, isOwnUnit = false }: UnitViewProps) => {
             <UnitActionButtons
               unit={unit}
               unitRef={unitRef}
-              canAttack={unit.active}
-              canBoot={unit.hasBootAbility === true ? (unit.isBooted ? false : true) : undefined}
-              canWithdraw={true}
+              canAttack={canAttack}
+              canBoot={
+                unit.hasBootAbility === true
+                  ? unit.isBooted ||
+                    unit.delta?.some(
+                      delta => delta.effect.type === 'keyword' && delta.effect.name === '沈黙'
+                    )
+                    ? false
+                    : true
+                  : undefined
+              }
+              canWithdraw={canWithdraw}
             />
           </div>
         )}
