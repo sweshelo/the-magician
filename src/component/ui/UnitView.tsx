@@ -241,7 +241,8 @@ const UnitViewComponent = ({ unit, isOwnUnit = false }: UnitViewProps) => {
           diff={
             unit.delta
               ?.map(delta => {
-                if (delta.effect.type === 'bp') return delta.effect.diff;
+                if (delta.effect.type === 'bp' || delta.effect.type === 'dynamic-bp')
+                  return delta.effect.diff;
                 if (delta.effect.type === 'damage') return -delta.effect.value;
                 return 0;
               })
