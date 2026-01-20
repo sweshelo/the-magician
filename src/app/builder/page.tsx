@@ -1,5 +1,5 @@
 import { DeckBuilder } from '@/feature/DeckBuilder';
-import { colorTable } from '@/helper/color';
+import { defaultUIColors } from '@/helper/color';
 import { Metadata } from 'next';
 import { Suspense } from 'react';
 
@@ -30,7 +30,7 @@ function DeckBuilderWrapper({ implementedIds }: { implementedIds: string[] }) {
 export default async function Page() {
   const implementedIds: string[] = await getImplementedCardIds();
   return (
-    <div className={`min-h-screen select-none ${colorTable.ui.background}`}>
+    <div className={`min-h-screen select-none ${defaultUIColors.background}`}>
       <DeckBuilderWrapper implementedIds={implementedIds} />
     </div>
   );

@@ -10,7 +10,7 @@ export const TurnChangeEffect = () => {
     return null;
   }
 
-  const turnText = turn === 'first' ? '先行' : '後攻';
+  const turnText = turn === 'first' ? '先攻' : '後攻';
   const circleColorClass = turn === 'first' ? 'border-blue-500' : 'border-orange-500';
 
   return (

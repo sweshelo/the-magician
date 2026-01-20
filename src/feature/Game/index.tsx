@@ -8,7 +8,7 @@ import { DebugDialog } from '@/component/ui/DebugDialog';
 import { InterceptSelectionOverlay } from '@/component/ui/InterceptSelectionOverlay';
 import { LifeView } from '@/component/ui/LifeView';
 import { colorTable } from '@/helper/color';
-import { useRule, usePlayers, usePlayer } from '@/hooks/game/hooks';
+import { useRule, usePlayers, usePlayer, useSelfTheme, useOpponentTheme } from '@/hooks/game/hooks';
 import { MyArea } from '../MyArea';
 import {
   DndContext,
@@ -55,6 +55,8 @@ export const Game = ({ id }: RoomProps) => {
   const { openCardsDialog } = useCardsDialog();
   const { cursorCollisionSize } = useSystemContext();
   const { state: errorState, hideOverlay } = useErrorOverlay();
+  const selfTheme = useSelfTheme();
+  const opponentTheme = useOpponentTheme();
 
   // 相手の切断状態を管理
   const [isWaitingReconnect, setIsWaitingReconnect] = useState(false);
@@ -137,7 +139,7 @@ export const Game = ({ id }: RoomProps) => {
       modifiers={[restrictToWindowEdges]}
     >
       <div
-        className={`flex h-screen ${colorTable.ui.background} ${colorTable.ui.text.primary} relative overflow-hidden select-none dnd-game-container`}
+        className={`flex h-screen ${selfTheme.ui.background} ${selfTheme.text.primary} relative overflow-hidden select-none dnd-game-container`}
         ref={screenRef}
       >
         {/* カード詳細ウィンドウ */}
@@ -187,11 +189,11 @@ export const Game = ({ id }: RoomProps) => {
         {/* メインゲームコンテナ */}
         <div className="flex flex-col w-full h-full xl:p-4">
           {/* 対戦相手エリア */}
-          <div className={`flex-col xl:p-4 border-b ${colorTable.ui.border}`}>
+          <div
+            className={`flex-col xl:p-4 border-b ${opponentTheme.ui.border} ${opponentTheme.ui.playerInfoBackground}`}
+          >
             {/* 対戦相手情報 */}
-            <div
-              className={`flex items-center justify-between gap-3 xl:p-2 p-1 ${colorTable.ui.playerInfoBackground} rounded-lg mb-4`}
-            >
+            <div className={`flex items-center justify-between gap-3 xl:p-2 p-1 rounded-lg mb-4`}>
               <div className="player-identity">
                 <Button onClick={handleFullScreen} size="sm" className="py-2 my-1">
                   全画面にする
@@ -213,7 +215,7 @@ export const Game = ({ id }: RoomProps) => {
                     ) : (
                       <div
                         key={`opponent-card-${card.id}`}
-                        className={`w-11 h-14 ${colorTable.ui.opponentCardBackground} rounded flex justify-center items-center shadow-md ${colorTable.symbols.mana} text-2xl`}
+                        className={`w-11 h-14 ${opponentTheme.ui.cardBackground} rounded flex justify-center items-center shadow-md ${colorTable.symbols.mana} text-2xl`}
                       />
                     )
                   ) : (
@@ -310,12 +312,10 @@ export const Game = ({ id }: RoomProps) => {
           </div>
 
           {/* フィールドエリア */}
-          <div
-            className={`relative flex flex-col p-x-6 ${colorTable.ui.fieldBackground} rounded-lg my-4`}
-          >
+          <div className={`relative flex flex-col p-x-6 bg-gray-700 rounded-lg my-4`}>
             {/* 対戦相手のフィールド */}
             <Field playerId={opponentId} isOwnField={false} />
-            <div className={`border-b border-dashed ${colorTable.ui.borderDashed} h-1`} />
+            <div className={`border-b border-dashed border-gray-500 h-1`} />
             {/* 自分のフィールド */}
             <MyFieldWrapper>
               <Field playerId={LocalStorageHelper.playerId()} isOwnField={true} />

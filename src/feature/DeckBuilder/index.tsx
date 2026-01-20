@@ -2,7 +2,7 @@
 
 import { CardDetailWindow } from '@/component/ui/CardDetailWindow';
 import { CardView } from '@/component/ui/CardView';
-import { colorTable } from '@/helper/color';
+import { defaultUIColors } from '@/helper/color';
 import master from '@/submodule/suit/catalog/catalog';
 import { ICard, Catalog } from '@/submodule/suit/types';
 import { useCallback, useEffect, useMemo, useState, memo, useRef, useLayoutEffect } from 'react';
@@ -755,7 +755,7 @@ export const DeckBuilder = ({ implementedIds }: DeckBuilderProps) => {
   }, []);
 
   return (
-    <div className={`w-full flex flex-col justify-center ${colorTable.ui.text.primary}`}>
+    <div className={`w-full flex flex-col justify-center ${defaultUIColors.text.primary}`}>
       <CardDetailWindow />
       <div
         ref={deckViewRef}

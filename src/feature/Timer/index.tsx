@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTimer } from './hooks';
 import { useGameStore, useWebSocketGame } from '@/hooks/game';
 import { useSystemContext } from '@/hooks/system/hooks';
-import { LocalStorageHelper } from '@/service/local-storage';
+import { useIsMyTurn } from '@/hooks/game/hooks';
 
 const getRemainTime = (
   startDate: Date | null,
@@ -25,13 +25,8 @@ const getRemainTime = (
 const CircularTimer = () => {
   const { startDate, initialTime, isRunning } = useTimer();
   const { operable, setOperable } = useSystemContext();
-  const { game, players } = useGameStore();
-
-  const turnPlayer = useMemo(
-    () => Object.keys(players ?? {})?.[(game.turn - 1) % 2],
-    [game, players]
-  );
-  const isMyTurn = LocalStorageHelper.playerId() === turnPlayer;
+  const { game } = useGameStore();
+  const isMyTurn = useIsMyTurn();
 
   // 一時停止時の残り秒数を保持
   const [pauseRemain, setPauseRemain] = useState<number | null>(null);
