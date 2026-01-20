@@ -2,8 +2,8 @@ import { createContext, ReactNode, useContext } from 'react';
 
 // 型定義
 export interface TimerContextType {
-  startDate: Date | null;
-  initialTime: number;
+  totalSeconds: number; // 残り秒数
+  maxTime: number; // 最大秒数（サークル比率計算用）
   isRunning: boolean;
   pauseTimer: () => void;
   resumeTimer: () => void;

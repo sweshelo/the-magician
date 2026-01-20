@@ -34,7 +34,7 @@ export const useHandler = () => {
   const { showCardUsageEffect } = useCardUsageEffect();
   const { play } = useSoundV2();
   const { setOperable } = useSystemContext();
-  const { pauseTimer, resumeTimer } = useGameTimer();
+  const { pauseTimer, resumeTimer, resetTimer } = useGameTimer();
   const { closeCardsDialog } = useCardsDialog();
   const { startAttackDeclaration, startBlockDeclaration, proceedToPreparation, cancelLaunch } =
     useAttackAnimation();
@@ -301,15 +301,18 @@ export const useHandler = () => {
         break;
       }
       case 'TurnChange': {
+        console.log('[Handler] TurnChange received');
         const isMyTurn = payload.player === LocalStorageHelper.playerId();
         play('turnchange');
         showTurnChangeEffect({ turn: payload.isFirst ? 'first' : 'second' });
+        resetTimer();
         if (!isMyTurn) setOperable(false);
         break;
       }
 
       // 操作権限
       case 'Operation': {
+        console.log('[Handler] Operation received:', payload.action);
         switch (payload.action) {
           case 'defrost':
             resumeTimer();
