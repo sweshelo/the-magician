@@ -37,6 +37,7 @@ export const JokerSettings: React.FC<JokerSettingsProps> = ({ register }) => {
         description="ゲーム開始時のジョーカーゲージ量"
         min={0}
         max={100}
+        step={0.1}
         defaultValue={DEFAULT_ROOM_SETTINGS.rule.joker.gauge}
         registration={register('rule.joker.gauge', { valueAsNumber: true })}
       />
@@ -45,6 +46,7 @@ export const JokerSettings: React.FC<JokerSettingsProps> = ({ register }) => {
         description="ライフダメージを受けた時のジョーカーゲージ増加量"
         min={0}
         max={100}
+        step={0.1}
         defaultValue={DEFAULT_ROOM_SETTINGS.rule.joker.lifeDamage}
         registration={register('rule.joker.lifeDamage', { valueAsNumber: true })}
       />
@@ -53,6 +55,7 @@ export const JokerSettings: React.FC<JokerSettingsProps> = ({ register }) => {
         description="ターン終了時に増加するジョーカーゲージの最大値"
         min={0}
         max={100}
+        step={0.1}
         defaultValue={DEFAULT_ROOM_SETTINGS.rule.joker.maxTurnEnd}
         registration={register('rule.joker.maxTurnEnd', { valueAsNumber: true })}
       />
@@ -61,6 +64,7 @@ export const JokerSettings: React.FC<JokerSettingsProps> = ({ register }) => {
         description="ターン終了時に増加するジョーカーゲージの最小値"
         min={0}
         max={100}
+        step={0.1}
         defaultValue={DEFAULT_ROOM_SETTINGS.rule.joker.minTurnEnd}
         registration={register('rule.joker.minTurnEnd', { valueAsNumber: true })}
       />
