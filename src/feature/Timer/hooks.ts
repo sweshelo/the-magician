@@ -9,6 +9,8 @@ export interface TimerContextType {
   resumeTimer: () => void;
   resetTimer: () => void;
   endTurn: () => void;
+  setRemainingTime: (seconds: number) => void; // 残り時間を外部から設定（サーバー同期用）
+  resetWithDuration: (seconds: number) => void; // 指定した時間でタイマーをリセット（TurnChange用）
 }
 
 export interface TimerProviderProps {

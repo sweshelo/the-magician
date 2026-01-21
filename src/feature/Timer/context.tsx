@@ -60,6 +60,29 @@ export const TimerProvider = ({ children, initialTime = 60 }: TimerProviderProps
     restart(new Date(), false);
   }, [restart]);
 
+  // 残り時間を外部から設定（サーバー同期用）
+  const setRemainingTime = useCallback(
+    (seconds: number) => {
+      const clampedSeconds = Math.max(0, seconds);
+      startTimeRef.current = Date.now();
+      startSecondsRef.current = clampedSeconds;
+      pausedSecondsRef.current = clampedSeconds;
+      restart(getExpiryTimestamp(clampedSeconds), isRunning);
+    },
+    [restart, isRunning]
+  );
+
+  // 指定した時間でタイマーをリセット（TurnChange用）
+  const resetWithDuration = useCallback(
+    (seconds: number) => {
+      startTimeRef.current = null;
+      startSecondsRef.current = seconds;
+      pausedSecondsRef.current = seconds;
+      restart(getExpiryTimestamp(seconds), false);
+    },
+    [restart]
+  );
+
   const value: TimerContextType = {
     totalSeconds,
     maxTime: initialTime,
@@ -68,6 +91,8 @@ export const TimerProvider = ({ children, initialTime = 60 }: TimerProviderProps
     resumeTimer,
     resetTimer,
     endTurn,
+    setRemainingTime,
+    resetWithDuration,
   };
 
   return <TimerContext.Provider value={value}>{children}</TimerContext.Provider>;

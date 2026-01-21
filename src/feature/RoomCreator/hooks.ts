@@ -39,6 +39,7 @@ export const useRoomCreator = (): Response => {
             rule: {
               system: {
                 round: Number(formValues['rule.system.round']),
+                turnTime: Number(formValues['rule.system.turnTime']),
                 draw: {
                   top: Number(formValues['rule.system.draw.top']),
                   override: Number(formValues['rule.system.draw.override']),

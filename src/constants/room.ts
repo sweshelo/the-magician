@@ -4,6 +4,7 @@ export const DEFAULT_ROOM_SETTINGS = {
   rule: {
     system: {
       round: 10,
+      turnTime: 60,
       draw: {
         top: 2,
         override: 1,

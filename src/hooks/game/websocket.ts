@@ -14,9 +14,11 @@ import {
   UnitDrivePayload,
 } from '@/submodule/suit/types';
 import { LocalStorageHelper } from '@/service/local-storage';
+import { useTimer } from '@/feature/Timer/hooks';
 
 export const useWebSocketGame = () => {
   const { websocket } = useWebSocket();
+  const { totalSeconds } = useTimer();
 
   const send = useCallback(
     (message: Message) => {
@@ -66,11 +68,12 @@ export const useWebSocketGame = () => {
           type: 'UnitDrive',
           target: { id: target },
           player: LocalStorageHelper.playerId(),
+          remainingTime: totalSeconds,
         },
       };
       send(message);
     },
-    [send]
+    [send, totalSeconds]
   );
 
   interface JokerDriveProps {
@@ -87,11 +90,12 @@ export const useWebSocketGame = () => {
           type: 'JokerDrive',
           target: { id: target },
           player: LocalStorageHelper.playerId(),
+          remainingTime: totalSeconds,
         },
       };
       send(message);
     },
-    [send]
+    [send, totalSeconds]
   );
 
   interface ContinueProps {
@@ -168,11 +172,12 @@ export const useWebSocketGame = () => {
           type: 'Boot',
           target,
           player: LocalStorageHelper.playerId(),
+          remainingTime: totalSeconds,
         },
       });
       send(message);
     },
-    [send]
+    [send, totalSeconds]
   );
 
   interface SetTriggerProps {
@@ -233,11 +238,12 @@ export const useWebSocketGame = () => {
           target: { id: target.id },
           source: { id: source.id },
           player: LocalStorageHelper.playerId(),
+          remainingTime: totalSeconds,
         },
       });
       send(message);
     },
-    [send]
+    [send, totalSeconds]
   );
 
   return {
