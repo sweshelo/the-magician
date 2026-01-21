@@ -44,6 +44,7 @@ export const HandView = ({ card, isSmall = false, source = 'hand' }: Props) => {
         : cardMaster?.name === master.get(card.catalogId)?.name,
     [card.catalogId, cardMaster?.id, cardMaster?.name, isStrictOverride]
   );
+  const isJokerCard = source === 'joker' || master.get(card.catalogId)?.type === 'joker';
 
   const {
     attributes,
@@ -60,7 +61,7 @@ export const HandView = ({ card, isSmall = false, source = 'hand' }: Props) => {
   });
   const { isOver, setNodeRef: setDroppableRef } = useDroppable({
     id: card.id,
-    disabled: activeCard?.id === card.id || !isSameCard,
+    disabled: activeCard?.id === card.id || !isSameCard || isJokerCard,
     data: {
       supports: [card.catalogId],
       type: 'card',

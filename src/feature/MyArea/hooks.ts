@@ -25,10 +25,14 @@ export const useMyArea = () => {
       const cardSource = e.active.data.current?.source;
       switch (over?.data.current?.type) {
         case 'field':
-          if (cardSource === 'joker') {
-            jokerDrive({ target: activeCard?.id as string });
-          } else {
-            unitDrive({ target: activeCard?.id as string });
+          {
+            const isJokerBySource = cardSource === 'joker';
+            const isJokerByType = catalog.get(e.active.data.current?.type)?.type === 'joker';
+            if (isJokerBySource || isJokerByType) {
+              jokerDrive({ target: activeCard?.id as string });
+            } else {
+              unitDrive({ target: activeCard?.id as string });
+            }
           }
           break;
         case 'card':
