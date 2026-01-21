@@ -33,9 +33,6 @@ export const RoomCreator = () => {
   return (
     <div className="p-4 bg-white rounded-lg shadow-md max-w-lg mx-auto">
       <h2 className="text-center text-xl font-bold mb-4 text-gray-400">ルームを作成する</h2>
-      <p className="text-center text-sm text-gray-500">
-        ⚠️ルームを作成したユーザが必ず先行になります
-      </p>
       <form onSubmit={oldHandleSubmit} className="space-y-4">
         <div className="mb-4">
           <label htmlFor="roomName" className="block text-sm font-medium text-gray-700 mb-1">
