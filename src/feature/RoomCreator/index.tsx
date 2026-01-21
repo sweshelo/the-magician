@@ -14,6 +14,7 @@ import { CpSettings } from './components/CpSettings';
 import { PlayerSettings } from './components/PlayerSettings';
 import { DebugSettings } from './components/DebugSettings';
 import { MiscSettings } from './components/MiscSettings';
+import { JokerSettings } from './components/JokerSettings';
 import { RoomCreatorFormParams } from './type';
 import { DEFAULT_ROOM_SETTINGS } from '../../constants/room';
 
@@ -53,6 +54,7 @@ export const RoomCreator = () => {
           <MaxSettings register={register} />
           <DrawSettings register={register} />
           <CpSettings register={register} />
+          <JokerSettings register={register} />
           <PlayerSettings register={register} />
           <MiscSettings register={register} />
           <DebugSettings register={register} />

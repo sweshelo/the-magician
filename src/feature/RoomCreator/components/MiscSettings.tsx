@@ -20,11 +20,6 @@ export const MiscSettings: React.FC<MiscSettingsProps> = ({ register }) => {
         registration={register('rule.misc.strictOverride')}
         defaultChecked={DEFAULT_ROOM_SETTINGS.rule.misc.strictOverride}
       />
-      <Toggle
-        label="自傷ダメージでもジョーカーゲージを増加させる"
-        registration={register('rule.misc.suicideJoker')}
-        defaultChecked={DEFAULT_ROOM_SETTINGS.rule.misc.suicideJoker}
-      />
     </SettingsGroup>
   );
 };

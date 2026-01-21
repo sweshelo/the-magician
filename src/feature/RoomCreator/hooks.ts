@@ -68,7 +68,15 @@ export const useRoomCreator = (): Response => {
               },
               misc: {
                 strictOverride: formValues['rule.misc.strictOverride'] === 'on',
-                suicideJoker: formValues['rule.misc.suicideJoker'] === 'on',
+              },
+              joker: {
+                suicide: formValues['rule.joker.suicide'] === 'on',
+                single: formValues['rule.joker.single'] === 'on',
+                inHand: formValues['rule.joker.inHand'] === 'on',
+                gauge: Number(formValues['rule.joker.gauge']),
+                lifeDamage: Number(formValues['rule.joker.lifeDamage']),
+                maxTurnEnd: Number(formValues['rule.joker.maxTurnEnd']),
+                minTurnEnd: Number(formValues['rule.joker.minTurnEnd']),
               },
               debug: {
                 enable: formValues['rule.debug.enable'] === 'on',
