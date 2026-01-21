@@ -47,6 +47,7 @@ const CircularTimer = () => {
       },
       payload: {
         type: 'TurnEnd',
+        remainingTime: totalSeconds,
       },
     });
     setOperable(false);
