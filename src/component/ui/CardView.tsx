@@ -117,7 +117,16 @@ export const CardView = ({
   const reduced = useMemo(() => {
     return (
       (card as ICard).delta
-        ?.map(delta => (delta.effect.type === 'cost' ? delta.effect.value : 0))
+        ?.map(delta => {
+          switch (delta.effect.type) {
+            case 'cost':
+              return delta.effect.value;
+            case 'dynamic-cost':
+              return delta.effect.diff;
+            default:
+              return 0;
+          }
+        })
         .reduce((acc, current) => acc + current, 0) ?? 0
     );
   }, [card]);
