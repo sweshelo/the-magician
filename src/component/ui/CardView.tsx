@@ -180,7 +180,9 @@ export const CardView = ({
                     className={`w-5 h-5 flex items-center justify-center font-bold text-white ${catalog ? getColorCode(catalog.color) : ''}`}
                     style={{ position: 'relative', zIndex: 1 }}
                   >
-                    {(cardAsICard?.currentCost ?? 0) - (isMitigated ? 1 : 0)}
+                    {(cardAsICard?.currentCost ??
+                      master.get(cardAsICard?.catalogId || '')?.cost ??
+                      0) - (isMitigated ? 1 : 0)}
                   </div>
                 )}
               </div>
