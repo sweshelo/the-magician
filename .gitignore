@@ -41,5 +41,6 @@ yarn-error.log*
 next-env.d.ts
 
 certificates
-public/sound
+public/sound/se
+public/sound/bgm
 public/image
