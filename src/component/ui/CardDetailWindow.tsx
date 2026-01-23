@@ -2,7 +2,7 @@
 
 import master from '@/submodule/suit/catalog/catalog';
 import classNames from 'classnames';
-import { colorTable, getColorCode } from '@/helper/color';
+import { defaultUIColors, getColorCode } from '@/helper/color';
 import Image from 'next/image';
 import { useSystemContext } from '@/hooks/system/hooks';
 import {
@@ -112,7 +112,7 @@ export const CardDetailWindow = ({ x = 0, y = 0 }: CardDetailWindowProps) => {
   return (
     <div
       ref={windowRef}
-      className={`fixed transform w-100 ${colorTable.ui.playerInfoBackground} rounded-lg shadow-lg z-50 border ${colorTable.ui.border} overflow-hidden`}
+      className={`fixed transform w-100 ${defaultUIColors.playerInfoBackground} rounded-lg shadow-lg z-50 border ${defaultUIColors.border} overflow-hidden`}
       style={{
         left: `${position.x}px`,
         top: `${position.y}px`,
@@ -201,7 +201,7 @@ const AbilityPane = ({
     <>
       {/* ウィンドウヘッダー */}
       <div
-        className={`flex justify-between items-center p-3 h-20 ${colorTable.ui.background} cursor-move`}
+        className={`flex justify-between items-center p-3 h-20 ${defaultUIColors.background} cursor-move`}
         style={{
           backgroundImage: `url${getImageUrl(catalogId)}`,
           backgroundSize: 'cover',
@@ -235,7 +235,7 @@ const AbilityPane = ({
         </h3>
         <button
           onClick={() => setDetailCard(undefined)}
-          className={`${colorTable.ui.text.secondary} hover:${colorTable.ui.text.primary} cursor-pointer`}
+          className={`${defaultUIColors.text.secondary} hover:${defaultUIColors.text.primary} cursor-pointer`}
         >
           ✕
         </button>
@@ -296,7 +296,7 @@ const ImagePane = ({
 
   return (
     <div
-      className={`flex justify-between items-center p-3 h-140 ${colorTable.ui.background} cursor-move`}
+      className={`flex justify-between items-center p-3 h-140 ${defaultUIColors.background} cursor-move`}
       style={{
         backgroundImage: `url(${getImageUrl(catalogId)}`,
         backgroundSize: 'cover',

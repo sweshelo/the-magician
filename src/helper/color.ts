@@ -10,26 +10,84 @@ export const colorTable = {
     5: 'bg-purple-600', // Purple (lighter than before)
   },
 
-  // Game UI Colors
-  ui: {
-    background: 'bg-slate-700', // Lighter game background (was bg-slate-900)
-    fieldBackground: 'bg-slate-600/40', // Lighter field background (was bg-slate-800/40)
-    playerInfoBackground: 'bg-slate-700/70', // Lighter player info background (was bg-slate-800/70)
-    border: 'border-slate-600', // Border color
-    borderDashed: 'border-slate-500', // Dashed border color (was border-slate-600)
-    text: {
-      primary: 'text-white',
-      secondary: 'text-slate-300', // Lighter secondary text (was text-slate-400)
-    },
-    opponentCardBackground: 'bg-gray-600',
-  },
-
   // Symbol Colors
   symbols: {
     life: 'text-red-400',
     mana: 'text-blue-400',
     cp: 'text-pink-400',
   },
+};
+
+// Theme colors for first/second player
+export const themeColors = {
+  // 先行プレイヤーのテーマ（青系）
+  first: {
+    primary: 'bg-blue-600',
+    primaryHover: 'hover:bg-blue-500',
+    secondary: 'bg-blue-800',
+    accent: 'bg-cyan-500',
+    border: 'border-blue-500',
+    borderAccent: 'border-cyan-400',
+    text: {
+      primary: 'text-white',
+      secondary: 'text-blue-200',
+      accent: 'text-cyan-300',
+    },
+    ui: {
+      background: 'bg-slate-800',
+      fieldBackground: 'bg-blue-900/30',
+      playerInfoBackground: 'bg-blue-900/50',
+      border: 'border-blue-700',
+      borderDashed: 'border-blue-600',
+      cardBackground: 'bg-blue-800/60',
+    },
+  },
+  // 後攻プレイヤーのテーマ（オレンジ系）
+  second: {
+    primary: 'bg-orange-600',
+    primaryHover: 'hover:bg-orange-500',
+    secondary: 'bg-orange-800',
+    accent: 'bg-orange-500',
+    border: 'border-orange-500',
+    borderAccent: 'border-orange-400',
+    text: {
+      primary: 'text-white',
+      secondary: 'text-orange-200',
+      accent: 'text-orange-300',
+    },
+    ui: {
+      background: 'bg-stone-800',
+      fieldBackground: 'bg-orange-900/30',
+      playerInfoBackground: 'bg-orange-900/50',
+      border: 'border-orange-700',
+      borderDashed: 'border-orange-600',
+      cardBackground: 'bg-orange-800/60',
+    },
+  },
+} as const;
+
+export type PlayerTheme = keyof typeof themeColors;
+
+// Get theme colors for a player (first or second)
+export const getTheme = (theme: PlayerTheme) => themeColors[theme];
+
+// Get specific theme UI color
+export const getThemeUIColor = (theme: PlayerTheme, key: keyof typeof themeColors.first.ui) => {
+  return themeColors[theme].ui[key];
+};
+
+// Default UI colors (for backwards compatibility)
+export const defaultUIColors = {
+  background: 'bg-slate-700',
+  fieldBackground: 'bg-slate-600/40',
+  playerInfoBackground: 'bg-slate-700/70',
+  border: 'border-slate-600',
+  borderDashed: 'border-slate-500',
+  text: {
+    primary: 'text-white',
+    secondary: 'text-slate-300',
+  },
+  cardBackground: 'bg-gray-600',
 };
 
 // Color mapping function for card colors

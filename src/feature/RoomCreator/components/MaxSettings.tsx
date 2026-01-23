@@ -20,6 +20,13 @@ export const MaxSettings: React.FC<MaxSettingsProps> = ({ register }) => {
         defaultValue={DEFAULT_ROOM_SETTINGS.rule.system.round}
         registration={register('rule.system.round', { valueAsNumber: true })}
       />
+      <NumberInput
+        label="1ターンあたりの時間 (秒)"
+        min={15}
+        max={300}
+        defaultValue={DEFAULT_ROOM_SETTINGS.rule.system.turnTime}
+        registration={register('rule.system.turnTime', { valueAsNumber: true })}
+      />
     </SettingsGroup>
   );
 };

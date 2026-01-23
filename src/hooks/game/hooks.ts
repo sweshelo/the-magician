@@ -1,5 +1,7 @@
 import { useGameStore } from './context';
 import { useShallow } from 'zustand/shallow';
+import { LocalStorageHelper } from '@/service/local-storage';
+import { themeColors, PlayerTheme } from '@/helper/color';
 
 export const usePlayer = (playerId: string) => {
   const [player] = useGameStore(useShallow(state => [state.players?.[playerId]]));
@@ -39,4 +41,49 @@ export const useRule = () => {
 export const usePlayers = () => {
   const [players] = useGameStore(useShallow(state => [state.players]));
   return players;
+};
+
+// 現在のターンプレイヤーIDを取得
+export const useTurnPlayer = () => {
+  const [turnPlayer] = useGameStore(useShallow(state => [state.game.turnPlayer]));
+  return turnPlayer;
+};
+
+// 先行プレイヤーIDを取得
+export const useFirstPlayer = () => {
+  const [firstPlayer] = useGameStore(useShallow(state => [state.game.firstPlayer]));
+  return firstPlayer;
+};
+
+// 自分が先行か後攻かを判定 -> 'first' | 'second'
+export const useSelfTurnOrder = (): PlayerTheme => {
+  const firstPlayer = useFirstPlayer();
+  const selfId = LocalStorageHelper.playerId();
+  if (!firstPlayer) return 'first'; // ゲーム開始前のデフォルト
+  return selfId === firstPlayer ? 'first' : 'second';
+};
+
+// 自分のテーマカラーを取得
+export const useSelfTheme = () => {
+  const turnOrder = useSelfTurnOrder();
+  return themeColors[turnOrder];
+};
+
+// 相手が先行か後攻かを判定 -> 'first' | 'second'
+export const useOpponentTurnOrder = (): PlayerTheme => {
+  const selfTurnOrder = useSelfTurnOrder();
+  return selfTurnOrder === 'first' ? 'second' : 'first';
+};
+
+// 相手のテーマカラーを取得
+export const useOpponentTheme = () => {
+  const turnOrder = useOpponentTurnOrder();
+  return themeColors[turnOrder];
+};
+
+// 自分のターンかどうかを判定
+export const useIsMyTurn = () => {
+  const turnPlayer = useTurnPlayer();
+  const selfId = LocalStorageHelper.playerId();
+  return selfId === turnPlayer;
 };

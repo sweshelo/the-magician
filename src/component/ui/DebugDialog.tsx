@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { colorTable } from '@/helper/color';
+import { defaultUIColors } from '@/helper/color';
 import { useWebSocketGame } from '@/hooks/game';
 import { useSoundV2 } from '@/hooks/soundV2/hooks';
 import { useSystemContext } from '@/hooks/system/hooks';
@@ -147,10 +147,10 @@ export const DebugDialog = () => {
   return (
     !hide && (
       <div
-        className={`absolute top-4 left-4 z-50 p-3 rounded-lg shadow-lg ${colorTable.ui.playerInfoBackground} border ${colorTable.ui.border}`}
+        className={`absolute top-4 left-4 z-50 p-3 rounded-lg shadow-lg ${defaultUIColors.playerInfoBackground} border ${defaultUIColors.border}`}
       >
         <div className="flex flex-col">
-          <div className={`text-sm font-bold mb-2 ${colorTable.ui.text.primary}`}>
+          <div className={`text-sm font-bold mb-2 ${defaultUIColors.text.primary}`}>
             Debug Console
           </div>
           <div className="flex flex-col gap-2">
@@ -165,7 +165,7 @@ export const DebugDialog = () => {
               />
               <button
                 onClick={handleDebugDriveButtonClick}
-                className={`px-3 py-1 rounded ${colorTable.ui.border} bg-blue-600 hover:bg-blue-500 transition-colors`}
+                className={`px-3 py-1 rounded ${defaultUIColors.border} bg-blue-600 hover:bg-blue-500 transition-colors`}
               >
                 DebugDrive送信
               </button>
@@ -182,17 +182,17 @@ export const DebugDialog = () => {
               />
               <button
                 onClick={handleDebugMakeButtonClick}
-                className={`px-3 py-1 rounded ${colorTable.ui.border} bg-purple-600 hover:bg-purple-500 transition-colors`}
+                className={`px-3 py-1 rounded ${defaultUIColors.border} bg-purple-600 hover:bg-purple-500 transition-colors`}
               >
                 DebugMake送信
               </button>
             </div>
             <details>
               <div
-                className={`flex flex-col justify-center border-t ${colorTable.ui.border} pt-2 mt-2 gap-1`}
+                className={`flex flex-col justify-center border-t ${defaultUIColors.border} pt-2 mt-2 gap-1`}
               >
                 <p className="text-center font-bold">汎用ユニット召喚</p>
-                <div className={`flex flex-col border-t ${colorTable.ui.border} pt-1`}>
+                <div className={`flex flex-col border-t ${defaultUIColors.border} pt-1`}>
                   <p className="text-center text-xs">特殊召喚</p>
                   <div className="flex gap-2">
                     <Button className="bg-green-500 w-1/2" onClick={() => debugDrive('2-0-324')}>
@@ -203,7 +203,7 @@ export const DebugDialog = () => {
                     </Button>
                   </div>
                 </div>
-                <div className={`flex flex-col border-t ${colorTable.ui.border} pt-1`}>
+                <div className={`flex flex-col border-t ${defaultUIColors.border} pt-1`}>
                   <p className="text-center text-xs">基本BP</p>
                   <div className="flex gap-2">
                     <Button className="bg-green-500 w-1/2" onClick={() => debugDrive('2-0-119')}>
@@ -214,7 +214,7 @@ export const DebugDialog = () => {
                     </Button>
                   </div>
                 </div>
-                <div className={`flex flex-col border-t ${colorTable.ui.border} pt-1`}>
+                <div className={`flex flex-col border-t ${defaultUIColors.border} pt-1`}>
                   <p className="text-center text-xs">BP</p>
                   <div className="flex gap-2">
                     <Button className="bg-green-500 w-1/2" onClick={() => debugDrive('PR-083')}>
@@ -227,16 +227,16 @@ export const DebugDialog = () => {
                 </div>
               </div>
             </details>
-            <div className={`border-t ${colorTable.ui.border} pt-2 mt-2`}></div>
+            <div className={`border-t ${defaultUIColors.border} pt-2 mt-2`}></div>
             <button
               onClick={handleDrawButtonClick}
-              className={`px-3 py-1 rounded ${colorTable.ui.border} bg-slate-600 hover:bg-slate-500 transition-colors`}
+              className={`px-3 py-1 rounded ${defaultUIColors.border} bg-slate-600 hover:bg-slate-500 transition-colors`}
             >
               Draw
             </button>
             <button
               onClick={() => setOperable(true)}
-              className={`px-3 py-1 rounded ${colorTable.ui.border} bg-slate-600 hover:bg-slate-500 transition-colors`}
+              className={`px-3 py-1 rounded ${defaultUIColors.border} bg-slate-600 hover:bg-slate-500 transition-colors`}
             >
               操作権を得る
             </button>
@@ -249,13 +249,13 @@ export const DebugDialog = () => {
                 <div className="flex gap-2">
                   <button
                     onClick={decreaseCursorSize}
-                    className={`px-3 py-1 rounded ${colorTable.ui.border} bg-slate-600 hover:bg-slate-500 transition-colors`}
+                    className={`px-3 py-1 rounded ${defaultUIColors.border} bg-slate-600 hover:bg-slate-500 transition-colors`}
                   >
                     -
                   </button>
                   <button
                     onClick={increaseCursorSize}
-                    className={`px-3 py-1 rounded ${colorTable.ui.border} bg-slate-600 hover:bg-slate-500 transition-colors`}
+                    className={`px-3 py-1 rounded ${defaultUIColors.border} bg-slate-600 hover:bg-slate-500 transition-colors`}
                   >
                     +
                   </button>
@@ -289,7 +289,7 @@ export const DebugDialog = () => {
                         onClick={() =>
                           proceedToPreparation({ x: Number(targetX), y: Number(targetY) })
                         }
-                        className={`px-3 py-1 rounded ${colorTable.ui.border} bg-green-600 hover:bg-green-500 transition-colors`}
+                        className={`px-3 py-1 rounded ${defaultUIColors.border} bg-green-600 hover:bg-green-500 transition-colors`}
                       >
                         続行
                       </button>
@@ -317,7 +317,7 @@ export const DebugDialog = () => {
                           ).value;
                           if (unitId) setAnimationUnit(unitId);
                         }}
-                        className={`px-3 py-1 rounded ${colorTable.ui.border} bg-gray-600 hover:bg-gray-500 transition-colors`}
+                        className={`px-3 py-1 rounded ${defaultUIColors.border} bg-gray-600 hover:bg-gray-500 transition-colors`}
                       >
                         既存エフェクト
                       </button>
@@ -329,7 +329,7 @@ export const DebugDialog = () => {
                           ).value;
                           if (unitId) addTargetUnit(unitId);
                         }}
-                        className={`px-3 py-1 rounded ${colorTable.ui.border} bg-blue-600 hover:bg-blue-500 transition-colors`}
+                        className={`px-3 py-1 rounded ${defaultUIColors.border} bg-blue-600 hover:bg-blue-500 transition-colors`}
                       >
                         選択エフェクト
                       </button>
@@ -349,7 +349,7 @@ export const DebugDialog = () => {
                             removeOverclockUnit(unitId);
                           }, 5000);
                         }}
-                        className={`px-3 py-1 rounded ${colorTable.ui.border} bg-yellow-600 hover:bg-yellow-500 transition-colors`}
+                        className={`px-3 py-1 rounded ${defaultUIColors.border} bg-yellow-600 hover:bg-yellow-500 transition-colors`}
                       >
                         OC表現
                       </button>
@@ -376,7 +376,7 @@ export const DebugDialog = () => {
 
                           // 注: StatusChangeEffectコンポーネントが自動的にコンテキストから削除
                         }}
-                        className={`px-3 py-1 rounded ${colorTable.ui.border} bg-green-600 hover:bg-green-500 transition-colors`}
+                        className={`px-3 py-1 rounded ${defaultUIColors.border} bg-green-600 hover:bg-green-500 transition-colors`}
                       >
                         ステータス変化
                       </button>
@@ -406,7 +406,7 @@ export const DebugDialog = () => {
                             removeOverclockUnit(unitId);
                           }, 5000);
                         }}
-                        className={`px-3 py-1 rounded ${colorTable.ui.border} bg-purple-600 hover:bg-purple-500 transition-colors`}
+                        className={`px-3 py-1 rounded ${defaultUIColors.border} bg-purple-600 hover:bg-purple-500 transition-colors`}
                       >
                         複合エフェクト
                       </button>
@@ -422,19 +422,19 @@ export const DebugDialog = () => {
               <div className="flex gap-2">
                 <button
                   onClick={decreaseVolume}
-                  className={`px-3 py-1 rounded ${colorTable.ui.border} bg-slate-600 hover:bg-slate-500 transition-colors`}
+                  className={`px-3 py-1 rounded ${defaultUIColors.border} bg-slate-600 hover:bg-slate-500 transition-colors`}
                 >
                   -
                 </button>
                 <button
                   onClick={increaseVolume}
-                  className={`px-3 py-1 rounded ${colorTable.ui.border} bg-slate-600 hover:bg-slate-500 transition-colors`}
+                  className={`px-3 py-1 rounded ${defaultUIColors.border} bg-slate-600 hover:bg-slate-500 transition-colors`}
                 >
                   +
                 </button>
                 <button
                   onClick={toggleBgm}
-                  className={`px-3 py-1 rounded ${colorTable.ui.border} ${
+                  className={`px-3 py-1 rounded ${defaultUIColors.border} ${
                     isBgmPlaying ? 'bg-red-600 hover:bg-red-500' : 'bg-green-600 hover:bg-green-500'
                   } transition-colors`}
                 >

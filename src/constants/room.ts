@@ -4,6 +4,7 @@ export const DEFAULT_ROOM_SETTINGS = {
   rule: {
     system: {
       round: 10,
+      turnTime: 60,
       draw: {
         top: 2,
         override: 1,
@@ -32,7 +33,15 @@ export const DEFAULT_ROOM_SETTINGS = {
     },
     misc: {
       strictOverride: false,
-      suicideJoker: false,
+    },
+    joker: {
+      suicide: false,
+      single: false,
+      inHand: false,
+      gauge: 0,
+      lifeDamage: 15,
+      maxTurnEnd: 15,
+      minTurnEnd: 2.5,
     },
     debug: {
       enable: false,

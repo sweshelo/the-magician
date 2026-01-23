@@ -2,13 +2,15 @@ import { createContext, ReactNode, useContext } from 'react';
 
 // 型定義
 export interface TimerContextType {
-  startDate: Date | null;
-  initialTime: number;
+  totalSeconds: number; // 残り秒数
+  maxTime: number; // 最大秒数（サークル比率計算用）
   isRunning: boolean;
   pauseTimer: () => void;
   resumeTimer: () => void;
   resetTimer: () => void;
   endTurn: () => void;
+  setRemainingTime: (seconds: number) => void; // 残り時間を外部から設定（サーバー同期用）
+  resetWithDuration: (seconds: number) => void; // 指定した時間でタイマーをリセット（TurnChange用）
 }
 
 export interface TimerProviderProps {

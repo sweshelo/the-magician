@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { colorTable } from "@/helper/color";
-import { useCardEffectDialog } from "@/hooks/card-effect-dialog";
+import { defaultUIColors } from '@/helper/color';
+import { useCardEffectDialog } from '@/hooks/card-effect-dialog';
 
 export const CardEffectDialog = () => {
   const { state } = useCardEffectDialog();
@@ -14,8 +14,8 @@ export const CardEffectDialog = () => {
       <div
         className={`
           rounded-lg shadow-lg
-          ${colorTable.ui.playerInfoBackground}
-          border ${colorTable.ui.border}
+          ${defaultUIColors.playerInfoBackground}
+          border ${defaultUIColors.border}
           p-4 max-w-md w-full
           transition-opacity duration-300 ease-in-out
           backdrop-blur-sm
@@ -23,15 +23,13 @@ export const CardEffectDialog = () => {
       >
         <div className="flex flex-col">
           {/* Title - 1 line */}
-          <div
-            className={`text-xl font-bold mb-2 ${colorTable.ui.text.primary} text-center`}
-          >
+          <div className={`text-xl font-bold mb-2 ${defaultUIColors.text.primary} text-center`}>
             {title}
           </div>
 
           {/* Message - up to 4 lines */}
           <div
-            className={`${colorTable.ui.text.secondary} whitespace-pre-line text-center border-t-2 pt-3`}
+            className={`${defaultUIColors.text.secondary} whitespace-pre-line text-center border-t-2 pt-3`}
           >
             {message}
           </div>

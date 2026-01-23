@@ -1,7 +1,7 @@
 import { CPView } from '@/component/ui/CPView';
 import { CardsCountView } from '@/component/ui/CardsCountView';
 import { LifeView } from '@/component/ui/LifeView';
-import { colorTable } from '@/helper/color';
+import { defaultUIColors } from '@/helper/color';
 import { HandArea } from '../Hand';
 import { GiCardDraw } from 'react-icons/gi';
 import { useCardsDialog } from '@/hooks/cards-dialog';
@@ -63,7 +63,7 @@ export const MyArea = () => {
             <div className="font-bold text-lg whitespace-nowrap text-ellipsis">
               {self?.name || ''}
             </div>
-            <div className={`text-sm ${colorTable.ui.text.secondary}`}>あなた</div>
+            <div className={`text-sm ${defaultUIColors.text.secondary}`}>あなた</div>
             <div className="flex flex-col gap-2">
               {self?.life && <LifeView current={self.life.current} max={self.life.max} />}
             </div>

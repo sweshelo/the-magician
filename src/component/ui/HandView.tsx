@@ -44,6 +44,7 @@ export const HandView = ({ card, isSmall = false, source = 'hand' }: Props) => {
         : cardMaster?.name === master.get(card.catalogId)?.name,
     [card.catalogId, cardMaster?.id, cardMaster?.name, isStrictOverride]
   );
+  const isJokerCard = source === 'joker' || master.get(card.catalogId)?.type === 'joker';
 
   const {
     attributes,
@@ -60,7 +61,7 @@ export const HandView = ({ card, isSmall = false, source = 'hand' }: Props) => {
   });
   const { isOver, setNodeRef: setDroppableRef } = useDroppable({
     id: card.id,
-    disabled: activeCard?.id === card.id || !isSameCard,
+    disabled: activeCard?.id === card.id || !isSameCard || isJokerCard,
     data: {
       supports: [card.catalogId],
       type: 'card',
@@ -85,13 +86,6 @@ export const HandView = ({ card, isSmall = false, source = 'hand' }: Props) => {
   }, [activeCard?.data, activeCard?.id, card.catalogId, card.id, isSameCard, isStrictOverride]);
 
   const mitigate = useMemo(() => isMitigated(card, trigger), [card, trigger]);
-  const reduced = useMemo(() => {
-    return (
-      (card as ICard).delta
-        ?.map(delta => (delta.effect.type === 'cost' ? delta.effect.value : 0))
-        .reduce((acc, current) => acc + current, 0) ?? 0
-    );
-  }, [card]);
 
   return (
     <div
@@ -101,7 +95,7 @@ export const HandView = ({ card, isSmall = false, source = 'hand' }: Props) => {
       {...attributes}
       {...listeners}
     >
-      {cp < (master.get(card.catalogId)?.cost ?? 0) - (mitigate ? 1 : 0) + reduced && (
+      {cp < (card.currentCost ?? 0) - (mitigate ? 1 : 0) && (
         <div className="absolute inset-0 bg-black opacity-30 z-1 pointer-events-none" />
       )}
       <CardView

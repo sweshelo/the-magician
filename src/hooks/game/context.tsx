@@ -12,6 +12,8 @@ export interface GameState {
   game: {
     turn: number;
     round: number;
+    turnPlayer: IPlayer['id'];
+    firstPlayer: IPlayer['id'];
   };
   rule: Rule;
 }
@@ -22,6 +24,8 @@ const initialState: GameState = {
   game: {
     turn: 0,
     round: 0,
+    turnPlayer: '',
+    firstPlayer: '',
   },
   rule: DEFAULT_ROOM_SETTINGS.rule,
 };

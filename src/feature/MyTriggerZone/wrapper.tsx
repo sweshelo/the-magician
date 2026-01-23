@@ -3,6 +3,7 @@ import { useSystemContext } from '@/hooks/system/hooks';
 import { LocalStorageHelper } from '@/service/local-storage';
 import { useDroppable } from '@dnd-kit/core';
 import { ReactNode } from 'react';
+import master from '@/submodule/suit/catalog/catalog';
 
 interface MyTriggerZoneWrapperProps {
   children: ReactNode;
@@ -13,7 +14,9 @@ export const MyTriggerZoneWrapper = ({ children }: MyTriggerZoneWrapperProps) =>
   const playerId = LocalStorageHelper.playerId();
   const rule = useRule();
   const trigger = useTrigger(playerId) ?? [];
-  const isJokerCard = activeCard?.data.current?.source === 'joker';
+  const isJokerBySource = activeCard?.data.current?.source === 'joker';
+  const isJokerByType = master.get(activeCard?.data.current?.type)?.type === 'joker';
+  const isJokerCard = isJokerBySource || isJokerByType;
   const { isOver, setNodeRef } = useDroppable({
     id: 'trigger-zone',
     data: {

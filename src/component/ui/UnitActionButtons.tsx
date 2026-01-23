@@ -3,6 +3,7 @@ import { useWebSocketGame } from '@/hooks/game';
 import { useUnitSelection } from '@/hooks/unit-selection';
 import { IUnit } from '@/submodule/suit/types';
 import { LocalStorageHelper } from '@/service/local-storage';
+import { useTimer } from '@/feature/Timer/hooks';
 
 interface UnitActionButtonsProps {
   unit: IUnit;
@@ -20,6 +21,7 @@ export const UnitActionButtons = ({
 }: UnitActionButtonsProps) => {
   const { setActiveUnit } = useUnitSelection();
   const { withdrawal, boot, send } = useWebSocketGame();
+  const { totalSeconds } = useTimer();
 
   // タッチデバイスでの二重タップ防止: コンポーネント表示直後はタッチを無視
   const [isReady, setIsReady] = useState(false);
@@ -52,6 +54,7 @@ export const UnitActionButtons = ({
           type: 'Attack',
           player: LocalStorageHelper.playerId(),
           target: unit,
+          remainingTime: totalSeconds,
         },
       });
     }

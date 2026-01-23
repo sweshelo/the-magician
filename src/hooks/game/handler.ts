@@ -10,6 +10,7 @@ import { useCardUsageEffect } from '../card-usage-effect';
 import { LocalStorageHelper } from '@/service/local-storage';
 import { useTimer as useGameTimer } from '@/feature/Timer/hooks';
 import { GameState, useGameStore } from './context';
+import { useRule } from './hooks';
 import { useMulligan, useTimer as useMulliganTimer } from '../mulligan/context';
 
 import { useAttackAnimation } from '../attack-animation';
@@ -34,7 +35,8 @@ export const useHandler = () => {
   const { showCardUsageEffect } = useCardUsageEffect();
   const { play } = useSoundV2();
   const { setOperable } = useSystemContext();
-  const { pauseTimer, resumeTimer } = useGameTimer();
+  const { pauseTimer, resumeTimer, setRemainingTime, resetWithDuration } = useGameTimer();
+  const rule = useRule();
   const { closeCardsDialog } = useCardsDialog();
   const { startAttackDeclaration, startBlockDeclaration, proceedToPreparation, cancelLaunch } =
     useAttackAnimation();
@@ -301,22 +303,47 @@ export const useHandler = () => {
         break;
       }
       case 'TurnChange': {
+        console.log('[Handler] TurnChange received');
         const isMyTurn = payload.player === LocalStorageHelper.playerId();
         play('turnchange');
         showTurnChangeEffect({ turn: payload.isFirst ? 'first' : 'second' });
+        // ルールの turnTime でリセット
+        const turnTime = rule?.system?.turnTime ?? 60;
+        resetWithDuration(turnTime);
         if (!isMyTurn) setOperable(false);
         break;
       }
 
       // 操作権限
       case 'Operation': {
+        console.log(
+          '[Handler] Operation received:',
+          payload.action,
+          'remainingTime:',
+          payload.remainingTime
+        );
         switch (payload.action) {
           case 'defrost':
+            // remainingTime があれば同期
+            if (payload.remainingTime !== undefined) {
+              setRemainingTime(payload.remainingTime);
+            }
             resumeTimer();
-            setOperable(true);
+            // ターンプレイヤーのみ操作可能にする
+            {
+              const gameState = useGameStore.getState();
+              const selfId = LocalStorageHelper.playerId();
+              if (selfId === gameState.game.turnPlayer) {
+                setOperable(true);
+              }
+            }
             break;
           case 'freeze':
             pauseTimer();
+            // remainingTime があれば同期
+            if (payload.remainingTime !== undefined) {
+              setRemainingTime(payload.remainingTime);
+            }
             setOperable(false);
             break;
         }
