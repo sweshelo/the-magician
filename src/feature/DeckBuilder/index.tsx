@@ -42,6 +42,9 @@ const getUniqueValues = <T,>(getter: (catalog: Catalog) => T | T[] | undefined):
   return Array.from(values);
 };
 
+// Sort options
+type SortOption = 'id' | 'color' | 'cost' | 'rank';
+
 // Filter Control component
 const FilterControls = memo(
   ({
@@ -68,6 +71,8 @@ const FilterControls = memo(
     setShowImplemented,
     showNotImplemented,
     setShowNotImplemented,
+    sortBy,
+    setSortBy,
   }: {
     searchQuery: string;
     setSearchQuery: (query: string) => void;
@@ -92,12 +97,44 @@ const FilterControls = memo(
     setShowImplemented: (v: boolean) => void;
     showNotImplemented: boolean;
     setShowNotImplemented: (v: boolean) => void;
+    sortBy: SortOption;
+    setSortBy: (sort: SortOption) => void;
   }) => {
     return (
       <>
         <details className="w-full max-w-6xl p-4">
-          <summary className="p-2 border border-2 rounded-lg">フィルタ</summary>
+          <summary className="p-2 px-4 bg-gray-700 hover:bg-gray-600 text-white rounded-lg cursor-pointer transition-colors">
+            表示設定
+          </summary>
           <div className="w-full max-w-6xl mt-5">
+            {/* 並び順 */}
+            <div className="px-4 mb-4 flex flex-wrap items-center gap-2">
+              <span className="text-sm text-gray-300">並び順:</span>
+              {[
+                { value: 'id' as const, label: 'カードID' },
+                { value: 'color' as const, label: '属性' },
+                { value: 'cost' as const, label: 'コスト' },
+                { value: 'rank' as const, label: '利用ランキング' },
+              ].map(option => (
+                <label
+                  key={option.value}
+                  className={`px-3 py-1 border rounded cursor-pointer ${
+                    sortBy === option.value ? 'bg-blue-500 text-white' : 'bg-gray-500'
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="sortBy"
+                    value={option.value}
+                    checked={sortBy === option.value}
+                    onChange={() => setSortBy(option.value)}
+                    className="sr-only"
+                  />
+                  {option.label}
+                </label>
+              ))}
+            </div>
+
             {/* 効果実装済みのみ表示チェックボックス */}
             <div className="px-4 my-2 flex items-center">
               <input
@@ -409,6 +446,7 @@ export const DeckBuilder = ({ implementedIds }: DeckBuilderProps) => {
   ]);
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [selectedCosts, setSelectedCosts] = useState<(number | string)[]>([]);
+  const [sortBy, setSortBy] = useState<SortOption>('id');
 
   // Available filter options
   const [availableSpecies, setAvailableSpecies] = useState<string[]>([]);
@@ -542,9 +580,23 @@ export const DeckBuilder = ({ implementedIds }: DeckBuilderProps) => {
     setSearchQuery(value);
   }, []);
 
+  // 同名カードのrank情報を取得するためのマップを構築
+  const nameToRankOrder = useMemo(() => {
+    const map = new Map<string, number>();
+    master.forEach(catalog => {
+      if (catalog.rank && !map.has(catalog.name)) {
+        map.set(catalog.name, catalog.rank.order);
+      }
+    });
+    return map;
+  }, []);
+
   // Filtered catalog data
   const filteredCatalogs = useMemo(() => {
     let catalogs = Array.from(master.values()).filter(catalog => {
+      // visible: 0 を除外
+      if (catalog.visible === 0) return false;
+
       // Search query filter
       const matchesSearch =
         searchQuery === '' ||
@@ -603,6 +655,25 @@ export const DeckBuilder = ({ implementedIds }: DeckBuilderProps) => {
       });
     }
 
+    // ソート処理
+    catalogs.sort((a, b) => {
+      switch (sortBy) {
+        case 'id':
+          return a.id.localeCompare(b.id);
+        case 'color':
+          return a.color - b.color;
+        case 'cost':
+          return a.cost - b.cost;
+        case 'rank':
+          // rankがない場合は同名カードのrankを参照
+          const aOrder = a.rank?.order ?? nameToRankOrder.get(a.name) ?? Infinity;
+          const bOrder = b.rank?.order ?? nameToRankOrder.get(b.name) ?? Infinity;
+          return aOrder - bOrder;
+        default:
+          return 0;
+      }
+    });
+
     return catalogs;
   }, [
     implementedIds,
@@ -616,6 +687,8 @@ export const DeckBuilder = ({ implementedIds }: DeckBuilderProps) => {
     selectedCosts,
     showImplemented,
     showNotImplemented,
+    sortBy,
+    nameToRankOrder,
   ]);
 
   const handleOpenSaveDialog = useCallback(() => {
@@ -819,6 +892,8 @@ export const DeckBuilder = ({ implementedIds }: DeckBuilderProps) => {
           setShowImplemented={setShowImplemented}
           showNotImplemented={showNotImplemented}
           setShowNotImplemented={setShowNotImplemented}
+          sortBy={sortBy}
+          setSortBy={setSortBy}
         />
 
         <VirtualCardList catalogs={filteredCatalogs} addToDeck={addToDeck} />
