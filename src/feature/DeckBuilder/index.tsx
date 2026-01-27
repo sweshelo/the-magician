@@ -12,17 +12,19 @@ import { DeckPreview } from './DeckPreview';
 import { useSearchParams } from 'next/navigation';
 import { STARTER_DECK } from '@/constants/deck';
 import { JokerSelectDialog } from './JokerSelectDialog';
+import { VirtualCardList } from './VirtualCardList';
 
-// Memoized Card Component to prevent unnecessary re-renders
+// Memoized Card Component for DeckView
 const MemoizedCardView = memo(
   ({ card, onClick }: { card: ICard; onClick: () => void }) => {
     return <CardView card={card} isSmall onClick={onClick} />;
   },
   (prevProps, nextProps) => {
-    // Only re-render if the card ID changes, not on every parent render
     return prevProps.card.catalogId === nextProps.card.catalogId;
   }
 );
+
+MemoizedCardView.displayName = 'MemoizedCardView';
 
 // Helper function to get unique values from catalog
 const getUniqueValues = <T,>(getter: (catalog: Catalog) => T | T[] | undefined): T[] => {
@@ -39,9 +41,6 @@ const getUniqueValues = <T,>(getter: (catalog: Catalog) => T | T[] | undefined):
 
   return Array.from(values);
 };
-
-// Set display name for the memoized component
-MemoizedCardView.displayName = 'MemoizedCardView';
 
 // Filter Control component
 const FilterControls = memo(
@@ -619,33 +618,6 @@ export const DeckBuilder = ({ implementedIds }: DeckBuilderProps) => {
     showNotImplemented,
   ]);
 
-  // Card List component
-  const CardList = memo(
-    ({ catalogs, addToDeck }: { catalogs: Catalog[]; addToDeck: (catalogId: string) => void }) => {
-      return (
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(72px,1fr))] gap-1 justify-items-center m-4 px-4 w-full max-w-[1600px]">
-          {catalogs.map(catalog => {
-            // Create a stable card object using the catalog ID
-            const card: ICard = {
-              id: catalog.id, // Use a stable ID instead of randomly generated one
-              catalogId: catalog.id,
-              lv: 1,
-            };
-
-            return (
-              <div key={catalog.id}>
-                <MemoizedCardView card={card} onClick={() => addToDeck(catalog.id)} />
-              </div>
-            );
-          })}
-        </div>
-      );
-    }
-  );
-
-  // Set display name for the card list
-  CardList.displayName = 'CardList';
-
   const handleOpenSaveDialog = useCallback(() => {
     if (deck.length === 40) {
       setSaveDialogOpen(true);
@@ -735,6 +707,7 @@ export const DeckBuilder = ({ implementedIds }: DeckBuilderProps) => {
 
   const deleteDeck = useCallback(() => {
     setDeck([]);
+    setJokers([]);
   }, []);
 
   const handleLoadDeck = useCallback((deckData: DeckData) => {
@@ -773,40 +746,34 @@ export const DeckBuilder = ({ implementedIds }: DeckBuilderProps) => {
           </div>
         </div>
 
-        <div className="items-center justify-center flex my-2 gap-3">
+        <div className="items-center justify-center flex flex-wrap my-2 gap-2">
           <button
-            className="px-3 py-1 border rounded text-white bg-purple-500 hover:bg-purple-600"
-            onClick={handleOpenJokerDialog}
-          >
-            JOKER追加 ({jokers.length}/2)
-          </button>
-          <button
-            className="px-3 py-1 border rounde text-white rounded bg-blue-500 disabled:bg-indigo-900"
+            className="px-3 py-1 border text-white rounded bg-blue-500 disabled:bg-indigo-900 whitespace-nowrap"
             onClick={handleOpenSaveDialog}
             disabled={deck.length !== 40}
           >
             保存する
           </button>
           <button
-            className="px-3 py-1 border rounde text-white rounded bg-gray-500"
+            className="px-3 py-1 border text-white rounded bg-gray-500 whitespace-nowrap"
             onClick={sortDeck}
           >
             ソート
           </button>
           <button
-            className="px-3 py-1 border rounde text-white rounded bg-red-500"
+            className="px-3 py-1 border text-white rounded bg-red-500 whitespace-nowrap"
             onClick={deleteDeck}
           >
             デッキをリセット
           </button>
           <button
-            className="px-3 py-1 border rounde text-white rounded bg-green-500"
+            className="px-3 py-1 border text-white rounded bg-green-500 whitespace-nowrap"
             onClick={() => setLoadDialogOpen(true)}
           >
             デッキ一覧
           </button>
           <button
-            className="px-3 py-1 border rounde text-white rounded bg-black-700"
+            className="px-3 py-1 border text-white rounded bg-black-700 whitespace-nowrap"
             onClick={() => setIsPreviewOpen(true)}
           >
             プレビュー
@@ -854,7 +821,7 @@ export const DeckBuilder = ({ implementedIds }: DeckBuilderProps) => {
           setShowNotImplemented={setShowNotImplemented}
         />
 
-        <CardList catalogs={filteredCatalogs} addToDeck={addToDeck} />
+        <VirtualCardList catalogs={filteredCatalogs} addToDeck={addToDeck} />
       </div>
       {/* Deck Management Dialogs */}
       <JokerSelectDialog
