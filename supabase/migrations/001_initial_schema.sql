@@ -3,6 +3,9 @@
 -- クレジットシステム対応版
 -- =====================================================
 
+-- pgcrypto拡張を有効化（暗号学的に安全な乱数生成用）
+create extension if not exists pgcrypto;
+
 -- =====================================================
 -- profiles テーブル
 -- ユーザープロファイル（auth.usersと1:1で連携）
@@ -293,7 +296,7 @@ $$ language sql security definer;
 -- 1日の無料プレイ回数設定を取得
 create or replace function public.get_daily_free_plays()
 returns int as $$
-  select coalesce((value)::int, 3)
+  select coalesce((value #>> '{}')::int, 3)
   from public.system_config
   where key = 'daily_free_plays';
 $$ language sql security definer;
@@ -356,18 +359,16 @@ begin
   if v_today_free_count < v_daily_free then
     v_consumption_type := 'free';
   else
-    -- クレジット残高を確認
-    v_credits := public.get_user_credits(p_user_id);
+    -- クレジットを消費（残高 > 0 の場合のみ、原子的操作）
+    update public.user_credits
+    set balance = balance - 1
+    where user_id = p_user_id and balance > 0
+    returning balance into v_credits;
 
-    if v_credits <= 0 then
+    if not found then
       return query select false, null::text, null::uuid;
       return;
     end if;
-
-    -- クレジットを消費
-    update public.user_credits
-    set balance = balance - 1
-    where user_id = p_user_id;
 
     v_consumption_type := 'credit';
   end if;
@@ -426,16 +427,18 @@ begin
 end;
 $$ language plpgsql security definer;
 
--- ランダムなチケットコードを生成（16文字）
+-- ランダムなチケットコードを生成（16文字、暗号学的に安全）
 create or replace function public.generate_ticket_code()
 returns text as $$
 declare
   chars text := 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';  -- 紛らわしい文字を除外
   result text := '';
   i int;
+  random_bytes bytea;
 begin
+  random_bytes := gen_random_bytes(16);
   for i in 1..16 loop
-    result := result || substr(chars, floor(random() * length(chars) + 1)::int, 1);
+    result := result || substr(chars, (get_byte(random_bytes, i - 1) % length(chars)) + 1, 1);
   end loop;
   return result;
 end;
