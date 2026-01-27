@@ -8,7 +8,9 @@ import { createClient } from '@/lib/supabase/server';
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get('code');
-  const next = searchParams.get('next') ?? '/entrance';
+  const nextParam = searchParams.get('next') ?? '/entrance';
+  // オープンリダイレクト脆弱性を防止：相対パスのみ許可、プロトコル相対URL(//)を拒否
+  const next = nextParam.startsWith('/') && !nextParam.startsWith('//') ? nextParam : '/entrance';
 
   if (code) {
     const supabase = await createClient();

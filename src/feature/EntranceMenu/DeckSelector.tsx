@@ -12,8 +12,12 @@ export const DeckSelector = () => {
   const [isDeckListOpen, setIsDeckListOpen] = useState(false);
 
   const handleSetMainDeck = async (deckId: string) => {
-    await setMainDeck(deckId);
-    setIsDeckListOpen(false);
+    try {
+      await setMainDeck(deckId);
+      setIsDeckListOpen(false);
+    } catch (error) {
+      console.error('メインデッキ設定エラー:', error);
+    }
   };
 
   const handlePreview = () => {

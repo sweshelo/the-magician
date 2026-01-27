@@ -8,6 +8,7 @@ export const PlayStatus = () => {
   const { user, isLoading: isAuthLoading } = useAuth();
   const [status, setStatus] = useState<PlayStatusResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isAuthLoading) {
@@ -17,11 +18,13 @@ export const PlayStatus = () => {
 
   const loadStatus = async () => {
     setIsLoading(true);
+    setError(null);
     try {
       const result = await getPlayStatus();
       setStatus(result);
-    } catch (error) {
-      console.error('プレイ状態取得エラー:', error);
+    } catch (err) {
+      console.error('プレイ状態取得エラー:', err);
+      setError('プレイ状態の取得に失敗しました');
     } finally {
       setIsLoading(false);
     }
@@ -32,6 +35,16 @@ export const PlayStatus = () => {
       <div className="bg-gray-700 p-4 rounded-lg animate-pulse">
         <div className="h-6 bg-gray-600 rounded w-1/2 mb-2"></div>
         <div className="h-4 bg-gray-600 rounded w-3/4"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-gray-700 p-4 rounded-lg">
+        <div className="p-2 bg-red-900 border border-red-600 rounded text-red-200 text-sm">
+          {error}
+        </div>
       </div>
     );
   }

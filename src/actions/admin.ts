@@ -69,7 +69,7 @@ async function checkAdminAccess(): Promise<{ userId: string } | { error: string 
  * 管理者かどうかを確認
  */
 export async function checkIsAdmin(): Promise<AdminCheckResponse> {
-  if (process.env.NEXT_PUBLIC_AUTH_SKIP === 'true') {
+  if (process.env.AUTH_SKIP === 'true') {
     return { isAdmin: true, message: '開発モード' };
   }
 
@@ -85,7 +85,7 @@ export async function checkIsAdmin(): Promise<AdminCheckResponse> {
  * システム設定を取得
  */
 export async function getSystemConfig(): Promise<SystemConfigResponse> {
-  if (process.env.NEXT_PUBLIC_AUTH_SKIP === 'true') {
+  if (process.env.AUTH_SKIP === 'true') {
     return { dailyFreePlays: 3 };
   }
 
@@ -108,7 +108,7 @@ export async function getSystemConfig(): Promise<SystemConfigResponse> {
 export async function updateDailyFreePlays(
   value: number
 ): Promise<{ success: boolean; message?: string }> {
-  if (process.env.NEXT_PUBLIC_AUTH_SKIP === 'true') {
+  if (process.env.AUTH_SKIP === 'true') {
     return { success: true, message: '開発モード' };
   }
 
@@ -123,9 +123,7 @@ export async function updateDailyFreePlays(
 
   const supabase = await createClient();
 
-  const { error } = await supabase
-    .from('system_config')
-    .upsert({ key: 'daily_free_plays', value: value as unknown as Record<string, unknown> });
+  const { error } = await supabase.from('system_config').upsert({ key: 'daily_free_plays', value });
 
   if (error) {
     console.error('設定更新エラー:', error);
@@ -143,7 +141,7 @@ export async function getTickets(options?: {
   limit?: number;
   showUsed?: boolean;
 }): Promise<TicketListResponse> {
-  if (process.env.NEXT_PUBLIC_AUTH_SKIP === 'true') {
+  if (process.env.AUTH_SKIP === 'true') {
     return { tickets: [], total: 0 };
   }
 
@@ -186,7 +184,7 @@ export async function getTickets(options?: {
  * チケットを発行（一括発行対応）
  */
 export async function createTickets(request: CreateTicketRequest): Promise<CreateTicketResponse> {
-  if (process.env.NEXT_PUBLIC_AUTH_SKIP === 'true') {
+  if (process.env.AUTH_SKIP === 'true') {
     return {
       success: true,
       tickets: Array.from({ length: request.count }, (_, i) => ({
@@ -257,7 +255,7 @@ export async function getUsers(options?: {
   page?: number;
   limit?: number;
 }): Promise<UserListResponse> {
-  if (process.env.NEXT_PUBLIC_AUTH_SKIP === 'true') {
+  if (process.env.AUTH_SKIP === 'true') {
     return { users: [], total: 0 };
   }
 
@@ -316,7 +314,7 @@ export async function setUserAdmin(
   userId: string,
   isAdmin: boolean
 ): Promise<{ success: boolean; message?: string }> {
-  if (process.env.NEXT_PUBLIC_AUTH_SKIP === 'true') {
+  if (process.env.AUTH_SKIP === 'true') {
     return { success: true, message: '開発モード' };
   }
 

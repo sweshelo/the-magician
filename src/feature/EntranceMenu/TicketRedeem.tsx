@@ -25,6 +25,12 @@ export const TicketRedeem = ({ onSuccess }: TicketRedeemProps) => {
     e.preventDefault();
     if (!code.trim()) return;
 
+    // 16桁バリデーション
+    if (code.length !== 16) {
+      setError('チケットコードは16桁で入力してください');
+      return;
+    }
+
     setIsSubmitting(true);
     setError(null);
     setSuccess(null);

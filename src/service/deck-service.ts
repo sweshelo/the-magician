@@ -92,12 +92,17 @@ export const DeckService = {
     const supabase = createClient();
 
     // 既存のデッキを確認
-    const { data: existing } = await supabase
+    const { data: existing, error: existingError } = await supabase
       .from('decks')
       .select('id')
       .eq('user_id', userId)
       .eq('title', title)
-      .single();
+      .maybeSingle();
+
+    if (existingError) {
+      console.error('既存デッキ確認エラー:', existingError);
+      throw existingError;
+    }
 
     if (existing) {
       // 更新
