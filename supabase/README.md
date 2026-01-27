@@ -17,8 +17,12 @@
 2. "New Application" をクリックしてアプリケーションを作成
 3. 左メニューから "OAuth2" を選択
 4. "Redirects" に以下を追加：
-   - 本番: `https://your-project.supabase.co/auth/v1/callback`
-   - ローカル: `http://localhost:3000/auth/callback`
+   - `https://<your-project-ref>.supabase.co/auth/v1/callback`
+
+   **重要**: Discord側には必ずSupabaseのコールバックURLを設定してください。
+   アプリケーションのURL（`http://localhost:3000/auth/callback`など）を
+   設定すると、OAuthフローが正しく機能しません。
+
 5. "Client ID" と "Client Secret" をコピー
 
 ### Supabase での設定
@@ -28,6 +32,13 @@
 3. "Discord" を有効化
 4. Discord Developer Portal からコピーした Client ID と Client Secret を入力
 5. 保存
+6. "Authentication" → "URL Configuration" を設定：
+   - **Site URL**: `http://localhost:3000`（開発時）または本番URL
+   - **Redirect URLs** に以下を追加（許可リスト）:
+     - `http://localhost:3000/auth/callback`（ローカル開発用）
+     - `https://yourdomain.com/auth/callback`（本番用）
+
+   **重要**: `redirectTo`で指定するURLは必ずこの許可リストに追加してください。
 
 ## 3. データベースのセットアップ
 
@@ -123,6 +134,26 @@ supabase db push
 
 - Discord Developer Portal の Redirects 設定を確認
 - Supabase の Site URL 設定を確認
+
+### OAuth state parameter missing エラー
+
+このエラーは以下の原因で発生します：
+
+1. **Discord Developer Portalの設定ミス**
+   - Discord側のRedirect URLsにアプリのURL（`http://localhost:3000/...`）を設定している
+   - 正しくは: SupabaseのコールバックURL（`https://<project>.supabase.co/auth/v1/callback`）のみを設定
+
+2. **Supabase Dashboardの設定漏れ**
+   - Authentication → URL Configuration → Redirect URLs にアプリのコールバックURLが追加されていない
+   - 追加すべきURL: `http://localhost:3000/auth/callback`（開発時）
+
+### code verifier should be non-empty エラー
+
+PKCEフローでcode verifierが失われている場合に発生します：
+
+1. 認証開始時と完了時で異なるブラウザを使用している
+2. Cookieがブロックされている（プライベートブラウジング等）
+3. ドメインの不一致（127.0.0.1 vs localhost）
 
 ### プロファイルが作成されない
 
