@@ -17,6 +17,15 @@ export const OverclockEffect: React.FC<OverclockEffectProps> = ({ unitId, onComp
   );
   const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
 
+  // アンマウント時のクリーンアップ
+  // ユニットがフィールドを離れた場合など、エフェクト完了前にアンマウントされた際に
+  // activeUnits から確実に削除する
+  useEffect(() => {
+    return () => {
+      removeOverclockUnit(unitId);
+    };
+  }, [unitId, removeOverclockUnit]);
+
   // 月桂冠の葉の生成 - より高度な配置（ランダム要素排除・上部開口部の修正）
   const laurelLeaves = useMemo(() => {
     // 左右に16枚ずつ、計32枚の葉を配置

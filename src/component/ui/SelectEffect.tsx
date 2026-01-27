@@ -17,6 +17,15 @@ export const SelectEffect: React.FC<SelectEffectProps> = ({ unitId, onComplete }
   );
   const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
 
+  // アンマウント時のクリーンアップ
+  // ユニットがフィールドを離れた場合など、エフェクト完了前にアンマウントされた際に
+  // targetUnitIds から確実に削除する
+  useEffect(() => {
+    return () => {
+      removeTargetUnit(unitId);
+    };
+  }, [unitId, removeTargetUnit]);
+
   // フェーズ管理の実装
   useEffect(() => {
     // タイムアウトをクリア

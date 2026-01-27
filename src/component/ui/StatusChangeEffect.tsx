@@ -192,6 +192,17 @@ export const MultipleStatusChange: React.FC<MultipleStatusChangeProps> = ({
   const [completedCount, setCompletedCount] = useState(0);
   const { removeStatusChange } = useStatusChange();
 
+  // アンマウント時のクリーンアップ
+  // ユニットがフィールドを離れた場合など、エフェクト完了前にアンマウントされた際に
+  // statusChanges から確実に削除する
+  useEffect(() => {
+    return () => {
+      if (statusChangeId) {
+        removeStatusChange(statusChangeId);
+      }
+    };
+  }, [statusChangeId, removeStatusChange]);
+
   // すべてのエフェクトが完了したら onComplete を呼び出す
   useEffect(() => {
     if (completedCount === changes.length) {
