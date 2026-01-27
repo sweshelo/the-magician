@@ -1,13 +1,17 @@
 import {
   checkCanPlay as checkCanPlayAction,
+  getPlayStatus as getPlayStatusAction,
   recordPlay as recordPlayAction,
-  type PlayCheckResponse,
+  redeemTicket as redeemTicketAction,
+  type PlayStatusResponse,
   type PlayRecordRequest,
   type PlayRecordResponse,
+  type RedeemTicketResponse,
 } from '@/actions/play';
 
-// 型を再エクスポート
-export type { PlayCheckResponse, PlayRecordRequest, PlayRecordResponse };
+// 型を再エクスポート（後方互換性のためPlayCheckResponseも追加）
+export type { PlayStatusResponse, PlayRecordRequest, PlayRecordResponse, RedeemTicketResponse };
+export type PlayCheckResponse = PlayStatusResponse; // 後方互換性
 
 /**
  * プレイ回数制限サービス
@@ -15,7 +19,12 @@ export type { PlayCheckResponse, PlayRecordRequest, PlayRecordResponse };
  */
 export const PlayLimitService = {
   /**
-   * プレイ可能かどうかを確認
+   * プレイ状態を取得（詳細情報付き）
+   */
+  getPlayStatus: getPlayStatusAction,
+
+  /**
+   * プレイ可能かどうかを確認（後方互換性用）
    */
   checkCanPlay: checkCanPlayAction,
 
@@ -23,4 +32,9 @@ export const PlayLimitService = {
    * プレイを記録
    */
   recordPlay: recordPlayAction,
+
+  /**
+   * チケットを使用してクレジットをチャージ
+   */
+  redeemTicket: redeemTicketAction,
 };
