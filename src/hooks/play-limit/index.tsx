@@ -1,8 +1,7 @@
 'use client';
 
 import { useCallback, useState } from 'react';
-import { PlayLimitService } from '@/service/play-limit-service';
-import type { PlayCheckResponse } from '@/app/api/play/check/route';
+import { PlayLimitService, type PlayCheckResponse } from '@/service/play-limit-service';
 
 export type UsePlayLimitReturn = {
   playStatus: PlayCheckResponse | null;
