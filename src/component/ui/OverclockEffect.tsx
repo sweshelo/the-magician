@@ -10,21 +10,22 @@ interface OverclockEffectProps {
 
 export const OverclockEffect: React.FC<OverclockEffectProps> = ({ unitId, onComplete }) => {
   // オーバークロックエフェクトコンテキストを使用
-  const { removeOverclockUnit } = useOverclockEffect();
+  const { removeOverclockUnit, scheduleRemoval, cancelScheduledRemoval } = useOverclockEffect();
   // フェーズ状態の管理
   const [phase, setPhase] = useState<'initial' | 'appear' | 'expand' | 'glow' | 'fadeOut'>(
     'initial'
   );
   const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
 
-  // アンマウント時のクリーンアップ
+  // アンマウント時のクリーンアップ（React Strict Mode対応）
   // ユニットがフィールドを離れた場合など、エフェクト完了前にアンマウントされた際に
   // activeUnits から確実に削除する
   useEffect(() => {
+    cancelScheduledRemoval(unitId);
     return () => {
-      removeOverclockUnit(unitId);
+      scheduleRemoval(unitId);
     };
-  }, [unitId, removeOverclockUnit]);
+  }, [unitId, scheduleRemoval, cancelScheduledRemoval]);
 
   // 月桂冠の葉の生成 - より高度な配置（ランダム要素排除・上部開口部の修正）
   const laurelLeaves = useMemo(() => {

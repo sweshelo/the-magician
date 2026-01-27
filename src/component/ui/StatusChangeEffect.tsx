@@ -190,18 +190,21 @@ export const MultipleStatusChange: React.FC<MultipleStatusChangeProps> = ({
   onComplete,
 }) => {
   const [completedCount, setCompletedCount] = useState(0);
-  const { removeStatusChange } = useStatusChange();
+  const { removeStatusChange, scheduleRemoval, cancelScheduledRemoval } = useStatusChange();
 
-  // アンマウント時のクリーンアップ
+  // アンマウント時のクリーンアップ（React Strict Mode対応）
   // ユニットがフィールドを離れた場合など、エフェクト完了前にアンマウントされた際に
   // statusChanges から確実に削除する
   useEffect(() => {
+    if (statusChangeId) {
+      cancelScheduledRemoval(statusChangeId);
+    }
     return () => {
       if (statusChangeId) {
-        removeStatusChange(statusChangeId);
+        scheduleRemoval(statusChangeId);
       }
     };
-  }, [statusChangeId, removeStatusChange]);
+  }, [statusChangeId, scheduleRemoval, cancelScheduledRemoval]);
 
   // すべてのエフェクトが完了したら onComplete を呼び出す
   useEffect(() => {
