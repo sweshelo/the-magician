@@ -23,6 +23,12 @@ export const StatusChangeEffect: React.FC<StatusChangeEffectProps> = ({
   // フェーズ状態の管理
   const [phase, setPhase] = useState<'initial' | 'appear' | 'hold' | 'fadeOut'>('initial');
   const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
+  const onCompleteRef = useRef(onComplete);
+
+  // onCompleteが変更されたらrefを更新
+  useEffect(() => {
+    onCompleteRef.current = onComplete;
+  }, [onComplete]);
 
   // 省略されていない場合はランダムな位置を生成
   const effectPosition = useMemo(() => {
@@ -57,13 +63,13 @@ export const StatusChangeEffect: React.FC<StatusChangeEffectProps> = ({
     } else if (phase === 'fadeOut') {
       // フェードアウトフェーズから完了
       timeout = setTimeout(() => {
-        if (onComplete) onComplete();
+        if (onCompleteRef.current) onCompleteRef.current();
       }, 300);
       timeoutsRef.current.push(timeout);
     }
 
     return clearTimeouts;
-  }, [phase, onComplete]);
+  }, [phase]);
 
   // フェーズごとのスタイル
   const style = useMemo(() => {
@@ -143,11 +149,11 @@ export const StatusChangeEffect: React.FC<StatusChangeEffectProps> = ({
 
     return (
       <>
-        <div className="text-md text-center border-b-1 w-full" style={labelStyle}>
+        <div className="text-md text-center w-full" style={labelStyle}>
           {labelText}
         </div>
         {valueText && (
-          <div className="text-lg" style={valueStyle}>
+          <div className="text-lg border-t-1" style={valueStyle}>
             {valueText}
           </div>
         )}
@@ -190,7 +196,21 @@ export const MultipleStatusChange: React.FC<MultipleStatusChangeProps> = ({
   onComplete,
 }) => {
   const [completedCount, setCompletedCount] = useState(0);
-  const { removeStatusChange } = useStatusChange();
+  const { removeStatusChange, scheduleRemoval, cancelScheduledRemoval } = useStatusChange();
+
+  // アンマウント時のクリーンアップ（React Strict Mode対応）
+  // ユニットがフィールドを離れた場合など、エフェクト完了前にアンマウントされた際に
+  // statusChanges から確実に削除する
+  useEffect(() => {
+    if (statusChangeId) {
+      cancelScheduledRemoval(statusChangeId);
+    }
+    return () => {
+      if (statusChangeId) {
+        scheduleRemoval(statusChangeId);
+      }
+    };
+  }, [statusChangeId, scheduleRemoval, cancelScheduledRemoval]);
 
   // すべてのエフェクトが完了したら onComplete を呼び出す
   useEffect(() => {

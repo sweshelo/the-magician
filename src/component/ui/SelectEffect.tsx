@@ -10,12 +10,22 @@ interface SelectEffectProps {
 
 export const SelectEffect: React.FC<SelectEffectProps> = ({ unitId, onComplete }) => {
   // 選択エフェクトコンテキストを使用
-  const { removeTargetUnit } = useSelectEffect();
+  const { removeTargetUnit, scheduleRemoval, cancelScheduledRemoval } = useSelectEffect();
   // フェーズ状態の管理
   const [phase, setPhase] = useState<'initial' | 'appear' | 'expand' | 'pulse' | 'fadeOut'>(
     'initial'
   );
   const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
+
+  // アンマウント時のクリーンアップ（React Strict Mode対応）
+  // ユニットがフィールドを離れた場合など、エフェクト完了前にアンマウントされた際に
+  // targetUnitIds から確実に削除する
+  useEffect(() => {
+    cancelScheduledRemoval(unitId);
+    return () => {
+      scheduleRemoval(unitId);
+    };
+  }, [unitId, scheduleRemoval, cancelScheduledRemoval]);
 
   // フェーズ管理の実装
   useEffect(() => {
@@ -56,7 +66,7 @@ export const SelectEffect: React.FC<SelectEffectProps> = ({ unitId, onComplete }
     }
 
     return clearTimeouts;
-  }, [phase, onComplete]);
+  }, [phase, onComplete, removeTargetUnit, unitId]);
 
   // フェーズごとのスタイル
   const style = useMemo(() => {
