@@ -6,11 +6,19 @@ import { createClient } from '@/lib/supabase/server';
  * Discord OAuthからのリダイレクトを処理し、セッションを確立する
  */
 export async function GET(request: Request) {
-  const { searchParams, origin } = new URL(request.url);
+  const { searchParams } = new URL(request.url);
   const code = searchParams.get('code');
   const nextParam = searchParams.get('next') ?? '/entrance';
+
   // オープンリダイレクト脆弱性を防止：相対パスのみ許可、プロトコル相対URL(//)を拒否
   const next = nextParam.startsWith('/') && !nextParam.startsWith('//') ? nextParam : '/entrance';
+
+  // プロキシ経由の場合、元のホスト名を取得
+  const forwardedHost = request.headers.get('x-forwarded-host');
+  const forwardedProto = request.headers.get('x-forwarded-proto') ?? 'http';
+  const origin = forwardedHost
+    ? `${forwardedProto}://${forwardedHost}`
+    : new URL(request.url).origin;
 
   if (code) {
     const supabase = await createClient();
