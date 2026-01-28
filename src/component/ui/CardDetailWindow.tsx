@@ -54,8 +54,44 @@ export const CardDetailWindow = ({ x = 0, y = 0 }: CardDetailWindowProps) => {
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x, y });
   const [abilityMode, setAbilityMode] = useState(true);
+  const [previousCard, setPreviousCard] = useState<ICard | undefined>(undefined);
 
   const windowRef = useRef<HTMLDivElement>(null);
+  // 内部ナビゲーションかどうかを追跡
+  const isInternalNavigation = useRef(false);
+
+  // 外部からカードが変更された場合、履歴をクリア
+  useEffect(() => {
+    if (!isInternalNavigation.current) {
+      setPreviousCard(undefined);
+    }
+    isInternalNavigation.current = false;
+  }, [detailCard?.catalogId]);
+
+  // 関連カードに遷移する際、現在のカードを履歴に保存
+  const navigateToRelatedCard = useCallback(
+    (newCatalogId: string) => {
+      if (detailCard) {
+        setPreviousCard(detailCard);
+      }
+      isInternalNavigation.current = true;
+      setDetailCard({
+        id: `related-${newCatalogId}`,
+        catalogId: newCatalogId,
+        lv: 1,
+      });
+    },
+    [detailCard, setDetailCard]
+  );
+
+  // 前のカードに戻る
+  const goBackToPreviousCard = useCallback(() => {
+    if (previousCard) {
+      isInternalNavigation.current = true;
+      setDetailCard(previousCard);
+      setPreviousCard(undefined);
+    }
+  }, [previousCard, setDetailCard]);
 
   // Handle mouse events for dragging
   const handleMouseDown: MouseEventHandler<HTMLDivElement> = e => {
@@ -124,6 +160,9 @@ export const CardDetailWindow = ({ x = 0, y = 0 }: CardDetailWindowProps) => {
         setDetailCard={setDetailCard}
         abilityMode={abilityMode}
         setAbilityMode={setAbilityMode}
+        onNavigateToRelated={navigateToRelatedCard}
+        previousCard={previousCard}
+        onGoBack={goBackToPreviousCard}
       />
     </div>
   );
@@ -132,35 +171,54 @@ export const CardDetailWindow = ({ x = 0, y = 0 }: CardDetailWindowProps) => {
 // 関連カードを表示するコンポーネント
 const RelatedCards = ({
   relatedIds,
-  setDetailCard,
+  onNavigate,
+  previousCard,
+  onGoBack,
 }: {
   relatedIds: string[];
-  setDetailCard: Dispatch<SetStateAction<ICard | undefined>>;
+  onNavigate: (catalogId: string) => void;
+  previousCard?: ICard;
+  onGoBack: () => void;
 }) => {
-  if (!relatedIds || relatedIds.length === 0) return null;
-
   // 関連カードのカタログを取得
   const relatedCatalogs = relatedIds
     .map(id => master.get(id))
     .filter((catalog): catalog is NonNullable<typeof catalog> => catalog !== undefined);
 
-  if (relatedCatalogs.length === 0) return null;
+  const previousCatalog = previousCard ? master.get(previousCard.catalogId) : undefined;
+  const hasContent = relatedCatalogs.length > 0 || previousCatalog;
+
+  if (!hasContent) return null;
 
   return (
     <div className="my-3">
-      <div className="text-xs font-bold mb-1 text-gray-400">関連カード</div>
+      <div className="text-sm font-bold mb-1">関連カード</div>
       <div className="flex flex-wrap gap-1">
+        {/* 戻るボタン（前のカードがある場合） */}
+        {previousCatalog && (
+          <div
+            className="cursor-pointer hover:opacity-80 transition-opacity relative"
+            onClick={onGoBack}
+            title={`← ${previousCatalog.name} に戻る`}
+          >
+            <Image
+              src={getImageUrl(previousCatalog.id)}
+              alt={previousCatalog.name}
+              width={40}
+              height={56}
+              className="rounded-sm border-2 border-blue-500"
+            />
+            <div className="absolute inset-0 bg-black/40 flex items-center justify-center rounded-sm">
+              <span className="text-white text-lg font-bold">←</span>
+            </div>
+          </div>
+        )}
+        {/* 関連カード */}
         {relatedCatalogs.map(catalog => (
           <div
             key={catalog.id}
             className="cursor-pointer hover:opacity-80 transition-opacity"
-            onClick={() =>
-              setDetailCard({
-                id: `related-${catalog.id}`,
-                catalogId: catalog.id,
-                lv: 1,
-              })
-            }
+            onClick={() => onNavigate(catalog.id)}
             title={catalog.name}
           >
             <Image
@@ -228,12 +286,18 @@ const AbilityPane = ({
   setDetailCard,
   abilityMode,
   setAbilityMode,
+  onNavigateToRelated,
+  previousCard,
+  onGoBack,
 }: {
   handleMouseDown: MouseEventHandler<HTMLDivElement>;
   catalogId: string;
   setDetailCard: Dispatch<SetStateAction<ICard | undefined>>;
   abilityMode: boolean;
   setAbilityMode: Dispatch<SetStateAction<boolean>>;
+  onNavigateToRelated: (catalogId: string) => void;
+  previousCard?: ICard;
+  onGoBack: () => void;
 }) => {
   const cardType = {
     unit: 'ユニットカード',
@@ -306,8 +370,13 @@ const AbilityPane = ({
               <RelatedAbilities abilityText={catalog.ability} isVirus={catalog.type === 'virus'} />
             )}
             {/* 関連カード */}
-            {catalog.related && (
-              <RelatedCards relatedIds={catalog.related} setDetailCard={setDetailCard} />
+            {(catalog.related || previousCard) && (
+              <RelatedCards
+                relatedIds={catalog.related || []}
+                onNavigate={onNavigateToRelated}
+                previousCard={previousCard}
+                onGoBack={onGoBack}
+              />
             )}
           </div>
         </div>
