@@ -1,3 +1,5 @@
+export const STARTER_JOKERS = ['パニッシュメントブレイク', 'ブレイブシールド'];
+
 export const STARTER_DECK = [
   '1-2-001',
   '1-2-001',
