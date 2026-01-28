@@ -80,6 +80,24 @@ export async function getPlayStatus(): Promise<PlayStatusResponse> {
       supabase.rpc('get_user_credits', { p_user_id: user.id }),
     ]);
 
+    // Check for RPC errors
+    if (dailyFreeResult.error || todayFreeResult.error || creditsResult.error) {
+      console.error('RPC呼び出しエラー:', {
+        dailyFree: dailyFreeResult.error,
+        todayFree: todayFreeResult.error,
+        credits: creditsResult.error,
+      });
+      return {
+        canPlay: false,
+        dailyFreeLimit: 0,
+        todayFreeUsed: 0,
+        freeRemaining: 0,
+        credits: 0,
+        totalRemaining: 0,
+        message: 'プレイ状態の取得に失敗しました',
+      };
+    }
+
     const dailyFreeLimit = dailyFreeResult.data ?? 3;
     const todayFreeUsed = todayFreeResult.data ?? 0;
     const credits = creditsResult.data ?? 0;

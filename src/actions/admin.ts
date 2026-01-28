@@ -50,11 +50,16 @@ async function checkAdminAccess(): Promise<{ userId: string } | { error: string 
     return { error: 'ログインが必要です' };
   }
 
-  const { data: profile } = await supabase
+  const { data: profile, error: profileError } = await supabase
     .from('profiles')
     .select('is_admin')
     .eq('id', user.id)
     .single();
+
+  if (profileError) {
+    console.error('プロファイル取得エラー:', profileError);
+    return { error: 'プロファイルの取得に失敗しました' };
+  }
 
   if (!profile?.is_admin) {
     return { error: '管理者権限が必要です' };
@@ -91,11 +96,15 @@ export async function getSystemConfig(): Promise<SystemConfigResponse> {
 
   const supabase = await createClient();
 
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('system_config')
     .select('value')
     .eq('key', 'daily_free_plays')
     .single();
+
+  if (error) {
+    console.error('システム設定取得エラー:', error);
+  }
 
   return {
     dailyFreePlays: (data?.value as number) ?? 3,

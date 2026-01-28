@@ -46,7 +46,7 @@
 
 Supabase Dashboard の SQL Editor で以下のファイルを実行：
 
-```
+```text
 supabase/migrations/001_initial_schema.sql
 ```
 
@@ -69,7 +69,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY="your-anon-key"
 SUPABASE_SERVICE_ROLE_KEY="your-service-role-key"
 
 # 本番環境では false に設定
-NEXT_PUBLIC_AUTH_SKIP="false"
+AUTH_SKIP="false"
 ```
 
 ## 5. ローカル開発
@@ -79,7 +79,7 @@ NEXT_PUBLIC_AUTH_SKIP="false"
 ローカル開発時に Supabase を使用しない場合：
 
 ```env
-NEXT_PUBLIC_AUTH_SKIP="true"
+AUTH_SKIP="true"
 ```
 
 これにより、モックユーザーとして自動ログインされます。
