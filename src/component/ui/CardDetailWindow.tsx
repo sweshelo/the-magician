@@ -5,21 +5,14 @@ import classNames from 'classnames';
 import { defaultUIColors, getColorCode } from '@/helper/color';
 import Image from 'next/image';
 import { useSystemContext } from '@/hooks/system/hooks';
-import {
-  Dispatch,
-  MouseEventHandler,
-  SetStateAction,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import { Dispatch, SetStateAction, useCallback, useEffect, useRef, useState } from 'react';
 import keywordsData from '@/submodule/suit/catalog/keywords.json';
 import { BattleIconDetail } from './BattleIconsView';
 import { Tooltip } from 'react-tooltip';
 import DOMPurify from 'dompurify';
 import { ICard } from '@/submodule/suit/types';
 import { getImageUrl } from '@/helper/image';
+import { Rnd } from 'react-rnd';
 
 interface LevelProps {
   lv: number;
@@ -48,17 +41,26 @@ interface CardDetailWindowProps {
   y?: number;
 }
 
+// カードのアスペクト比に合わせた固定サイズ
+const IMAGE_SIZE = { width: 300, height: 420 };
+const ABILITY_SIZE = { width: 400, height: 340 };
+
 export const CardDetailWindow = ({ x = 0, y = 0 }: CardDetailWindowProps) => {
   const { detailCard, setDetailCard, detailPosition } = useSystemContext();
   const [position, setPosition] = useState({ x, y });
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragOffset, setDragOffset] = useState({ x, y });
+  const [abilitySize, setAbilitySize] = useState(ABILITY_SIZE);
+  const [imageSize, setImageSize] = useState(IMAGE_SIZE);
   const [abilityMode, setAbilityMode] = useState(true);
   const [previousCard, setPreviousCard] = useState<ICard | undefined>(undefined);
 
-  const windowRef = useRef<HTMLDivElement>(null);
+  // 現在のモードに応じたサイズを取得
+  const currentSize = abilityMode ? abilitySize : imageSize;
+  const setCurrentSize = abilityMode ? setAbilitySize : setImageSize;
+
   // 内部ナビゲーションかどうかを追跡
   const isInternalNavigation = useRef(false);
+  // 前回のdetailCardを追跡（閉じて再度開いたときの検出用）
+  const prevDetailCard = useRef(detailCard);
 
   // 外部からカードが変更された場合、履歴をクリア
   useEffect(() => {
@@ -67,6 +69,14 @@ export const CardDetailWindow = ({ x = 0, y = 0 }: CardDetailWindowProps) => {
     }
     isInternalNavigation.current = false;
   }, [detailCard?.catalogId]);
+
+  // カードが閉じられた後に再度開かれた場合、位置をリセット
+  useEffect(() => {
+    if (prevDetailCard.current === undefined && detailCard !== undefined) {
+      setPosition(detailPosition);
+    }
+    prevDetailCard.current = detailCard;
+  }, [detailCard, detailPosition]);
 
   // 関連カードに遷移する際、現在のカードを履歴に保存
   const navigateToRelatedCard = useCallback(
@@ -93,78 +103,45 @@ export const CardDetailWindow = ({ x = 0, y = 0 }: CardDetailWindowProps) => {
     }
   }, [previousCard, setDetailCard]);
 
-  // Handle mouse events for dragging
-  const handleMouseDown: MouseEventHandler<HTMLDivElement> = e => {
-    if (windowRef.current) {
-      const rect = windowRef.current.getBoundingClientRect();
-      setDragOffset({
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
-      });
-      setIsDragging(true);
-    }
-  };
-
-  const handleMouseMove = useCallback(
-    (e: MouseEvent) => {
-      if (isDragging) {
-        setPosition({
-          x: e.clientX - dragOffset.x,
-          y: e.clientY - dragOffset.y,
-        });
-      }
-    },
-    [isDragging, dragOffset]
-  );
-
-  const handleMouseUp = useCallback(() => {
-    setIsDragging(false);
-  }, []);
-
-  // Only set the initial position once when component mounts or when card changes but position hasn't been set yet
-  useEffect(() => {
-    // Initialize position only if it hasn't been set yet (x and y are both 0)
-    if (position.x === 0 && position.y === 0) {
-      setPosition(detailPosition);
-    }
-  }, [detailPosition, position.x, position.y]);
-
-  // Add and remove global event listeners
-  useEffect(() => {
-    if (isDragging) {
-      window.addEventListener('mousemove', handleMouseMove);
-      window.addEventListener('mouseup', handleMouseUp);
-    }
-
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-    };
-  }, [isDragging, handleMouseMove, handleMouseUp]);
-
   // If no card is selected, don't render anything
   if (!detailCard) return null;
 
   return (
-    <div
-      ref={windowRef}
-      className={`fixed transform w-100 ${defaultUIColors.playerInfoBackground} rounded-lg shadow-lg z-50 border ${defaultUIColors.border} overflow-hidden`}
-      style={{
-        left: `${position.x}px`,
-        top: `${position.y}px`,
+    <Rnd
+      style={{ position: 'fixed' }}
+      size={currentSize}
+      position={position}
+      onDragStop={(_e, d) => setPosition({ x: d.x, y: d.y })}
+      onResizeStop={(_e, _direction, ref, _delta, newPosition) => {
+        setCurrentSize({ width: ref.offsetWidth, height: ref.offsetHeight });
+        setPosition(newPosition);
       }}
+      minWidth={abilityMode ? 320 : IMAGE_SIZE.width}
+      minHeight={abilityMode ? 280 : IMAGE_SIZE.height}
+      maxWidth={abilityMode ? 600 : IMAGE_SIZE.width}
+      maxHeight={abilityMode ? 500 : IMAGE_SIZE.height}
+      dragHandleClassName="drag-handle"
+      enableResizing={abilityMode ? { bottomRight: true } : false}
+      className={`${defaultUIColors.playerInfoBackground} rounded-lg shadow-lg z-50 border ${defaultUIColors.border} overflow-hidden`}
     >
-      <AbilityPane
-        handleMouseDown={handleMouseDown}
-        catalogId={detailCard.catalogId}
-        setDetailCard={setDetailCard}
-        abilityMode={abilityMode}
-        setAbilityMode={setAbilityMode}
-        onNavigateToRelated={navigateToRelatedCard}
-        previousCard={previousCard}
-        onGoBack={goBackToPreviousCard}
-      />
-    </div>
+      <div className="flex flex-col h-full w-full">
+        <AbilityPane
+          catalogId={detailCard.catalogId}
+          setDetailCard={setDetailCard}
+          abilityMode={abilityMode}
+          setAbilityMode={setAbilityMode}
+          onNavigateToRelated={navigateToRelatedCard}
+          previousCard={previousCard}
+          onGoBack={goBackToPreviousCard}
+        />
+        {/* リサイズハンドル（AbilityModeのみ表示） */}
+        {abilityMode && (
+          <div className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize flex items-center justify-center text-gray-500 text-xs">
+            ⋱
+          </div>
+        )}
+      </div>
+    </Rnd>
   );
 };
 
@@ -281,7 +258,6 @@ const RelatedAbilities = ({ abilityText, isVirus }: { abilityText: string; isVir
 };
 
 const AbilityPane = ({
-  handleMouseDown,
   catalogId,
   setDetailCard,
   abilityMode,
@@ -290,7 +266,6 @@ const AbilityPane = ({
   previousCard,
   onGoBack,
 }: {
-  handleMouseDown: MouseEventHandler<HTMLDivElement>;
   catalogId: string;
   setDetailCard: Dispatch<SetStateAction<ICard | undefined>>;
   abilityMode: boolean;
@@ -313,13 +288,12 @@ const AbilityPane = ({
     <>
       {/* ウィンドウヘッダー */}
       <div
-        className={`flex justify-between items-center p-3 h-20 ${defaultUIColors.background} cursor-move`}
+        className={`drag-handle flex justify-between items-center p-3 h-20 ${defaultUIColors.background} cursor-move`}
         style={{
           backgroundImage: `url${getImageUrl(catalogId)}`,
           backgroundSize: 'cover',
           backgroundPosition: '0% -140px',
         }}
-        onMouseDown={handleMouseDown}
         onDoubleClick={() => setAbilityMode(false)}
       >
         <div className="rounded-sm border-3 border-gray">
@@ -354,11 +328,11 @@ const AbilityPane = ({
       </div>
 
       {/* カード情報 */}
-      <div className="p-4 h-60">
+      <div className="p-4 flex-1 flex flex-col overflow-hidden">
         {/* 効果 */}
-        <div className="mb-3">
+        <div className="mb-3 flex-1 flex flex-col overflow-hidden">
           {/* スクロール可能なテキストエリア */}
-          <div className="h-42 overflow-y-auto mb-2">
+          <div className="flex-1 overflow-y-auto mb-2">
             <p
               className={`text-sm rounded whitespace-pre-wrap select-text`}
               dangerouslySetInnerHTML={{
@@ -394,20 +368,14 @@ const AbilityPane = ({
       </div>
     </>
   ) : (
-    <ImagePane
-      handleMouseDown={handleMouseDown}
-      catalogId={catalogId}
-      setAbilityMode={setAbilityMode}
-    />
+    <ImagePane catalogId={catalogId} setAbilityMode={setAbilityMode} />
   );
 };
 
 const ImagePane = ({
-  handleMouseDown,
   catalogId,
   setAbilityMode,
 }: {
-  handleMouseDown: MouseEventHandler<HTMLDivElement>;
   catalogId: string;
   setAbilityMode: Dispatch<SetStateAction<boolean>>;
 }) => {
@@ -417,12 +385,11 @@ const ImagePane = ({
 
   return (
     <div
-      className={`flex justify-between items-center p-3 h-140 ${defaultUIColors.background} cursor-move`}
+      className={`drag-handle flex justify-between items-center p-3 h-full ${defaultUIColors.background} cursor-move`}
       style={{
-        backgroundImage: `url(${getImageUrl(catalogId)}`,
+        backgroundImage: `url(${getImageUrl(catalogId, 'full')}`,
         backgroundSize: 'cover',
       }}
-      onMouseDown={handleMouseDown}
       onClick={() => setAbilityMode(true)}
     />
   );
