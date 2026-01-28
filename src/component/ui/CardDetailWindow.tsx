@@ -290,7 +290,7 @@ const AbilityPane = ({
       <div
         className={`drag-handle flex justify-between items-center p-3 h-20 ${defaultUIColors.background} cursor-move`}
         style={{
-          backgroundImage: `url${getImageUrl(catalogId)}`,
+          backgroundImage: `url(${getImageUrl(catalogId)})`,
           backgroundSize: 'cover',
           backgroundPosition: '0% -140px',
         }}
@@ -387,7 +387,7 @@ const ImagePane = ({
     <div
       className={`drag-handle flex justify-between items-center p-3 h-full ${defaultUIColors.background} cursor-move`}
       style={{
-        backgroundImage: `url(${getImageUrl(catalogId, 'full')}`,
+        backgroundImage: `url(${getImageUrl(catalogId, 'full')})`,
         backgroundSize: 'cover',
       }}
       onClick={() => setAbilityMode(true)}
