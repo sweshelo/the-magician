@@ -103,7 +103,7 @@ const FilterControls = memo(
     return (
       <>
         <details className="w-full max-w-6xl p-4">
-          <summary className="p-2 px-4 bg-gray-700 hover:bg-gray-600 text-white rounded-lg cursor-pointer transition-colors">
+          <summary className="p-2 px-4 bg-gray-900 border border-blue-500 hover:bg-gray-800 text-white rounded-lg cursor-pointer transition-colors">
             表示設定
           </summary>
           <div className="w-full max-w-6xl mt-5">
