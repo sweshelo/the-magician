@@ -9,7 +9,7 @@ import { MyTriggerZone } from '../MyTriggerZone';
 import { useMyArea } from './hooks';
 import { useCallback } from 'react';
 import { MyTrash } from '../MyTrash';
-import { LocalStorageHelper } from '@/service/local-storage';
+import { useSelfId } from '@/hooks/player-identity';
 import { ICard } from '@/submodule/suit/types';
 import { useDeck, usePlayer } from '@/hooks/game/hooks';
 import { PurpleGaugeView } from '@/component/ui/purpleGaugeView';
@@ -17,7 +17,7 @@ import { JokerArea } from '../JokerArea';
 
 export const MyArea = () => {
   const { openCardsDialog } = useCardsDialog();
-  const playerId = LocalStorageHelper.playerId();
+  const playerId = useSelfId();
 
   const deck = useDeck(playerId);
   const self = usePlayer(playerId);

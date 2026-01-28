@@ -2,6 +2,7 @@ import { useAuth } from '@/hooks/auth/hooks';
 import { STARTER_DECK, STARTER_JOKERS } from '@/constants/deck';
 import { useHandler } from '@/hooks/game/handler';
 import { useWebSocket } from '@/hooks/websocket/hooks';
+import { usePlayerIdentity } from '@/hooks/player-identity';
 import { LocalStorageHelper } from '@/service/local-storage';
 import { Message, PlayerEntryPayload } from '@/submodule/suit/types';
 import { useEffect, useRef, useState } from 'react';
@@ -12,6 +13,7 @@ interface Props {
 export const useGameComponentHook = ({ id }: Props) => {
   const { user } = useAuth();
   const { websocket } = useWebSocket();
+  const { setSelfId } = usePlayerIdentity();
   const [isConnected, setConnected] = useState<boolean>(websocket?.isConnected() ?? false);
   const isJoined = useRef(false);
   const { handle } = useHandler();
@@ -25,6 +27,10 @@ export const useGameComponentHook = ({ id }: Props) => {
   useEffect(() => {
     if (websocket && isConnected && !isJoined.current && id) {
       isJoined.current = true;
+
+      // Register player identity in Context for use throughout the app
+      setSelfId(playerId, 'player');
+
       const deck = LocalStorageHelper.getMainDeck();
       websocket?.on('message', (message: Message) => {
         handle(message);
@@ -46,7 +52,7 @@ export const useGameComponentHook = ({ id }: Props) => {
         },
       } satisfies Message<PlayerEntryPayload>);
     }
-  }, [id, websocket, isConnected, handle, playerName, playerId]);
+  }, [id, websocket, isConnected, handle, playerName, playerId, setSelfId]);
 
   useEffect(() => {
     if (websocket) {

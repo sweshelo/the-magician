@@ -10,7 +10,7 @@ import { useUnitSelection } from '@/hooks/unit-selection';
 import { useSelectEffect } from '@/hooks/select-effect';
 import { useOverclockEffect } from '@/hooks/overclock-effect';
 import { useStatusChange } from '@/hooks/status-change';
-import { LocalStorageHelper } from '@/service/local-storage';
+import { useSelfId } from '@/hooks/player-identity';
 import { Button } from '../interface/button';
 import master from '@/submodule/suit/catalog/catalog';
 
@@ -23,6 +23,7 @@ export const DebugDialog = () => {
   const { addTargetUnit } = useSelectEffect(); // 選択エフェクト用
   const { addOverclockUnit, removeOverclockUnit } = useOverclockEffect(); // オーバークロック用
   const { addStatusChange } = useStatusChange(); // ステータス変更用
+  const selfId = useSelfId();
   const [bgmVolume, setBgmVolume] = useState(getVolume());
   const [isBgmPlaying, setIsBgmPlaying] = useState(false);
   const [hide, setHide] = useState(false);
@@ -57,7 +58,7 @@ export const DebugDialog = () => {
       },
       payload: {
         type: 'DebugDraw',
-        player: LocalStorageHelper.playerId(),
+        player: selfId,
       },
     });
   };
@@ -79,7 +80,7 @@ export const DebugDialog = () => {
       },
       payload: {
         type: 'DebugDrive',
-        player: LocalStorageHelper.playerId(),
+        player: selfId,
         catalogId: targetUnitId,
       },
     });
@@ -102,7 +103,7 @@ export const DebugDialog = () => {
       },
       payload: {
         type: 'DebugMake',
-        player: LocalStorageHelper.playerId(),
+        player: selfId,
         catalogId: targetCardId,
       },
     });

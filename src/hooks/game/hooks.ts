@@ -1,6 +1,6 @@
 import { useGameStore } from './context';
 import { useShallow } from 'zustand/shallow';
-import { LocalStorageHelper } from '@/service/local-storage';
+import { useSelfId } from '@/hooks/player-identity';
 import { themeColors, PlayerTheme } from '@/helper/color';
 
 export const usePlayer = (playerId: string) => {
@@ -58,7 +58,7 @@ export const useFirstPlayer = () => {
 // 自分が先行か後攻かを判定 -> 'first' | 'second'
 export const useSelfTurnOrder = (): PlayerTheme => {
   const firstPlayer = useFirstPlayer();
-  const selfId = LocalStorageHelper.playerId();
+  const selfId = useSelfId();
   if (!firstPlayer) return 'first'; // ゲーム開始前のデフォルト
   return selfId === firstPlayer ? 'first' : 'second';
 };
@@ -84,6 +84,6 @@ export const useOpponentTheme = () => {
 // 自分のターンかどうかを判定
 export const useIsMyTurn = () => {
   const turnPlayer = useTurnPlayer();
-  const selfId = LocalStorageHelper.playerId();
+  const selfId = useSelfId();
   return selfId === turnPlayer;
 };

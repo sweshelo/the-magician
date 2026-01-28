@@ -13,12 +13,13 @@ import {
   OverridePayload,
   UnitDrivePayload,
 } from '@/submodule/suit/types';
-import { LocalStorageHelper } from '@/service/local-storage';
+import { useSelfId } from '@/hooks/player-identity';
 import { useTimer } from '@/feature/Timer/hooks';
 
 export const useWebSocketGame = () => {
   const { websocket } = useWebSocket();
   const { totalSeconds } = useTimer();
+  const selfId = useSelfId();
 
   const send = useCallback(
     (message: Message) => {
@@ -46,12 +47,12 @@ export const useWebSocketGame = () => {
           type: 'Override',
           parent: { id: parent },
           target: { id: target },
-          player: LocalStorageHelper.playerId(),
+          player: selfId,
         },
       };
       send(message);
     },
-    [send]
+    [send, selfId]
   );
 
   interface UnitDriveProps {
@@ -67,13 +68,13 @@ export const useWebSocketGame = () => {
         payload: {
           type: 'UnitDrive',
           target: { id: target },
-          player: LocalStorageHelper.playerId(),
+          player: selfId,
           remainingTime: totalSeconds,
         },
       };
       send(message);
     },
-    [send, totalSeconds]
+    [send, totalSeconds, selfId]
   );
 
   interface JokerDriveProps {
@@ -89,13 +90,13 @@ export const useWebSocketGame = () => {
         payload: {
           type: 'JokerDrive',
           target: { id: target },
-          player: LocalStorageHelper.playerId(),
+          player: selfId,
           remainingTime: totalSeconds,
         },
       };
       send(message);
     },
-    [send, totalSeconds]
+    [send, totalSeconds, selfId]
   );
 
   interface ContinueProps {
@@ -111,12 +112,12 @@ export const useWebSocketGame = () => {
         payload: {
           type: 'Continue',
           promptId,
-          player: LocalStorageHelper.playerId(),
+          player: selfId,
         },
       };
       send(message);
     },
-    [send]
+    [send, selfId]
   );
 
   const choose = useCallback(
@@ -150,12 +151,12 @@ export const useWebSocketGame = () => {
         payload: {
           type: 'Withdrawal',
           target,
-          player: LocalStorageHelper.playerId(),
+          player: selfId,
         },
       });
       send(message);
     },
-    [send]
+    [send, selfId]
   );
 
   interface BootProps {
@@ -171,13 +172,13 @@ export const useWebSocketGame = () => {
         payload: {
           type: 'Boot',
           target,
-          player: LocalStorageHelper.playerId(),
+          player: selfId,
           remainingTime: totalSeconds,
         },
       });
       send(message);
     },
-    [send, totalSeconds]
+    [send, totalSeconds, selfId]
   );
 
   interface SetTriggerProps {
@@ -193,12 +194,12 @@ export const useWebSocketGame = () => {
         payload: {
           type: 'TriggerSet',
           target,
-          player: LocalStorageHelper.playerId(),
+          player: selfId,
         },
       });
       send(message);
     },
-    [send]
+    [send, selfId]
   );
 
   interface DiscardProps {
@@ -214,12 +215,12 @@ export const useWebSocketGame = () => {
         payload: {
           type: 'Discard',
           target,
-          player: LocalStorageHelper.playerId(),
+          player: selfId,
         },
       });
       send(message);
     },
-    [send]
+    [send, selfId]
   );
 
   interface EvolutionProps {
@@ -237,13 +238,13 @@ export const useWebSocketGame = () => {
           type: 'EvolveDrive',
           target: { id: target.id },
           source: { id: source.id },
-          player: LocalStorageHelper.playerId(),
+          player: selfId,
           remainingTime: totalSeconds,
         },
       });
       send(message);
     },
-    [send, totalSeconds]
+    [send, totalSeconds, selfId]
   );
 
   return {

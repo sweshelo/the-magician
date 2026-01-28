@@ -3,7 +3,7 @@ import { useSystemContext } from '@/hooks/system/hooks';
 import { useHand, useField } from '@/hooks/game/hooks';
 import { ICard, IUnit } from '@/submodule/suit/types';
 import { useDndMonitor, DragStartEvent, DragEndEvent } from '@dnd-kit/core';
-import { LocalStorageHelper } from '@/service/local-storage';
+import { useSelfId } from '@/hooks/player-identity';
 import catalog from '@/submodule/suit/catalog/catalog';
 
 export const useMyArea = () => {
@@ -11,7 +11,7 @@ export const useMyArea = () => {
   const { override, unitDrive, jokerDrive, setTrigger, discard, evolution } = useWebSocketGame();
 
   // Get current player ID
-  const currentPlayerId = LocalStorageHelper.playerId();
+  const currentPlayerId = useSelfId();
 
   // Get player's hand and field for evolution handling
   const hand = useHand(currentPlayerId) || [];

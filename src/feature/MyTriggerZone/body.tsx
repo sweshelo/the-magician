@@ -4,13 +4,13 @@ import { ChainOverlay } from '@/component/ui/ChainOverlay';
 import { RotatedSquareHighlight } from '@/component/ui/RotatedSquareHighlight';
 import { useTrigger, useRule } from '@/hooks/game/hooks';
 import { useInterceptUsage } from '@/hooks/intercept-usage';
-import { LocalStorageHelper } from '@/service/local-storage';
+import { useSelfId } from '@/hooks/player-identity';
 import master from '@/submodule/suit/catalog/catalog';
 import { ICard } from '@/submodule/suit/types';
 
 export const MyTriggerZoneBody = () => {
   const { availableIntercepts, activateIntercept } = useInterceptUsage();
-  const playerId = LocalStorageHelper.playerId();
+  const playerId = useSelfId();
   const trigger = (useTrigger(playerId) as ICard[]) ?? [];
   const rule = useRule();
 

@@ -4,7 +4,7 @@ import { useCardsDialog } from '@/hooks/cards-dialog';
 import { useTrash } from '@/hooks/game/hooks';
 import { ICard } from '@/submodule/suit/types';
 import { useSystemContext } from '@/hooks/system/hooks';
-import { LocalStorageHelper } from '@/service/local-storage';
+import { useSelfId } from '@/hooks/player-identity';
 import { useDroppable } from '@dnd-kit/core';
 import { useCallback } from 'react';
 import { BsTrash3Fill } from 'react-icons/bs';
@@ -13,7 +13,7 @@ import { GiCardDiscard } from 'react-icons/gi';
 export const MyTrash = () => {
   const { openCardsDialog } = useCardsDialog();
   const { activeCard } = useSystemContext();
-  const playerId = LocalStorageHelper.playerId();
+  const playerId = useSelfId();
 
   const trash = useTrash(playerId) ?? [];
 

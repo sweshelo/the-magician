@@ -2,10 +2,10 @@ import { CardView } from '@/component/ui/CardView';
 import { HandView } from '@/component/ui/HandView';
 import { JokerGauge } from '@/component/ui/JokerGauge';
 import { usePlayer, useRule } from '@/hooks/game/hooks';
-import { LocalStorageHelper } from '@/service/local-storage';
+import { useSelfId } from '@/hooks/player-identity';
 
 export const JokerArea = () => {
-  const playerId = LocalStorageHelper.playerId();
+  const playerId = useSelfId();
   const player = usePlayer(playerId);
   const rule = useRule();
   const isInHandMode = rule.joker.inHand;
