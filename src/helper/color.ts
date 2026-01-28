@@ -80,7 +80,7 @@ export const getThemeUIColor = (theme: PlayerTheme, key: keyof typeof themeColor
 export const defaultUIColors = {
   background: 'bg-slate-700',
   fieldBackground: 'bg-slate-600/40',
-  playerInfoBackground: 'bg-slate-700/70',
+  playerInfoBackground: 'bg-slate-700/90',
   border: 'border-slate-600',
   borderDashed: 'border-slate-500',
   text: {

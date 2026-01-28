@@ -1,5 +1,5 @@
-import { STARTER_DECK } from '@/constants/deck';
 import { useAuth } from '@/hooks/auth/hooks';
+import { STARTER_DECK, STARTER_JOKERS } from '@/constants/deck';
 import { useHandler } from '@/hooks/game/handler';
 import { useWebSocket } from '@/hooks/websocket/hooks';
 import { LocalStorageHelper } from '@/service/local-storage';
@@ -42,7 +42,7 @@ export const useGameComponentHook = ({ id }: Props) => {
             id: playerId,
             deck: deck?.cards ?? STARTER_DECK,
           },
-          jokersOwned: deck?.jokers ?? ['ルインリード', 'ソウルエクスキューション'],
+          jokersOwned: deck?.jokers ?? STARTER_JOKERS,
         },
       } satisfies Message<PlayerEntryPayload>);
     }

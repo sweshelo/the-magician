@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useState, useContext, ReactNode, useCallback } from 'react';
+import React, { createContext, useState, useContext, ReactNode, useCallback, useRef } from 'react';
 import { StatusChangeType } from '@/component/ui/StatusChangeEffect';
 
 export interface StatusChange {
@@ -19,12 +19,15 @@ export interface StatusChangeContextType {
   addStatusChange: (item: Omit<StatusChangeItem, 'id'>) => string; // IDを生成して返す
   removeStatusChange: (id: string) => void;
   getStatusChangesForUnit: (unitId: string) => StatusChangeItem[];
+  scheduleRemoval: (id: string) => void;
+  cancelScheduledRemoval: (id: string) => void;
 }
 
 const StatusChangeContext = createContext<StatusChangeContextType | undefined>(undefined);
 
 export const StatusChangeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [statusChanges, setStatusChanges] = useState<StatusChangeItem[]>([]);
+  const cleanupTimeouts = useRef<Map<string, NodeJS.Timeout>>(new Map());
 
   // ステータス変更を追加し、生成されたIDを返す
   const addStatusChange = useCallback((item: Omit<StatusChangeItem, 'id'>): string => {
@@ -48,6 +51,27 @@ export const StatusChangeProvider: React.FC<{ children: ReactNode }> = ({ childr
     [statusChanges]
   );
 
+  // 遅延削除をスケジュール（React Strict Mode対応）
+  const scheduleRemoval = useCallback((id: string) => {
+    const existing = cleanupTimeouts.current.get(id);
+    if (existing) clearTimeout(existing);
+
+    const timeout = setTimeout(() => {
+      setStatusChanges(prev => prev.filter(item => item.id !== id));
+      cleanupTimeouts.current.delete(id);
+    }, 100);
+    cleanupTimeouts.current.set(id, timeout);
+  }, []);
+
+  // スケジュールされた削除をキャンセル
+  const cancelScheduledRemoval = useCallback((id: string) => {
+    const existing = cleanupTimeouts.current.get(id);
+    if (existing) {
+      clearTimeout(existing);
+      cleanupTimeouts.current.delete(id);
+    }
+  }, []);
+
   return (
     <StatusChangeContext.Provider
       value={{
@@ -55,6 +79,8 @@ export const StatusChangeProvider: React.FC<{ children: ReactNode }> = ({ childr
         addStatusChange,
         removeStatusChange,
         getStatusChangesForUnit,
+        scheduleRemoval,
+        cancelScheduledRemoval,
       }}
     >
       {children}
