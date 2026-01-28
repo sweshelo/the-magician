@@ -1,6 +1,6 @@
 import master from '@/submodule/suit/catalog/catalog';
 
-export const getImageUrl = (catalogId: string, size = 'small'): string => {
+export const getImageUrl = (catalogId: string, size?: string): string => {
   const isSelfHosting = process.env.NEXT_PUBLIC_IMAGE_SELF_HOSTING === 'true';
 
   if (isSelfHosting) return `/image/card/full/${catalogId}.jpg`;
