@@ -129,6 +129,54 @@ export const CardDetailWindow = ({ x = 0, y = 0 }: CardDetailWindowProps) => {
   );
 };
 
+// 関連カードを表示するコンポーネント
+const RelatedCards = ({
+  relatedIds,
+  setDetailCard,
+}: {
+  relatedIds: string[];
+  setDetailCard: Dispatch<SetStateAction<ICard | undefined>>;
+}) => {
+  if (!relatedIds || relatedIds.length === 0) return null;
+
+  // 関連カードのカタログを取得
+  const relatedCatalogs = relatedIds
+    .map(id => master.get(id))
+    .filter((catalog): catalog is NonNullable<typeof catalog> => catalog !== undefined);
+
+  if (relatedCatalogs.length === 0) return null;
+
+  return (
+    <div className="my-3">
+      <div className="text-xs font-bold mb-1 text-gray-400">関連カード</div>
+      <div className="flex flex-wrap gap-1">
+        {relatedCatalogs.map(catalog => (
+          <div
+            key={catalog.id}
+            className="cursor-pointer hover:opacity-80 transition-opacity"
+            onClick={() =>
+              setDetailCard({
+                id: `related-${catalog.id}`,
+                catalogId: catalog.id,
+                lv: 1,
+              })
+            }
+            title={catalog.name}
+          >
+            <Image
+              src={getImageUrl(catalog.id)}
+              alt={catalog.name}
+              width={40}
+              height={56}
+              className="rounded-sm border border-gray-600"
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 // 関連アビリティを表示するコンポーネント
 const RelatedAbilities = ({ abilityText, isVirus }: { abilityText: string; isVirus: boolean }) => {
   // HTMLタグを削除してプレーンテキストを取得
@@ -256,6 +304,10 @@ const AbilityPane = ({
             {/* 関連アビリティ */}
             {catalog.ability && (
               <RelatedAbilities abilityText={catalog.ability} isVirus={catalog.type === 'virus'} />
+            )}
+            {/* 関連カード */}
+            {catalog.related && (
+              <RelatedCards relatedIds={catalog.related} setDetailCard={setDetailCard} />
             )}
           </div>
         </div>
