@@ -58,26 +58,11 @@ export const CardView = ({
 
   const handleCardClick = useCallback(() => {
     if (isICard(card)) {
-      // In Game component, clicking sets both selectedCard and detailCard
-      if (!isInDeckBuilder) {
-        setSelectedCard(prev => {
-          const newCard = prev?.catalogId === card.catalogId ? undefined : card;
-          // Synchronize the detail card with the selected card in Game component
-          if (newCard) {
-            setDetailCard(newCard);
-            // Set a default position for Game component
-            setDetailPosition({ x: 100, y: 100 });
-          } else {
-            setDetailCard(undefined);
-          }
-          return newCard;
-        });
-      } else {
-        // In DeckBuilder, just handle onClick as before (without showing details)
-        setSelectedCard(prev => (prev?.catalogId === card.catalogId ? undefined : card));
-      }
+      // Left click only sets selectedCard, not detailCard
+      // Detail window is shown via right-click (PC) or long-press (touch)
+      setSelectedCard(prev => (prev?.catalogId === card.catalogId ? undefined : card));
     }
-  }, [card, setSelectedCard, setDetailCard, setDetailPosition, isInDeckBuilder]);
+  }, [card, setSelectedCard]);
 
   const handleContextMenu = useCallback(
     (e: MouseEvent) => {

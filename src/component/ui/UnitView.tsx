@@ -103,8 +103,15 @@ const UnitViewComponent = ({ unit, isOwnUnit = false }: UnitViewProps) => {
       setActiveUnit(prev => (prev?.id !== unit.id ? unit : undefined));
     }
     setSelectedCard(prev => (prev?.catalogId === unit.catalogId ? undefined : unit));
-    // Desktop: clicking shows detail card
-    setDetailCard(prev => (prev?.catalogId === unit.catalogId ? undefined : unit));
+    // Left click only sets selectedCard, not detailCard
+    // Detail window is shown via right-click (PC) or long-press (touch)
+  };
+
+  // Handle right-click to show detail window (desktop only)
+  const handleContextMenu = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setDetailPosition({ x: e.clientX, y: e.clientY });
+    setDetailCard(unit);
   };
 
   // Long press handlers for touch devices
@@ -167,6 +174,7 @@ const UnitViewComponent = ({ unit, isOwnUnit = false }: UnitViewProps) => {
               handleUnitClick(e);
             }
           }}
+          onContextMenu={handleContextMenu}
           {...longPressHandlers}
           style={useUnitAttackAnimationStyle(unit.id)}
         >

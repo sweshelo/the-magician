@@ -28,9 +28,10 @@ const ErrorClearer = ({ children }: { children: ReactNode }) => {
   const { hideOverlay } = useErrorOverlay();
 
   useEffect(() => {
-    // ゲーム開始時にエラーをクリア
+    // ゲーム開始時にエラーをクリア（マウント時のみ実行）
     hideOverlay();
-  }, [hideOverlay]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return <>{children}</>;
 };

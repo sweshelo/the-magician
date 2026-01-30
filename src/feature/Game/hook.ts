@@ -35,6 +35,16 @@ export const useGameComponentHook = ({ id }: Props) => {
     [handle]
   );
 
+  // refを使用してクリーンアップ時に最新の値を参照
+  const websocketRef = useRef(websocket);
+  const messageHandlerRef = useRef(messageHandler);
+
+  // refを最新の値で更新
+  useEffect(() => {
+    websocketRef.current = websocket;
+    messageHandlerRef.current = messageHandler;
+  });
+
   // ルーム参加処理
   useEffect(() => {
     // デッキのロードが完了するまで待機
@@ -62,15 +72,6 @@ export const useGameComponentHook = ({ id }: Props) => {
         },
       } satisfies Message<PlayerEntryPayload>);
     }
-
-    // クリーンアップ: ゲーム離脱時にリスナーを削除し、状態をリセット
-    return () => {
-      if (websocket && isJoined.current) {
-        websocket.off('message', messageHandler);
-        isJoined.current = false;
-        reset();
-      }
-    };
   }, [
     id,
     websocket,
@@ -81,8 +82,19 @@ export const useGameComponentHook = ({ id }: Props) => {
     setSelfId,
     mainDeck,
     isDeckLoading,
-    reset,
   ]);
+
+  // アンマウント時のクリーンアップ（コンポーネント破棄時のみ実行）
+  useEffect(() => {
+    return () => {
+      if (websocketRef.current && isJoined.current) {
+        websocketRef.current.off('message', messageHandlerRef.current);
+      }
+      isJoined.current = false;
+      reset();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (websocket) {
