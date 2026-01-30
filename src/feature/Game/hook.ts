@@ -1,5 +1,6 @@
 import { useAuth } from '@/hooks/auth/hooks';
 import { STARTER_DECK, STARTER_JOKERS } from '@/constants/deck';
+import { useDeck } from '@/hooks/deck';
 import { useHandler } from '@/hooks/game/handler';
 import { useWebSocket } from '@/hooks/websocket/hooks';
 import { usePlayerIdentity } from '@/hooks/player-identity';
@@ -14,6 +15,7 @@ export const useGameComponentHook = ({ id }: Props) => {
   const { user } = useAuth();
   const { websocket } = useWebSocket();
   const { setSelfId } = usePlayerIdentity();
+  const { mainDeck, isLoading: isDeckLoading } = useDeck();
   const [isConnected, setConnected] = useState<boolean>(websocket?.isConnected() ?? false);
   const isJoined = useRef(false);
   const { handle } = useHandler();
@@ -25,13 +27,13 @@ export const useGameComponentHook = ({ id }: Props) => {
 
   // ルーム参加処理
   useEffect(() => {
-    if (websocket && isConnected && !isJoined.current && id) {
+    // デッキのロードが完了するまで待機
+    if (websocket && isConnected && !isJoined.current && id && !isDeckLoading) {
       isJoined.current = true;
 
       // Register player identity in Context for use throughout the app
       setSelfId(playerId, 'player');
 
-      const deck = LocalStorageHelper.getMainDeck();
       websocket?.on('message', (message: Message) => {
         handle(message);
       });
@@ -46,13 +48,23 @@ export const useGameComponentHook = ({ id }: Props) => {
           player: {
             name: playerName,
             id: playerId,
-            deck: deck?.cards ?? STARTER_DECK,
+            deck: mainDeck?.cards ?? STARTER_DECK,
           },
-          jokersOwned: deck?.jokers ?? STARTER_JOKERS,
+          jokersOwned: mainDeck?.jokers ?? STARTER_JOKERS,
         },
       } satisfies Message<PlayerEntryPayload>);
     }
-  }, [id, websocket, isConnected, handle, playerName, playerId, setSelfId]);
+  }, [
+    id,
+    websocket,
+    isConnected,
+    handle,
+    playerName,
+    playerId,
+    setSelfId,
+    mainDeck,
+    isDeckLoading,
+  ]);
 
   useEffect(() => {
     if (websocket) {
