@@ -1,11 +1,13 @@
 import { useAuth } from '@/hooks/auth/hooks';
 import { STARTER_DECK, STARTER_JOKERS } from '@/constants/deck';
+import { useDeck } from '@/hooks/deck';
+import { useGameStore } from '@/hooks/game/context';
 import { useHandler } from '@/hooks/game/handler';
 import { useWebSocket } from '@/hooks/websocket/hooks';
 import { usePlayerIdentity } from '@/hooks/player-identity';
 import { LocalStorageHelper } from '@/service/local-storage';
 import { Message, PlayerEntryPayload } from '@/submodule/suit/types';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 interface Props {
   id: string;
@@ -14,6 +16,8 @@ export const useGameComponentHook = ({ id }: Props) => {
   const { user } = useAuth();
   const { websocket } = useWebSocket();
   const { setSelfId } = usePlayerIdentity();
+  const { mainDeck, isLoading: isDeckLoading } = useDeck();
+  const reset = useGameStore(state => state.reset);
   const [isConnected, setConnected] = useState<boolean>(websocket?.isConnected() ?? false);
   const isJoined = useRef(false);
   const { handle } = useHandler();
@@ -23,18 +27,34 @@ export const useGameComponentHook = ({ id }: Props) => {
     user?.user_metadata?.full_name || user?.user_metadata?.name || LocalStorageHelper.playerName();
   const playerId = user?.id || LocalStorageHelper.playerId();
 
+  // メッセージハンドラー（クリーンアップのために関数参照を保持）
+  const messageHandler = useCallback(
+    (message: Message) => {
+      handle(message);
+    },
+    [handle]
+  );
+
+  // refを使用してクリーンアップ時に最新の値を参照
+  const websocketRef = useRef(websocket);
+  const messageHandlerRef = useRef(messageHandler);
+
+  // refを最新の値で更新
+  useEffect(() => {
+    websocketRef.current = websocket;
+    messageHandlerRef.current = messageHandler;
+  });
+
   // ルーム参加処理
   useEffect(() => {
-    if (websocket && isConnected && !isJoined.current && id) {
+    // デッキのロードが完了するまで待機
+    if (websocket && isConnected && !isJoined.current && id && !isDeckLoading) {
       isJoined.current = true;
 
       // Register player identity in Context for use throughout the app
       setSelfId(playerId, 'player');
 
-      const deck = LocalStorageHelper.getMainDeck();
-      websocket?.on('message', (message: Message) => {
-        handle(message);
-      });
+      websocket.on('message', messageHandler);
       websocket.send({
         action: {
           handler: 'room',
@@ -46,13 +66,35 @@ export const useGameComponentHook = ({ id }: Props) => {
           player: {
             name: playerName,
             id: playerId,
-            deck: deck?.cards ?? STARTER_DECK,
+            deck: mainDeck?.cards ?? STARTER_DECK,
           },
-          jokersOwned: deck?.jokers ?? STARTER_JOKERS,
+          jokersOwned: mainDeck?.jokers ?? STARTER_JOKERS,
         },
       } satisfies Message<PlayerEntryPayload>);
     }
-  }, [id, websocket, isConnected, handle, playerName, playerId, setSelfId]);
+  }, [
+    id,
+    websocket,
+    isConnected,
+    messageHandler,
+    playerName,
+    playerId,
+    setSelfId,
+    mainDeck,
+    isDeckLoading,
+  ]);
+
+  // アンマウント時のクリーンアップ（コンポーネント破棄時のみ実行）
+  useEffect(() => {
+    return () => {
+      if (websocketRef.current && isJoined.current) {
+        websocketRef.current.off('message', messageHandlerRef.current);
+      }
+      isJoined.current = false;
+      reset();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (websocket) {
@@ -60,8 +102,17 @@ export const useGameComponentHook = ({ id }: Props) => {
       setConnected(websocket.isConnected());
 
       // Set up listener for future state changes
-      websocket.on('open', () => setConnected(true));
-      websocket.on('close', () => setConnected(false));
+      const handleOpen = () => setConnected(true);
+      const handleClose = () => setConnected(false);
+
+      websocket.on('open', handleOpen);
+      websocket.on('close', handleClose);
+
+      // クリーンアップ: リスナーを削除
+      return () => {
+        websocket.off('open', handleOpen);
+        websocket.off('close', handleClose);
+      };
     }
   }, [websocket]);
 };

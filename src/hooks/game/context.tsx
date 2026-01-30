@@ -33,6 +33,7 @@ const initialState: GameState = {
 export const useGameStore = create<
   GameState & {
     sync: (newState: Partial<GameState>) => void;
+    reset: () => void;
   }
 >(set => ({
   ...initialState,
@@ -41,4 +42,5 @@ export const useGameStore = create<
       ...store,
       ...newState,
     })),
+  reset: () => set(initialState),
 }));

@@ -67,7 +67,11 @@ export const PlayerNameEditor = () => {
   return (
     <div className="bg-gray-800 p-4 rounded-lg">
       <h3 className="text-lg font-semibold text-white mb-3">プレイヤー名</h3>
-
+      <div className="p-3 my-3 bg-red-900 border border-red-600 rounded-md">
+        <p className="text-red-200 text-sm">
+          近日中にDiscordによるログインをしていない場合、プレイができなくなります。早めの移行を推奨します。
+        </p>
+      </div>
       {isEditing ? (
         <div className="flex items-center space-x-3">
           <input
