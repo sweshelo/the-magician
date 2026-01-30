@@ -1,8 +1,6 @@
 import { ReactNode } from 'react';
 import { WebSocketProvider } from './websocket';
 import { SystemContextProvider } from './system';
-import { AttackAnimationProvider } from './attack-animation';
-import { SoundManagerV2Provider } from './soundV2';
 import { ErrorOverlayProvider } from './error-overlay';
 import { PlayerIdentityProvider } from './player-identity';
 
@@ -15,11 +13,7 @@ export const GlobalContextProvider = ({ children }: Props) => {
     <ErrorOverlayProvider>
       <WebSocketProvider>
         <PlayerIdentityProvider>
-          <SystemContextProvider>
-            <AttackAnimationProvider>
-              <SoundManagerV2Provider>{children}</SoundManagerV2Provider>
-            </AttackAnimationProvider>
-          </SystemContextProvider>
+          <SystemContextProvider>{children}</SystemContextProvider>
         </PlayerIdentityProvider>
       </WebSocketProvider>
     </ErrorOverlayProvider>
