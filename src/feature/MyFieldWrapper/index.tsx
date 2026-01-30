@@ -2,7 +2,7 @@ import { ReactNode, useMemo } from 'react';
 import { useDroppable } from '@dnd-kit/core';
 import { useSystemContext } from '@/hooks/system/hooks';
 import catalog from '@/submodule/suit/catalog/catalog';
-import { LocalStorageHelper } from '@/service/local-storage';
+import { useSelfId } from '@/hooks/player-identity';
 import { useField, useRule } from '@/hooks/game/hooks';
 
 interface MyFieldWrapperProps {
@@ -11,7 +11,7 @@ interface MyFieldWrapperProps {
 
 export const MyFieldWrapper = ({ children }: MyFieldWrapperProps) => {
   const { activeCard } = useSystemContext();
-  const playerId = LocalStorageHelper.playerId();
+  const playerId = useSelfId();
   const field = useField(playerId)?.length ?? 0;
   const rule = useRule();
   const disabled = useMemo(() => {

@@ -7,7 +7,7 @@ import { useSoundV2 } from '../soundV2';
 import { SelectionMode, useUnitSelection } from '../unit-selection';
 import { useSystemContext } from '../system/hooks';
 import { useCardUsageEffect } from '../card-usage-effect';
-import { LocalStorageHelper } from '@/service/local-storage';
+import { useSelfId } from '@/hooks/player-identity';
 import { useTimer as useGameTimer } from '@/feature/Timer/hooks';
 import { GameState, useGameStore } from './context';
 import { useRule } from './hooks';
@@ -44,6 +44,7 @@ export const useHandler = () => {
   const { addStatusChange } = useStatusChange();
   const { addTargetUnit } = useSelectEffect();
   const { showTurnChangeEffect } = useTurnChangeEffect();
+  const selfId = useSelfId();
 
   // 選択肢選択をPromiseで待つ
   const handleOptionSelection = (): Promise<string | null> => {
@@ -131,7 +132,7 @@ export const useHandler = () => {
           }
 
           case 'card': {
-            if (payload.player !== LocalStorageHelper.playerId()) return;
+            if (payload.player !== selfId) return;
             closeCardsDialog();
             const response = await openCardsSelector(choices.items, choices.title, choices.count, {
               timeLimit: 10,
@@ -141,7 +142,7 @@ export const useHandler = () => {
           }
 
           case 'intercept': {
-            if (payload.player !== LocalStorageHelper.playerId()) return;
+            if (payload.player !== selfId) return;
             closeCardsDialog();
             const selectedCard = await handleInterceptSelection(choices.items);
             choose({
@@ -152,7 +153,7 @@ export const useHandler = () => {
           }
 
           case 'unit': {
-            if (payload.player !== LocalStorageHelper.playerId()) return;
+            if (payload.player !== selfId) return;
             closeCardsDialog();
             const selectedUnit = await handleUnitSelection(
               choices.items,
@@ -168,7 +169,7 @@ export const useHandler = () => {
           }
 
           case 'block': {
-            if (payload.player !== LocalStorageHelper.playerId()) return;
+            if (payload.player !== selfId) return;
             closeCardsDialog();
             const selectedUnit = await handleUnitSelection(
               choices.items,
@@ -210,8 +211,7 @@ export const useHandler = () => {
             const attackerPos = attackerId
               ? getUnitCenterPosition(attackerId)
               : { x: getScreenCenterX(), y: 0 };
-            const isPlayerUnit =
-              !!attackerId && attackerId.startsWith(LocalStorageHelper.playerId());
+            const isPlayerUnit = !!attackerId && attackerId.startsWith(selfId);
             startAttackDeclaration(
               attackerId,
               isPlayerUnit,
@@ -250,7 +250,7 @@ export const useHandler = () => {
               // GameState.players から自分の field を参照し、attackerId が含まれていれば isOwnUnit
               // useGameStore.getState() で最新の GameState を取得
               const gameState = useGameStore.getState();
-              const playerId = LocalStorageHelper.playerId();
+              const playerId = selfId;
               const myField: IUnit[] = gameState.players?.[playerId]?.field ?? [];
               const isOwnUnit = myField.some((unit: IUnit) => unit.id === attackerId);
 
@@ -276,11 +276,7 @@ export const useHandler = () => {
             // type guard
             if ('type' in body && 'player' in body && 'image' in body) {
               const position =
-                body.type === 'UNIT'
-                  ? body.player === LocalStorageHelper.playerId()
-                    ? 'right'
-                    : 'left'
-                  : 'center';
+                body.type === 'UNIT' ? (body.player === selfId ? 'right' : 'left') : 'center';
               showCardUsageEffect({
                 image: body.image,
                 type: body.type,
@@ -304,7 +300,7 @@ export const useHandler = () => {
       }
       case 'TurnChange': {
         console.log('[Handler] TurnChange received');
-        const isMyTurn = payload.player === LocalStorageHelper.playerId();
+        const isMyTurn = payload.player === selfId;
         play('turnchange');
         showTurnChangeEffect({ turn: payload.isFirst ? 'first' : 'second' });
         // ルールの turnTime でリセット
@@ -332,7 +328,6 @@ export const useHandler = () => {
             // ターンプレイヤーのみ操作可能にする
             {
               const gameState = useGameStore.getState();
-              const selfId = LocalStorageHelper.playerId();
               if (selfId === gameState.game.turnPlayer) {
                 setOperable(true);
               }

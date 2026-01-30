@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useChoicePanel } from './context';
-import { LocalStorageHelper } from '@/service/local-storage';
+import { useSelfId } from '@/hooks/player-identity';
 
 // 秒数を「00"00」形式（小数点2桁）にフォーマット
 function formatRemainTime(sec: number | null): string {
@@ -56,9 +56,9 @@ const ChoiceButton = ({
 export const ChoicePanel: React.FC = () => {
   const { state, select } = useChoicePanel();
   const { options, remainTime, selectedId, player, title } = state;
+  const selfId = useSelfId();
 
-  const myPlayerId = LocalStorageHelper.playerId();
-  const isMyTurn = player === myPlayerId;
+  const isMyTurn = player === selfId;
 
   // 時間切れ時は先頭選択肢を自動選択
   useEffect(() => {

@@ -7,7 +7,7 @@ import { CardView } from './CardView';
 import { ChainOverlay } from './ChainOverlay';
 import { ICard } from '@/submodule/suit/types';
 import { GameState, useGameStore } from '@/hooks/game';
-import { LocalStorageHelper } from '@/service/local-storage';
+import { useSelfId } from '@/hooks/player-identity';
 import master from '@/submodule/suit/catalog/catalog';
 import { isMitigated } from '@/helper/game';
 
@@ -22,14 +22,15 @@ const empty: ICard[] = [];
 
 export const HandView = ({ card, isSmall = false, source = 'hand' }: Props) => {
   const [isHighlighted, setHighlighted] = useState(false);
+  const selfId = useSelfId();
 
   const cpSelector = useCallback(
-    (state: GameState) => state.players?.[LocalStorageHelper.playerId()].cp.current,
-    []
+    (state: GameState) => state.players?.[selfId]?.cp.current,
+    [selfId]
   );
   const triggerSelector = useCallback(
-    (state: GameState) => state.players?.[LocalStorageHelper.playerId()].trigger,
-    []
+    (state: GameState) => state.players?.[selfId]?.trigger,
+    [selfId]
   );
 
   const cp = useGameStore(cpSelector) ?? 0;
