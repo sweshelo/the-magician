@@ -1,5 +1,5 @@
 import { useWebSocket } from '@/hooks/websocket/hooks';
-import { LocalStorageHelper } from '@/service/local-storage';
+import { useSelfId } from '@/hooks/player-identity';
 import { Message, RoomOpenRequestPayload, RoomOpenResponsePayload } from '@/submodule/suit/types';
 import { useRouter } from 'next/navigation';
 import { FormEvent, FormEventHandler, useCallback } from 'react';
@@ -11,6 +11,7 @@ interface Response {
 export const useRoomCreator = (): Response => {
   const { websocket } = useWebSocket();
   const router = useRouter();
+  const selfId = useSelfId();
 
   const handleSubmit = useCallback(
     async (e: FormEvent<HTMLFormElement>) => {
@@ -34,7 +35,7 @@ export const useRoomCreator = (): Response => {
           },
           payload: {
             type: 'RoomOpenRequest',
-            requestId: LocalStorageHelper.playerId(),
+            requestId: selfId,
             name: roomName,
             rule: {
               system: {
@@ -102,7 +103,7 @@ export const useRoomCreator = (): Response => {
         alert('ルームの作成に失敗しました。');
       }
     },
-    [router, websocket]
+    [router, websocket, selfId]
   );
 
   return { handleSubmit };

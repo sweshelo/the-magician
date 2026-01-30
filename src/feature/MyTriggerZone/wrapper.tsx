@@ -1,6 +1,6 @@
 import { useRule, useTrigger } from '@/hooks/game/hooks';
 import { useSystemContext } from '@/hooks/system/hooks';
-import { LocalStorageHelper } from '@/service/local-storage';
+import { useSelfId } from '@/hooks/player-identity';
 import { useDroppable } from '@dnd-kit/core';
 import { ReactNode } from 'react';
 import master from '@/submodule/suit/catalog/catalog';
@@ -11,7 +11,7 @@ interface MyTriggerZoneWrapperProps {
 
 export const MyTriggerZoneWrapper = ({ children }: MyTriggerZoneWrapperProps) => {
   const { activeCard } = useSystemContext();
-  const playerId = LocalStorageHelper.playerId();
+  const playerId = useSelfId();
   const rule = useRule();
   const trigger = useTrigger(playerId) ?? [];
   const isJokerBySource = activeCard?.data.current?.source === 'joker';

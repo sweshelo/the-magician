@@ -32,7 +32,6 @@ import { Field } from '../Field';
 import { MyFieldWrapper } from '../MyFieldWrapper';
 import { ICard } from '@/submodule/suit/types';
 import { Timer } from '../Timer';
-import { LocalStorageHelper } from '@/service/local-storage';
 import { useCallback, useMemo, useRef, useState, useEffect } from 'react';
 import { UnitSelectionOverlay } from '@/component/ui/UnitSelectionOverlay';
 import { webSocketService } from '@/service/websocket';
@@ -45,6 +44,7 @@ import { LoadingOverlay } from '@/component/ui/LoadingOverlay';
 import { ErrorOverlay } from '@/component/ui/ErrorOverlay';
 import { useErrorOverlay } from '@/hooks/error-overlay';
 import { TurnChangeEffect } from '@/component/ui/TurnChangeEffect';
+import { useSelfId } from '@/hooks/player-identity';
 
 interface RoomProps {
   id: string;
@@ -62,7 +62,7 @@ export const Game = ({ id }: RoomProps) => {
   const [isWaitingReconnect, setIsWaitingReconnect] = useState(false);
 
   // Get current player ID
-  const currentPlayerId = LocalStorageHelper.playerId();
+  const currentPlayerId = useSelfId();
 
   const rule = useRule();
   const playerIds = Object.keys(usePlayers() ?? {});
@@ -318,7 +318,7 @@ export const Game = ({ id }: RoomProps) => {
             <div className={`border-b border-dashed border-gray-500 h-1`} />
             {/* 自分のフィールド */}
             <MyFieldWrapper>
-              <Field playerId={LocalStorageHelper.playerId()} isOwnField={true} />
+              <Field playerId={currentPlayerId} isOwnField={true} />
             </MyFieldWrapper>
             <div className="absolute right-0 top-1/2 transform -translate-y-1/2">
               <Timer />

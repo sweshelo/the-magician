@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useWebSocketGame } from '@/hooks/game/websocket';
 import { useSoundV2 } from '@/hooks/soundV2';
 import { Message, createMessage } from '@/submodule/suit/types';
-import { LocalStorageHelper } from '@/service/local-storage';
+import { useSelfId } from '@/hooks/player-identity';
 import { useMulligan, useTimer } from '@/hooks/mulligan/context';
 
 export const MulliganView: React.FC = () => {
@@ -10,6 +10,7 @@ export const MulliganView: React.FC = () => {
   const { stopTimer } = useTimer();
   const { send } = useWebSocketGame();
   const { play } = useSoundV2();
+  const selfId = useSelfId();
 
   // Use local rendering state to ensure smooth animation
   const [displayTime, setDisplayTime] = useState<string>('10"00');
@@ -36,13 +37,13 @@ export const MulliganView: React.FC = () => {
       payload: {
         type: 'Mulligan',
         action: 'done',
-        player: LocalStorageHelper.playerId(),
+        player: selfId,
       },
     });
     send(message);
     setShowMulligan(false);
     stopTimer();
-  }, [send, setShowMulligan, stopTimer]);
+  }, [send, setShowMulligan, stopTimer, selfId]);
 
   const handleYes = useCallback(() => {
     const message: Message = createMessage({
@@ -53,7 +54,7 @@ export const MulliganView: React.FC = () => {
       payload: {
         type: 'Mulligan',
         action: 'retry',
-        player: LocalStorageHelper.playerId(),
+        player: selfId,
       },
     });
     send(message);
@@ -61,7 +62,7 @@ export const MulliganView: React.FC = () => {
 
     // Only hide the UI but keep timer running
     setShowMulligan(false);
-  }, [play, send, setShowMulligan]);
+  }, [play, send, setShowMulligan, selfId]);
 
   if (!showMulligan) return null;
 

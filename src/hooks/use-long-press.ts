@@ -4,20 +4,21 @@ interface LongPressOptions {
   onLongPress: () => void;
   onShortPress?: () => void;
   delay?: number; // Default: 150ms (to match dnd-kit TouchSensor)
-  tolerance?: number; // Default: 5px (to match dnd-kit TouchSensor)
+  tolerance?: number; // Default: 10px (for reliable tap detection on touch devices)
 }
 
 interface LongPressHandlers {
   onTouchStart: (e: TouchEvent) => void;
   onTouchMove: (e: TouchEvent) => void;
   onTouchEnd: (e: TouchEvent) => void;
+  onTouchCancel: (e: TouchEvent) => void;
 }
 
 export const useLongPress = ({
   onLongPress,
   onShortPress,
   delay = 150,
-  tolerance = 5,
+  tolerance = 10,
 }: LongPressOptions): LongPressHandlers => {
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const startPosRef = useRef<{ x: number; y: number } | null>(null);
@@ -33,9 +34,6 @@ export const useLongPress = ({
 
   const handleTouchStart = useCallback(
     (e: TouchEvent) => {
-      // Prevent default context menu on long press
-      e.preventDefault();
-
       const touch = e.touches[0];
       startPosRef.current = { x: touch.clientX, y: touch.clientY };
       longPressTriggeredRef.current = false;
@@ -83,9 +81,17 @@ export const useLongPress = ({
     movedRef.current = false;
   }, [clearTimer, onShortPress]);
 
+  const handleTouchCancel = useCallback(() => {
+    clearTimer();
+    startPosRef.current = null;
+    movedRef.current = false;
+    longPressTriggeredRef.current = false;
+  }, [clearTimer]);
+
   return {
     onTouchStart: handleTouchStart,
     onTouchMove: handleTouchMove,
     onTouchEnd: handleTouchEnd,
+    onTouchCancel: handleTouchCancel,
   };
 };
