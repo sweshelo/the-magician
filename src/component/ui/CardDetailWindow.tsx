@@ -321,6 +321,10 @@ const AbilityPane = ({
         </h3>
         <button
           onClick={() => setDetailCard(undefined)}
+          onTouchEnd={e => {
+            e.preventDefault();
+            setDetailCard(undefined);
+          }}
           className={`${defaultUIColors.text.secondary} hover:${defaultUIColors.text.primary} cursor-pointer`}
         >
           ✕

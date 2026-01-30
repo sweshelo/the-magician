@@ -111,7 +111,7 @@ export const CardView = ({
       onClick?.();
     },
     delay: 150, // Match dnd-kit TouchSensor delay
-    tolerance: 5, // Match dnd-kit TouchSensor tolerance
+    tolerance: 10, // Larger tolerance for reliable tap detection on touch
   });
 
   const reduced = useMemo(() => {

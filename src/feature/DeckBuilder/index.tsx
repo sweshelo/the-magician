@@ -7,7 +7,8 @@ import master from '@/submodule/suit/catalog/catalog';
 import { ICard, Catalog } from '@/submodule/suit/types';
 import { useCallback, useEffect, useMemo, useState, memo, useRef, useLayoutEffect } from 'react';
 import { DeckSaveDialog, DeckLoadDialog } from './DeckDialogs';
-import { LocalStorageHelper, DeckData } from '@/service/local-storage';
+import { useDeck } from '@/hooks/deck';
+import type { DeckData } from '@/type/deck';
 import { DeckPreview } from './DeckPreview';
 import { useSearchParams } from 'next/navigation';
 import { STARTER_DECK } from '@/constants/deck';
@@ -404,6 +405,13 @@ type DeckBuilderProps = {
 };
 
 export const DeckBuilder = ({ implementedIds }: DeckBuilderProps) => {
+  // useDeck hook for Supabase/LocalStorage deck management
+  const {
+    mainDeck: savedMainDeck,
+    saveDeck: saveDeckToStorage,
+    isLoading: isDeckLoading,
+  } = useDeck();
+
   // Dialog visibility states
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
 
@@ -473,16 +481,15 @@ export const DeckBuilder = ({ implementedIds }: DeckBuilderProps) => {
     setAvailableVersions(getUniqueValues(catalog => catalog.info.version).sort((a, b) => a - b));
   }, []);
 
-  // Load main deck on component mount
+  // Load main deck from useDeck (Supabase or LocalStorage)
   useEffect(() => {
-    const mainDeck = LocalStorageHelper.getMainDeck();
-    if (mainDeck) {
-      setDeck(mainDeck.cards);
-      setJokers(mainDeck.jokers || []);
-      setCurrentDeckTitle(mainDeck.title);
-      setCurrentDeckId(mainDeck.id);
+    if (!isDeckLoading && savedMainDeck) {
+      setDeck(savedMainDeck.cards);
+      setJokers(savedMainDeck.jokers || []);
+      setCurrentDeckTitle(savedMainDeck.title);
+      setCurrentDeckId(savedMainDeck.id);
     }
-  }, []);
+  }, [isDeckLoading, savedMainDeck]);
 
   const handleCardClick = useCallback((index: number) => {
     setDeck(prev => {
@@ -494,11 +501,15 @@ export const DeckBuilder = ({ implementedIds }: DeckBuilderProps) => {
 
   const addToDeck = useCallback(
     (catalogId: string) => {
-      if ((limitBreak || deck.length < 40) && deck.filter(id => id === catalogId).length < 3) {
-        setDeck(prevDeck => [...prevDeck, catalogId]);
-      }
+      setDeck(prevDeck => {
+        const count = prevDeck.filter(id => id === catalogId).length;
+        if ((limitBreak || prevDeck.length < 40) && count < 3) {
+          return [...prevDeck, catalogId];
+        }
+        return prevDeck;
+      });
     },
-    [deck, limitBreak]
+    [limitBreak]
   );
 
   // JOKER削除ハンドラー
@@ -700,25 +711,26 @@ export const DeckBuilder = ({ implementedIds }: DeckBuilderProps) => {
   }, [deck]);
 
   const handleSaveDeck = useCallback(
-    (title: string, isMainDeck: boolean) => {
+    async (title: string, isMainDeck: boolean) => {
       if (deck.length === 40) {
-        LocalStorageHelper.saveDeck(title, deck, jokers, isMainDeck);
-        setCurrentDeckTitle(title);
+        try {
+          const savedDeck = await saveDeckToStorage(title, deck, jokers, isMainDeck);
+          setCurrentDeckTitle(title);
 
-        // If this is a main deck, remember its ID
-        if (isMainDeck) {
-          const savedDeck = LocalStorageHelper.getDeckByTitle(title);
-          if (savedDeck) {
+          if (isMainDeck && savedDeck) {
             setCurrentDeckId(savedDeck.id);
           }
-        }
 
-        alert(
-          `デッキ「${title}」が保存されました。${isMainDeck ? '（メインデッキに設定されました）' : ''}`
-        );
+          alert(
+            `デッキ「${title}」が保存されました。${isMainDeck ? '（メインデッキに設定されました）' : ''}`
+          );
+        } catch (error) {
+          console.error('デッキ保存エラー:', error);
+          alert('デッキの保存に失敗しました。');
+        }
       }
     },
-    [deck, jokers]
+    [deck, jokers, saveDeckToStorage]
   );
 
   const sortDeck = useCallback(() => {
@@ -783,22 +795,22 @@ export const DeckBuilder = ({ implementedIds }: DeckBuilderProps) => {
     setJokers([]);
   }, []);
 
-  const handleLoadDeck = useCallback((deckData: DeckData) => {
-    setDeck(deckData.cards);
-    setJokers(deckData.jokers || []);
+  const handleLoadDeck = useCallback(
+    (deckData: DeckData) => {
+      setDeck(deckData.cards);
+      setJokers(deckData.jokers || []);
 
-    // Check if this is the main deck
-    const mainDeckId = LocalStorageHelper.getMainDeckId();
-    const mainDeck = mainDeckId ? LocalStorageHelper.getDeckById(mainDeckId) : null;
-
-    if (mainDeck && JSON.stringify(mainDeck.cards) === JSON.stringify(deckData.cards)) {
-      setCurrentDeckTitle(mainDeck.title);
-      setCurrentDeckId(mainDeck.id);
-    } else {
-      setCurrentDeckTitle(null);
-      setCurrentDeckId(null);
-    }
-  }, []);
+      // Check if this is the main deck
+      if (savedMainDeck && deckData.id === savedMainDeck.id) {
+        setCurrentDeckTitle(savedMainDeck.title);
+        setCurrentDeckId(savedMainDeck.id);
+      } else {
+        setCurrentDeckTitle(deckData.title);
+        setCurrentDeckId(deckData.id);
+      }
+    },
+    [savedMainDeck]
+  );
 
   return (
     <div className={`w-full flex flex-col justify-center ${defaultUIColors.text.primary}`}>
@@ -854,7 +866,7 @@ export const DeckBuilder = ({ implementedIds }: DeckBuilderProps) => {
           {currentDeckTitle && (
             <span className="ml-2 text-gray-300">
               現在のデッキ: {currentDeckTitle}
-              {currentDeckId === LocalStorageHelper.getMainDeckId() && (
+              {currentDeckId === savedMainDeck?.id && (
                 <span className="ml-2 bg-yellow-600 text-white text-xs px-2 py-1 rounded">
                   メイン
                 </span>

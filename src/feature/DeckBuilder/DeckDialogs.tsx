@@ -1,9 +1,8 @@
 'use client';
 
-import { DeckData, LocalStorageHelper } from '@/service/local-storage';
+import { useDeck } from '@/hooks/deck';
+import type { DeckData } from '@/type/deck';
 import { useState, useEffect } from 'react';
-
-// クリップボードAPI用
 
 interface DeckSaveDialogProps {
   isOpen: boolean;
@@ -26,8 +25,8 @@ export const DeckSaveDialog = ({
   deck,
   jokers = [],
 }: DeckSaveDialogProps) => {
+  const { decks, saveDeck, refreshDecks } = useDeck();
   const [title, setTitle] = useState('');
-  const [savedDecks, setSavedDecks] = useState<DeckData[]>([]);
   const [selectedDeck, setSelectedDeck] = useState<string | null>(null);
   const [saveMode, setSaveMode] = useState<'new' | 'overwrite'>('new');
   const [isMainDeck, setIsMainDeck] = useState(false);
@@ -41,8 +40,6 @@ export const DeckSaveDialog = ({
 
   useEffect(() => {
     if (isOpen) {
-      // Load saved decks when dialog opens
-      setSavedDecks(LocalStorageHelper.getAllDecks());
       setTitle(''); // Reset title
       setSelectedDeck(null); // Reset selection
       setSaveMode('new'); // Default to new
@@ -65,6 +62,51 @@ export const DeckSaveDialog = ({
     setSaveMode('overwrite');
   };
 
+  const handleImport = async () => {
+    setImportError('');
+    setImportSuccess('');
+    try {
+      const obj = JSON.parse(importText);
+      if (!obj.cards || !Array.isArray(obj.cards)) {
+        setImportError('cards配列が見つかりません');
+        return;
+      }
+      if (obj.cards.length !== 40) {
+        setImportError('デッキは40枚である必要があります');
+        return;
+      }
+
+      // JOKER検証
+      const importJokers = obj.jokers || [];
+      if (!Array.isArray(importJokers)) {
+        setImportError('jokersは配列である必要があります');
+        return;
+      }
+      if (importJokers.length > 2) {
+        setImportError('JOKERは最大2枚までです');
+        return;
+      }
+
+      // タイトル入力
+      const newTitle = prompt('デッキ名を入力してください');
+      if (!newTitle || !newTitle.trim()) {
+        setImportError('デッキ名が必要です');
+        return;
+      }
+      // タイトル重複チェック
+      if (decks.some(d => d.title === newTitle.trim())) {
+        setImportError('同じ名前のデッキが既に存在します');
+        return;
+      }
+      // 保存
+      await saveDeck(newTitle.trim(), obj.cards, importJokers, false);
+      setImportSuccess('デッキを作成しました');
+      await refreshDecks();
+    } catch {
+      setImportError('JSONのパースに失敗しました');
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -83,7 +125,7 @@ export const DeckSaveDialog = ({
             <button
               className={`px-3 py-1 rounded ${saveMode === 'overwrite' ? 'bg-blue-500 text-white' : 'bg-gray-600'}`}
               onClick={() => setSaveMode('overwrite')}
-              disabled={savedDecks.length === 0}
+              disabled={decks.length === 0}
             >
               上書き
             </button>
@@ -116,15 +158,15 @@ export const DeckSaveDialog = ({
             <div>
               <label className="block text-white mb-2">上書きするデッキを選択</label>
               <div className="max-h-60 overflow-y-auto bg-gray-700 rounded">
-                {savedDecks.map(deck => (
+                {decks.map(deckItem => (
                   <div
-                    key={deck.title}
+                    key={deckItem.title}
                     className={`p-2 cursor-pointer hover:bg-gray-600 ${
-                      selectedDeck === deck.title ? 'bg-blue-500' : ''
+                      selectedDeck === deckItem.title ? 'bg-blue-500' : ''
                     }`}
-                    onClick={() => handleDeckSelect(deck.title)}
+                    onClick={() => handleDeckSelect(deckItem.title)}
                   >
-                    <span className="text-white">{deck.title}</span>
+                    <span className="text-white">{deckItem.title}</span>
                   </div>
                 ))}
               </div>
@@ -193,53 +235,7 @@ export const DeckSaveDialog = ({
                 }}
                 placeholder='{"cards": [...]}'
               />
-              <button
-                className="px-3 py-1 bg-blue-500 text-white rounded"
-                onClick={() => {
-                  setImportError('');
-                  setImportSuccess('');
-                  try {
-                    const obj = JSON.parse(importText);
-                    if (!obj.cards || !Array.isArray(obj.cards)) {
-                      setImportError('cards配列が見つかりません');
-                      return;
-                    }
-                    if (obj.cards.length !== 40) {
-                      setImportError('デッキは40枚である必要があります');
-                      return;
-                    }
-
-                    // JOKER検証
-                    const importJokers = obj.jokers || [];
-                    if (!Array.isArray(importJokers)) {
-                      setImportError('jokersは配列である必要があります');
-                      return;
-                    }
-                    if (importJokers.length > 2) {
-                      setImportError('JOKERは最大2枚までです');
-                      return;
-                    }
-
-                    // タイトル入力
-                    const newTitle = prompt('デッキ名を入力してください');
-                    if (!newTitle || !newTitle.trim()) {
-                      setImportError('デッキ名が必要です');
-                      return;
-                    }
-                    // タイトル重複チェック
-                    if (savedDecks.some(d => d.title === newTitle.trim())) {
-                      setImportError('同じ名前のデッキが既に存在します');
-                      return;
-                    }
-                    // 保存
-                    LocalStorageHelper.saveDeck(newTitle.trim(), obj.cards, importJokers, false);
-                    setImportSuccess('デッキを作成しました');
-                    setSavedDecks(LocalStorageHelper.getAllDecks());
-                  } catch {
-                    setImportError('JSONのパースに失敗しました');
-                  }
-                }}
-              >
+              <button className="px-3 py-1 bg-blue-500 text-white rounded" onClick={handleImport}>
                 デッキ作成
               </button>
               {importError && <div className="text-red-400 mt-2">{importError}</div>}
@@ -270,33 +266,35 @@ export const DeckSaveDialog = ({
 };
 
 export const DeckLoadDialog = ({ isOpen, onClose, onLoad }: DeckListDialogProps) => {
-  const [savedDecks, setSavedDecks] = useState<DeckData[]>([]);
-  const [mainDeckId, setMainDeckId] = useState<string | null>(null);
+  const { decks, mainDeck, setMainDeck, deleteDeck, refreshDecks } = useDeck();
 
   useEffect(() => {
     if (isOpen) {
-      // Load saved decks when dialog opens
-      setSavedDecks(LocalStorageHelper.getAllDecks());
-      setMainDeckId(LocalStorageHelper.getMainDeckId());
+      refreshDecks();
     }
-  }, [isOpen]);
+  }, [isOpen, refreshDecks]);
 
   const handleLoadDeck = (deck: DeckData) => {
     onLoad(deck);
     onClose();
   };
 
-  const handleSetMainDeck = (deckId: string) => {
-    LocalStorageHelper.setMainDeckId(deckId);
-    setMainDeckId(deckId);
+  const handleSetMainDeck = async (deckId: string) => {
+    try {
+      await setMainDeck(deckId);
+    } catch (error) {
+      console.error('メインデッキ設定エラー:', error);
+    }
   };
 
-  const handleDeleteDeck = (title: string, event: React.MouseEvent) => {
+  const handleDeleteDeck = async (deckId: string, deckTitle: string, event: React.MouseEvent) => {
     event.stopPropagation();
-    if (confirm(`「${title}」を削除してもよろしいですか？`)) {
-      LocalStorageHelper.deleteDeck(title);
-      setSavedDecks(LocalStorageHelper.getAllDecks());
-      setMainDeckId(LocalStorageHelper.getMainDeckId());
+    if (confirm(`「${deckTitle}」を削除してもよろしいですか？`)) {
+      try {
+        await deleteDeck(deckId);
+      } catch (error) {
+        console.error('デッキ削除エラー:', error);
+      }
     }
   };
 
@@ -307,13 +305,13 @@ export const DeckLoadDialog = ({ isOpen, onClose, onLoad }: DeckListDialogProps)
       <div className="bg-gray-800 p-6 rounded-lg max-w-md w-full">
         <h2 className="text-xl font-bold mb-4 text-white">デッキ一覧</h2>
 
-        {savedDecks.length === 0 ? (
+        {decks.length === 0 ? (
           <p className="text-white mb-4">保存されたデッキがありません。</p>
         ) : (
           <div className="max-h-80 overflow-y-auto mb-4">
-            {savedDecks.map(deck => (
+            {decks.map(deck => (
               <div
-                key={deck.title}
+                key={deck.id}
                 className="p-3 bg-gray-700 mb-2 rounded cursor-pointer hover:bg-gray-600 flex items-center"
                 onClick={() => handleLoadDeck(deck)}
               >
@@ -321,14 +319,14 @@ export const DeckLoadDialog = ({ isOpen, onClose, onLoad }: DeckListDialogProps)
                   type="radio"
                   name="mainDeck"
                   className="mr-3 h-4 w-4"
-                  checked={mainDeckId === deck.id}
+                  checked={mainDeck?.id === deck.id}
                   onChange={() => handleSetMainDeck(deck.id)}
                   onClick={e => e.stopPropagation()}
                 />
                 <span className="text-white flex-grow">{deck.title}</span>
                 <button
                   className="text-red-400 hover:text-red-300 px-2"
-                  onClick={e => handleDeleteDeck(deck.title, e)}
+                  onClick={e => handleDeleteDeck(deck.id, deck.title, e)}
                 >
                   削除
                 </button>
