@@ -11,6 +11,7 @@ interface LongPressHandlers {
   onTouchStart: (e: TouchEvent) => void;
   onTouchMove: (e: TouchEvent) => void;
   onTouchEnd: (e: TouchEvent) => void;
+  onTouchCancel: (e: TouchEvent) => void;
 }
 
 export const useLongPress = ({
@@ -80,9 +81,17 @@ export const useLongPress = ({
     movedRef.current = false;
   }, [clearTimer, onShortPress]);
 
+  const handleTouchCancel = useCallback(() => {
+    clearTimer();
+    startPosRef.current = null;
+    movedRef.current = false;
+    longPressTriggeredRef.current = false;
+  }, [clearTimer]);
+
   return {
     onTouchStart: handleTouchStart,
     onTouchMove: handleTouchMove,
     onTouchEnd: handleTouchEnd,
+    onTouchCancel: handleTouchCancel,
   };
 };

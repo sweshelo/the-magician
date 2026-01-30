@@ -65,45 +65,57 @@ export const DeckSaveDialog = ({
   const handleImport = async () => {
     setImportError('');
     setImportSuccess('');
+
+    // JSONパース
+    let obj: { cards?: unknown; jokers?: unknown };
     try {
-      const obj = JSON.parse(importText);
-      if (!obj.cards || !Array.isArray(obj.cards)) {
-        setImportError('cards配列が見つかりません');
-        return;
-      }
-      if (obj.cards.length !== 40) {
-        setImportError('デッキは40枚である必要があります');
-        return;
-      }
-
-      // JOKER検証
-      const importJokers = obj.jokers || [];
-      if (!Array.isArray(importJokers)) {
-        setImportError('jokersは配列である必要があります');
-        return;
-      }
-      if (importJokers.length > 2) {
-        setImportError('JOKERは最大2枚までです');
-        return;
-      }
-
-      // タイトル入力
-      const newTitle = prompt('デッキ名を入力してください');
-      if (!newTitle || !newTitle.trim()) {
-        setImportError('デッキ名が必要です');
-        return;
-      }
-      // タイトル重複チェック
-      if (decks.some(d => d.title === newTitle.trim())) {
-        setImportError('同じ名前のデッキが既に存在します');
-        return;
-      }
-      // 保存
-      await saveDeck(newTitle.trim(), obj.cards, importJokers, false);
-      setImportSuccess('デッキを作成しました');
-      await refreshDecks();
+      obj = JSON.parse(importText);
     } catch {
       setImportError('JSONのパースに失敗しました');
+      return;
+    }
+
+    // バリデーション
+    if (!obj.cards || !Array.isArray(obj.cards)) {
+      setImportError('cards配列が見つかりません');
+      return;
+    }
+    if (obj.cards.length !== 40) {
+      setImportError('デッキは40枚である必要があります');
+      return;
+    }
+
+    // JOKER検証
+    const importJokers = obj.jokers || [];
+    if (!Array.isArray(importJokers)) {
+      setImportError('jokersは配列である必要があります');
+      return;
+    }
+    if (importJokers.length > 2) {
+      setImportError('JOKERは最大2枚までです');
+      return;
+    }
+
+    // タイトル入力
+    const newTitle = prompt('デッキ名を入力してください');
+    if (!newTitle || !newTitle.trim()) {
+      setImportError('デッキ名が必要です');
+      return;
+    }
+    // タイトル重複チェック
+    if (decks.some(d => d.title === newTitle.trim())) {
+      setImportError('同じ名前のデッキが既に存在します');
+      return;
+    }
+
+    // 保存
+    try {
+      await saveDeck(newTitle.trim(), obj.cards as string[], importJokers as string[], false);
+      setImportSuccess('デッキを作成しました');
+      await refreshDecks();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'デッキの保存に失敗しました';
+      setImportError(message);
     }
   };
 

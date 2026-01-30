@@ -675,11 +675,12 @@ export const DeckBuilder = ({ implementedIds }: DeckBuilderProps) => {
           return a.color - b.color;
         case 'cost':
           return a.cost - b.cost;
-        case 'rank':
+        case 'rank': {
           // rankがない場合は同名カードのrankを参照
           const aOrder = a.rank?.order ?? nameToRankOrder.get(a.name) ?? Infinity;
           const bOrder = b.rank?.order ?? nameToRankOrder.get(b.name) ?? Infinity;
           return aOrder - bOrder;
+        }
         default:
           return 0;
       }
@@ -716,10 +717,7 @@ export const DeckBuilder = ({ implementedIds }: DeckBuilderProps) => {
         try {
           const savedDeck = await saveDeckToStorage(title, deck, jokers, isMainDeck);
           setCurrentDeckTitle(title);
-
-          if (isMainDeck && savedDeck) {
-            setCurrentDeckId(savedDeck.id);
-          }
+          setCurrentDeckId(savedDeck?.id ?? null);
 
           alert(
             `デッキ「${title}」が保存されました。${isMainDeck ? '（メインデッキに設定されました）' : ''}`
