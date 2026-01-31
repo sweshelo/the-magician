@@ -3,7 +3,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { StatusChange, useStatusChange } from '@/hooks/status-change';
 
-export type StatusChangeType = 'damage' | 'level' | 'bp' | 'base-bp' | 'block';
+export type StatusChangeType = 'block' | 'bp' | 'base-bp' | 'damage' | 'level' | 'overclock';
 
 interface StatusChangeEffectProps {
   unitId: string;
@@ -117,6 +117,9 @@ export const StatusChangeEffect: React.FC<StatusChangeEffectProps> = ({
       case 'block':
         labelText = 'BLOCK';
         break;
+      case 'overclock':
+        labelText = 'オーバークロック';
+        break;
       default:
         return null;
     }
@@ -145,7 +148,7 @@ export const StatusChangeEffect: React.FC<StatusChangeEffectProps> = ({
     };
 
     // Determine value text - block type doesn't show value
-    const valueText = type === 'block' ? '' : type === 'level' ? `Lv ${value}` : value;
+    const valueText = type === 'block' || type === 'level' || type === 'overclock' ? '' : value;
 
     return (
       <>
