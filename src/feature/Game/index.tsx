@@ -269,7 +269,7 @@ export const Game = ({ id }: RoomProps) => {
                     ))}
                   </div>
                 </div>
-                <JokerGauge percentage={opponent?.joker.gauge || 0} />
+                <JokerGauge percentage={opponent?.joker.gauge || 0} jokers={opponent?.joker.card} />
               </div>
               <div className="flex gap-4">
                 {opponent?.deck && (
