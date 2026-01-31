@@ -20,6 +20,13 @@ export const MiscSettings: React.FC<MiscSettingsProps> = ({ register }) => {
         registration={register('rule.misc.strictOverride')}
         defaultChecked={DEFAULT_ROOM_SETTINGS.rule.misc.strictOverride}
       />
+      <Toggle
+        label="タイマー強制"
+        description="タイマーが0になると自動でターン終了/マリガン確定になります"
+        tooltipId="auto-end-on-timeout"
+        registration={register('rule.misc.autoEndOnTimeout')}
+        defaultChecked={DEFAULT_ROOM_SETTINGS.rule.misc.autoEndOnTimeout}
+      />
     </SettingsGroup>
   );
 };

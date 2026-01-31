@@ -15,7 +15,7 @@ export const GameResultOverlay = () => {
 
   // 終了理由テキスト
   const reasonText = reason === 'damage' ? 'KO' : 'ROUND LIMIT';
-  const reasonSubText = reason === 'damage' ? '戦闘状況終了' : '';
+  const reasonSubText = '戦闘状況終了';
 
   // 勝敗テキストとスタイル
   const resultText = result === 'win' ? 'WIN' : 'LOSE';

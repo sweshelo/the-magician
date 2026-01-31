@@ -69,6 +69,7 @@ export const useRoomCreator = (): Response => {
               },
               misc: {
                 strictOverride: formValues['rule.misc.strictOverride'] === 'on',
+                autoEndOnTimeout: formValues['rule.misc.autoEndOnTimeout'] === 'on',
               },
               joker: {
                 suicide: formValues['rule.joker.suicide'] === 'on',

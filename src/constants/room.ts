@@ -33,6 +33,7 @@ export const DEFAULT_ROOM_SETTINGS = {
     },
     misc: {
       strictOverride: false,
+      autoEndOnTimeout: true,
     },
     joker: {
       suicide: false,
