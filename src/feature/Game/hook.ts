@@ -37,12 +37,12 @@ export const useGameComponentHook = ({ id }: Props) => {
 
   // refを使用してクリーンアップ時に最新の値を参照
   const websocketRef = useRef(websocket);
-  const messageHandlerRef = useRef(messageHandler);
+  // 実際に登録されたハンドラの参照を保持（登録時と削除時で同じ参照を使用）
+  const registeredHandlerRef = useRef<((message: Message) => void) | null>(null);
 
   // refを最新の値で更新
   useEffect(() => {
     websocketRef.current = websocket;
-    messageHandlerRef.current = messageHandler;
   });
 
   // ルーム参加処理
@@ -54,6 +54,8 @@ export const useGameComponentHook = ({ id }: Props) => {
       // Register player identity in Context for use throughout the app
       setSelfId(playerId, 'player');
 
+      // 登録時のハンドラ参照を保持（クリーンアップで同じ参照を使用）
+      registeredHandlerRef.current = messageHandler;
       websocket.on('message', messageHandler);
       websocket.send({
         action: {
@@ -87,8 +89,9 @@ export const useGameComponentHook = ({ id }: Props) => {
   // アンマウント時のクリーンアップ（コンポーネント破棄時のみ実行）
   useEffect(() => {
     return () => {
-      if (websocketRef.current && isJoined.current) {
-        websocketRef.current.off('message', messageHandlerRef.current);
+      if (websocketRef.current && registeredHandlerRef.current) {
+        websocketRef.current.off('message', registeredHandlerRef.current);
+        registeredHandlerRef.current = null;
       }
       isJoined.current = false;
       reset();
@@ -103,7 +106,16 @@ export const useGameComponentHook = ({ id }: Props) => {
 
       // Set up listener for future state changes
       const handleOpen = () => setConnected(true);
-      const handleClose = () => setConnected(false);
+      const handleClose = () => {
+        setConnected(false);
+        // 切断時に参加状態をリセット（再接続時に再joinできるようにする）
+        isJoined.current = false;
+        // 登録済みハンドラがあれば削除
+        if (websocketRef.current && registeredHandlerRef.current) {
+          websocketRef.current.off('message', registeredHandlerRef.current);
+          registeredHandlerRef.current = null;
+        }
+      };
 
       websocket.on('open', handleOpen);
       websocket.on('close', handleClose);
