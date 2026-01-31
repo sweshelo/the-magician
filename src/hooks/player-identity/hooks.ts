@@ -1,3 +1,5 @@
+'use client';
+
 import { usePlayerIdentity } from './context';
 import { LocalStorageHelper } from '@/service/local-storage';
 

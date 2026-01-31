@@ -27,6 +27,7 @@ export default function LoginPage() {
       // OAuthリダイレクトが発生するため、ここには到達しない
     } catch {
       setError('ログインに失敗しました。もう一度お試しください。');
+    } finally {
       setIsSigningIn(false);
     }
   };

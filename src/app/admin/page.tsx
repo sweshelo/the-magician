@@ -45,9 +45,16 @@ export default function AdminPage() {
   // 管理者チェック
   useEffect(() => {
     const checkAdmin = async () => {
-      const result = await checkIsAdmin();
-      setIsAdmin(result.isAdmin);
-      if (!result.isAdmin) {
+      try {
+        const result = await checkIsAdmin();
+        setIsAdmin(result.isAdmin);
+        if (!result.isAdmin) {
+          setError(result.message ?? '管理者権限がありません');
+          router.push('/entrance');
+        }
+      } catch {
+        setError('管理者チェックに失敗しました');
+        setIsAdmin(false);
         router.push('/entrance');
       }
     };
@@ -140,10 +147,14 @@ export default function AdminPage() {
   };
 
   // コードをコピー
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    setSuccessMessage('コピーしました');
-    setTimeout(() => setSuccessMessage(null), 2000);
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setSuccessMessage('コピーしました');
+      setTimeout(() => setSuccessMessage(null), 2000);
+    } catch {
+      setError('コピーに失敗しました');
+    }
   };
 
   if (isAdmin === null) {

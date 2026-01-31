@@ -7,8 +7,12 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Supabase環境変数が設定されていない場合はそのまま通過
+  // Supabase環境変数が設定されていない場合
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+    // 本番環境では認証なしのアクセスを禁止
+    if (process.env.NODE_ENV === 'production') {
+      return NextResponse.redirect(new URL('/login', request.url));
+    }
     return NextResponse.next();
   }
 
