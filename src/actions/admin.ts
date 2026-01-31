@@ -296,12 +296,25 @@ export async function getUsers(options?: {
 
   // 全ユーザーのクレジット残高を一括取得
   const userIds = (profiles ?? []).map(p => p.id);
-  const { data: allCredits } = await supabase
-    .from('user_credits')
-    .select('user_id, balance')
-    .in('user_id', userIds);
 
-  const creditsMap = new Map((allCredits ?? []).map(c => [c.user_id, c.balance]));
+  let creditsMap = new Map<string, number>();
+
+  if (userIds.length > 0) {
+    try {
+      const { data: allCredits, error: creditsError } = await supabase
+        .from('user_credits')
+        .select('user_id, balance')
+        .in('user_id', userIds);
+
+      if (creditsError) {
+        console.error('クレジット取得エラー:', creditsError);
+      } else {
+        creditsMap = new Map((allCredits ?? []).map(c => [c.user_id, c.balance]));
+      }
+    } catch (e) {
+      console.error('クレジット取得で例外発生:', e);
+    }
+  }
 
   const usersWithCredits = (profiles ?? []).map(profile => ({
     ...profile,
