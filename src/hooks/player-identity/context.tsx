@@ -80,6 +80,13 @@ export const PlayerIdentityProvider = ({ children }: Props) => {
         role: stored.role,
         isResolved: true,
       });
+    } else {
+      // 保存データがない場合も解決済みとする
+      setState({
+        selfId: null,
+        role: 'unknown',
+        isResolved: true,
+      });
     }
   }, []);
 
@@ -98,7 +105,7 @@ export const PlayerIdentityProvider = ({ children }: Props) => {
     setState({
       selfId: null,
       role: 'unknown',
-      isResolved: false,
+      isResolved: true,
     });
     clearStoredIdentity();
   }, []);

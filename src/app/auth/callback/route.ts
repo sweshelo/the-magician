@@ -33,5 +33,7 @@ export async function GET(request: Request) {
   }
 
   // 認証失敗、エラーページへリダイレクト
-  return NextResponse.redirect(`${origin}/auth/error?message=認証に失敗しました`);
+  return NextResponse.redirect(
+    `${origin}/auth/error?message=${encodeURIComponent('認証に失敗しました')}`
+  );
 }

@@ -153,7 +153,7 @@ export const StatusChangeEffect: React.FC<StatusChangeEffectProps> = ({
           {labelText}
         </div>
         {valueText && (
-          <div className="text-lg border-t-1" style={valueStyle}>
+          <div className="text-lg border-t" style={valueStyle}>
             {valueText}
           </div>
         )}

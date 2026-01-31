@@ -10,12 +10,16 @@ export const DeckSelector = () => {
   const { decks, mainDeck, isLoading, setMainDeck } = useDeck();
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [isDeckListOpen, setIsDeckListOpen] = useState(false);
+  const [deckError, setDeckError] = useState<string | null>(null);
 
   const handleSetMainDeck = async (deckId: string) => {
+    setDeckError(null);
     try {
       await setMainDeck(deckId);
       setIsDeckListOpen(false);
     } catch (error) {
+      const message = error instanceof Error ? error.message : 'メインデッキの設定に失敗しました';
+      setDeckError(message);
       console.error('メインデッキ設定エラー:', error);
     }
   };
@@ -142,6 +146,13 @@ export const DeckSelector = () => {
           デッキ選択
         </button>
       </div>
+
+      {/* Error message */}
+      {deckError && (
+        <div className="p-3 bg-red-900 border border-red-600 rounded-md mb-4">
+          <p className="text-red-200 text-sm">{deckError}</p>
+        </div>
+      )}
 
       {/* No deck warning */}
       {!mainDeck && (

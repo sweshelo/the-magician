@@ -294,21 +294,32 @@ export async function getUsers(options?: {
     return { users: [], total: 0 };
   }
 
-  // 各ユーザーのクレジット残高を取得
-  const usersWithCredits = await Promise.all(
-    (profiles ?? []).map(async profile => {
-      const { data: credits } = await supabase
-        .from('user_credits')
-        .select('balance')
-        .eq('user_id', profile.id)
-        .single();
+  // 全ユーザーのクレジット残高を一括取得
+  const userIds = (profiles ?? []).map(p => p.id);
 
-      return {
-        ...profile,
-        credits: credits?.balance ?? 0,
-      };
-    })
-  );
+  let creditsMap = new Map<string, number>();
+
+  if (userIds.length > 0) {
+    try {
+      const { data: allCredits, error: creditsError } = await supabase
+        .from('user_credits')
+        .select('user_id, balance')
+        .in('user_id', userIds);
+
+      if (creditsError) {
+        console.error('クレジット取得エラー:', creditsError);
+      } else {
+        creditsMap = new Map((allCredits ?? []).map(c => [c.user_id, c.balance]));
+      }
+    } catch (e) {
+      console.error('クレジット取得で例外発生:', e);
+    }
+  }
+
+  const usersWithCredits = (profiles ?? []).map(profile => ({
+    ...profile,
+    credits: creditsMap.get(profile.id) ?? 0,
+  }));
 
   return {
     users: usersWithCredits,
@@ -330,6 +341,11 @@ export async function setUserAdmin(
   const adminCheck = await checkAdminAccess();
   if ('error' in adminCheck) {
     return { success: false, message: adminCheck.error };
+  }
+
+  // 自身の管理者権限削除を防止
+  if (!isAdmin && adminCheck.userId === userId) {
+    return { success: false, message: '自身の管理者権限は削除できません' };
   }
 
   const supabase = await createClient();
