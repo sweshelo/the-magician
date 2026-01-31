@@ -27,6 +27,13 @@ export const MiscSettings: React.FC<MiscSettingsProps> = ({ register }) => {
         registration={register('rule.misc.autoEndOnTimeout')}
         defaultChecked={DEFAULT_ROOM_SETTINGS.rule.misc.autoEndOnTimeout}
       />
+      <Toggle
+        label="コスト分のダメージ"
+        description="[ロケテスト時の仕様] プレイヤーアタックによって受けるライフがユニットのコストと等しくなります"
+        tooltipId="auto-end-on-timeout"
+        registration={register('rule.misc.damageAsCost')}
+        defaultChecked={DEFAULT_ROOM_SETTINGS.rule.misc.damageAsCost}
+      />
     </SettingsGroup>
   );
 };
