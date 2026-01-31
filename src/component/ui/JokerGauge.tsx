@@ -32,7 +32,7 @@ export const JokerGauge = ({ percentage, jokers }: JokerGaugeProps) => {
       {/* 1st JOKER threshold indicator - downward triangle above the gauge */}
       {firstJokerThreshold !== undefined && (
         <div
-          className="absolute -top-2 -translate-x-1/2"
+          className="absolute -top-[1.5px] -translate-x-1/2"
           style={{ left: `${firstJokerThreshold}%` }}
         >
           <div className="w-0 h-0 border-l-[6px] border-r-[6px] border-t-[8px] border-l-transparent border-r-transparent border-t-cyan-500" />
@@ -42,7 +42,7 @@ export const JokerGauge = ({ percentage, jokers }: JokerGaugeProps) => {
       {/* 2nd JOKER threshold indicator - upward triangle below the gauge */}
       {secondJokerThreshold !== undefined && (
         <div
-          className="absolute -bottom-2 -translate-x-1/2"
+          className="absolute -bottom-[1px] -translate-x-1/2"
           style={{ left: `${secondJokerThreshold}%` }}
         >
           <div className="w-0 h-0 border-l-[6px] border-r-[6px] border-b-[8px] border-l-transparent border-r-transparent border-b-yellow-500" />
