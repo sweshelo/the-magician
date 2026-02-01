@@ -18,6 +18,7 @@ import { TurnChangeEffectProvider } from '../turn-change-effect';
 import { SoundManagerV2Provider } from '../soundV2';
 import { AttackAnimationProvider } from '../attack-animation';
 import { useErrorOverlay } from '../error-overlay';
+import { GameResultProvider } from '../game-result';
 
 interface Props {
   children: ReactNode;
@@ -54,7 +55,9 @@ export const GameContextProvider = ({ children }: Props) => {
                               <OverclockEffectProvider>
                                 <StatusChangeProvider>
                                   <UnitPositionProvider>
-                                    <TurnChangeEffectProvider>{children}</TurnChangeEffectProvider>
+                                    <TurnChangeEffectProvider>
+                                      <GameResultProvider>{children}</GameResultProvider>
+                                    </TurnChangeEffectProvider>
                                   </UnitPositionProvider>
                                 </StatusChangeProvider>
                               </OverclockEffectProvider>

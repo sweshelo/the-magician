@@ -11,6 +11,14 @@ export const TimerProvider = ({ children, initialTime = 60 }: TimerProviderProps
   const startSecondsRef = useRef<number>(initialTime);
   // 一時停止時の残り秒数
   const pausedSecondsRef = useRef<number | null>(null);
+  // タイムアウトコールバック
+  const onExpireRef = useRef<(() => void) | null>(null);
+  const expireFiredRef = useRef(false);
+
+  const setOnExpire = useCallback((callback: (() => void) | null) => {
+    onExpireRef.current = callback;
+    expireFiredRef.current = false;
+  }, []);
 
   const getExpiryTimestamp = (seconds: number) => {
     const time = new Date();
@@ -18,10 +26,18 @@ export const TimerProvider = ({ children, initialTime = 60 }: TimerProviderProps
     return time;
   };
 
+  const handleExpire = useCallback(() => {
+    if (onExpireRef.current && !expireFiredRef.current) {
+      expireFiredRef.current = true;
+      onExpireRef.current();
+    }
+  }, []);
+
   const { totalSeconds, isRunning, restart } = useTimerHook({
     expiryTimestamp: getExpiryTimestamp(initialTime),
     autoStart: false,
     interval: 100,
+    onExpire: handleExpire,
   });
 
   const resetTimer = useCallback(() => {
@@ -93,6 +109,7 @@ export const TimerProvider = ({ children, initialTime = 60 }: TimerProviderProps
     endTurn,
     setRemainingTime,
     resetWithDuration,
+    setOnExpire,
   };
 
   return <TimerContext.Provider value={value}>{children}</TimerContext.Provider>;

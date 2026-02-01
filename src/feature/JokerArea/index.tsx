@@ -12,7 +12,7 @@ export const JokerArea = () => {
 
   return (
     <div className="flex flex-col gap-1">
-      <JokerGauge percentage={player?.joker.gauge || 0} />
+      <JokerGauge percentage={player?.joker.gauge || 0} jokers={player?.joker.card} />
       <div className="flex gap-2">
         {(player?.joker.card || []).map(card => (
           <div key={card.id} className={`relative`}>

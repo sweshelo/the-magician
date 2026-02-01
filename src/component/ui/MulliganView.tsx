@@ -1,16 +1,19 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useRef } from 'react';
 import { useWebSocketGame } from '@/hooks/game/websocket';
 import { useSoundV2 } from '@/hooks/soundV2';
 import { Message, createMessage } from '@/submodule/suit/types';
 import { useSelfId } from '@/hooks/player-identity';
 import { useMulligan, useTimer } from '@/hooks/mulligan/context';
+import { useRule } from '@/hooks/game/hooks';
 
 export const MulliganView: React.FC = () => {
-  const { showMulligan, setShowMulligan, timeLeft } = useMulligan();
+  const { showMulligan, setShowMulligan, timeLeft, setOnTimeout } = useMulligan();
   const { stopTimer } = useTimer();
   const { send } = useWebSocketGame();
   const { play } = useSoundV2();
   const selfId = useSelfId();
+  const rule = useRule();
+  const handleNoRef = useRef<(() => void) | null>(null);
 
   // Use local rendering state to ensure smooth animation
   const [displayTime, setDisplayTime] = useState<string>('10"00');
@@ -44,6 +47,23 @@ export const MulliganView: React.FC = () => {
     setShowMulligan(false);
     stopTimer();
   }, [send, setShowMulligan, stopTimer, selfId]);
+
+  // handleNoの参照を更新
+  useEffect(() => {
+    handleNoRef.current = handleNo;
+  }, [handleNo]);
+
+  // タイマー強制設定が有効な場合、タイムアウト時に自動確定
+  useEffect(() => {
+    if (showMulligan && rule?.misc?.autoEndOnTimeout) {
+      setOnTimeout(() => {
+        handleNoRef.current?.();
+      });
+    }
+    return () => {
+      setOnTimeout(null);
+    };
+  }, [showMulligan, rule?.misc?.autoEndOnTimeout, setOnTimeout]);
 
   const handleYes = useCallback(() => {
     const message: Message = createMessage({

@@ -6,6 +6,7 @@ interface MulliganContextType {
   showMulligan: boolean;
   setShowMulligan: (show: boolean) => void;
   timeLeft: number;
+  setOnTimeout: (callback: (() => void) | null) => void;
   // Timer state - do not modify directly
   _timerStart: React.MutableRefObject<number | null>;
   _initialTime: React.MutableRefObject<number>;
@@ -20,6 +21,13 @@ export const MulliganProvider: React.FC<{ children: ReactNode }> = ({ children }
   const timerStart = useRef<number | null>(null); // null when timer not running
   const initialTime = useRef<number>(10); // Initial time value in seconds
   const [timerRunning, setTimerRunning] = useState(false); // We'll use this state to trigger effect
+  const onTimeoutRef = useRef<(() => void) | null>(null);
+  const timeoutFiredRef = useRef(false);
+
+  const setOnTimeout = (callback: (() => void) | null) => {
+    onTimeoutRef.current = callback;
+    timeoutFiredRef.current = false;
+  };
 
   // Global timer that runs continuously in the background
   useEffect(() => {
@@ -35,6 +43,11 @@ export const MulliganProvider: React.FC<{ children: ReactNode }> = ({ children }
         clearInterval(intervalId);
         setTimerRunning(false);
         timerStart.current = null;
+        // タイムアウトコールバックを実行（二重発火防止）
+        if (onTimeoutRef.current && !timeoutFiredRef.current) {
+          timeoutFiredRef.current = true;
+          onTimeoutRef.current();
+        }
       }
     }, 10); // 10ms for smooth updates
 
@@ -47,6 +60,7 @@ export const MulliganProvider: React.FC<{ children: ReactNode }> = ({ children }
         showMulligan,
         setShowMulligan,
         timeLeft,
+        setOnTimeout,
         _timerStart: timerStart,
         _initialTime: initialTime,
         _setTimerRunning: setTimerRunning,
