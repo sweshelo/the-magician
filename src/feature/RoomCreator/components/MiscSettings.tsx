@@ -30,7 +30,7 @@ export const MiscSettings: React.FC<MiscSettingsProps> = ({ register }) => {
       <Toggle
         label="コスト分のダメージ"
         description="[ロケテスト時の仕様] プレイヤーアタックによって受けるライフがユニットのコストと等しくなります"
-        tooltipId="auto-end-on-timeout"
+        tooltipId="damage-cost"
         registration={register('rule.misc.damageAsCost')}
         defaultChecked={DEFAULT_ROOM_SETTINGS.rule.misc.damageAsCost}
       />
