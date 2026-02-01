@@ -10,7 +10,7 @@ import {
   useEffect,
 } from 'react';
 
-export type GameResultReason = 'damage' | 'limit';
+export type GameResultReason = 'damage' | 'limit' | 'surrender';
 export type GameResultType = 'win' | 'lose';
 
 export interface GameResultState {
