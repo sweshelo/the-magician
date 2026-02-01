@@ -31,7 +31,7 @@ export const StatusChangeEffect: React.FC<StatusChangeEffectProps> = ({
       Object.values(players ?? {})
         .flatMap(player => player.field)
         .find(unit => unit.id === unitId),
-    [players]
+    [players, unitId]
   );
 
   // onCompleteが変更されたらrefを更新
