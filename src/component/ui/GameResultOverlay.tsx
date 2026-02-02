@@ -3,19 +3,36 @@
 import { useGameResult } from '@/hooks/game-result';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/component/interface/button';
+import { useMemo } from 'react';
 
 export const GameResultOverlay = () => {
   const { state } = useGameResult();
   const { isVisible, reason, result, showExitButton } = state;
   const router = useRouter();
 
-  if (!isVisible) {
-    return null;
-  }
-
   // 終了理由テキスト
-  const reasonText = reason === 'damage' ? 'KO' : 'ROUND LIMIT';
-  const reasonSubText = '戦闘状況終了';
+  const { reasonText, reasonSubText } = useMemo(() => {
+    switch (reason) {
+      case 'damage': {
+        return {
+          reasonText: 'KO',
+          reasonSubText: '戦闘状況終了',
+        };
+      }
+      case 'limit': {
+        return {
+          reasonText: 'ROUND LIMIT',
+          reasonSubText: '戦闘状況終了',
+        };
+      }
+      case 'surrender': {
+        return {
+          reasonText: 'SURRENDER',
+          reasonSubText: '投了',
+        };
+      }
+    }
+  }, [reason]);
 
   // 勝敗テキストとスタイル
   const resultText = result === 'win' ? 'WIN' : 'LOSE';
@@ -31,7 +48,7 @@ export const GameResultOverlay = () => {
     router.push('/entrance');
   };
 
-  return (
+  return isVisible ? (
     <div
       className="fixed inset-0 w-screen h-screen flex items-center justify-center z-50"
       style={{ animation: 'fadeIn 0.1s forwards' }}
@@ -74,5 +91,5 @@ export const GameResultOverlay = () => {
         )}
       </div>
     </div>
-  );
+  ) : null;
 };
