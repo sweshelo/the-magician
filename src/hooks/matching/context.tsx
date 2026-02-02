@@ -12,6 +12,7 @@ export interface MatchingState {
   position: number | null;
   roomId: string | null;
   opponentName: string | null;
+  queueCounts: Record<MatchingMode, number>;
 }
 
 export type MatchingAction =
@@ -19,7 +20,8 @@ export type MatchingAction =
   | { type: 'QUEUE_JOINED'; queueId: string; position: number; mode: MatchingMode }
   | { type: 'MATCHING_SUCCESS'; roomId: string; opponentName: string }
   | { type: 'CANCEL' }
-  | { type: 'RESET' };
+  | { type: 'RESET' }
+  | { type: 'UPDATE_QUEUE_COUNTS'; queues: Record<MatchingMode, number> };
 
 export type MatchingContextType = {
   state: MatchingState;
@@ -28,6 +30,7 @@ export type MatchingContextType = {
   matchingSuccess: (roomId: string, opponentName: string) => void;
   cancel: () => void;
   reset: () => void;
+  updateQueueCounts: (queues: Record<MatchingMode, number>) => void;
 };
 
 export const MatchingContext = createContext<MatchingContextType | undefined>(undefined);
@@ -39,6 +42,12 @@ const initialState: MatchingState = {
   position: null,
   roomId: null,
   opponentName: null,
+  queueCounts: {
+    freedom: 0,
+    standard: 0,
+    legacy: 0,
+    limited: 0,
+  },
 };
 
 function matchingReducer(state: MatchingState, action: MatchingAction): MatchingState {
@@ -70,6 +79,8 @@ function matchingReducer(state: MatchingState, action: MatchingAction): Matching
       };
     case 'RESET':
       return initialState;
+    case 'UPDATE_QUEUE_COUNTS':
+      return { ...state, queueCounts: action.queues };
     default:
       return state;
   }
@@ -98,6 +109,10 @@ export const MatchingProvider = ({ children }: { children: ReactNode }) => {
     dispatch({ type: 'RESET' });
   }, []);
 
+  const updateQueueCounts = useCallback((queues: Record<MatchingMode, number>) => {
+    dispatch({ type: 'UPDATE_QUEUE_COUNTS', queues });
+  }, []);
+
   const contextValue = useMemo(
     () => ({
       state,
@@ -106,8 +121,9 @@ export const MatchingProvider = ({ children }: { children: ReactNode }) => {
       matchingSuccess,
       cancel,
       reset,
+      updateQueueCounts,
     }),
-    [state, startSelecting, queueJoined, matchingSuccess, cancel, reset]
+    [state, startSelecting, queueJoined, matchingSuccess, cancel, reset, updateQueueCounts]
   );
 
   return <MatchingContext.Provider value={contextValue}>{children}</MatchingContext.Provider>;

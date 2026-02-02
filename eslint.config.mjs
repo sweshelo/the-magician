@@ -14,6 +14,18 @@ const eslintConfig = [
   {
     ignores: ["src/submodule/**/*"],
   },
+  {
+    rules: {
+      // `as unknown as` パターンを禁止
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector: "TSAsExpression > TSUnknownKeyword",
+          message: "`as unknown as` is prohibited. Use proper type guards or generics instead.",
+        },
+      ],
+    },
+  },
 ];
 
 export default eslintConfig;

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/component/interface/button';
-import { useMatching } from '@/hooks/matching';
+import { useMatching, useQueueStatus } from '@/hooks/matching';
 import { useErrorOverlay } from '@/hooks/error-overlay';
 import { webSocketService } from '@/service/websocket';
 import { ModeSelector } from './ModeSelector';
@@ -18,6 +18,9 @@ export const Matching = () => {
   const { showError } = useErrorOverlay();
   const [isLoading, setIsLoading] = useState(false);
   const [isCanceling, setIsCanceling] = useState(false);
+
+  // キュー状態をリッスン＆リクエスト
+  const { requestQueueStatus } = useQueueStatus();
 
   // Navigate to room when matched
   useEffect(() => {
@@ -43,7 +46,9 @@ export const Matching = () => {
 
   const handleStartMatching = useCallback(() => {
     startSelecting();
-  }, [startSelecting]);
+    // マッチング状況をサーバーにリクエスト
+    requestQueueStatus();
+  }, [startSelecting, requestQueueStatus]);
 
   const handleSelectMode = useCallback(
     async (mode: MatchingMode) => {
@@ -101,6 +106,7 @@ export const Matching = () => {
           onSelectMode={handleSelectMode}
           onCancel={handleCancel}
           isLoading={isLoading}
+          queueCounts={state.queueCounts}
         />
       </div>
     );

@@ -39,9 +39,24 @@ interface Props {
   onSelectMode: (mode: MatchingMode) => void;
   onCancel: () => void;
   isLoading: boolean;
+  queueCounts: Record<MatchingMode, number>;
 }
 
-export const ModeSelector = ({ onSelectMode, onCancel, isLoading }: Props) => {
+// インジケータの色を決定
+const getIndicatorColor = (isValid: boolean, queueCount: number): string => {
+  if (!isValid) return 'bg-red-500';
+  if (queueCount > 0) return 'bg-green-500';
+  return 'bg-gray-400';
+};
+
+// インジケータのツールチップを決定
+const getIndicatorTooltip = (isValid: boolean, queueCount: number): string => {
+  if (!isValid) return 'デッキ条件不適合';
+  if (queueCount > 0) return `待機中: ${queueCount}人`;
+  return '待機中: 0人';
+};
+
+export const ModeSelector = ({ onSelectMode, onCancel, isLoading, queueCounts }: Props) => {
   const [mainDeck, setMainDeck] = useState<DeckData | null>(null);
   const [deckValidation, setDeckValidation] = useState<Record<MatchingMode, boolean>>({
     freedom: false,
@@ -118,9 +133,9 @@ export const ModeSelector = ({ onSelectMode, onCancel, isLoading }: Props) => {
                 <div
                   className={`
                     w-3 h-3 rounded-full flex-shrink-0 ml-3
-                    ${isValid ? 'bg-green-500' : 'bg-red-500'}
+                    ${getIndicatorColor(isValid, queueCounts[mode])}
                   `}
-                  title={isValid ? 'デッキ条件適合' : 'デッキ条件不適合'}
+                  title={getIndicatorTooltip(isValid, queueCounts[mode])}
                 />
               </div>
             </button>

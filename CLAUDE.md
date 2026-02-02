@@ -93,3 +93,9 @@ Uses dnd-kit with:
 ## Type Definitions
 
 Shared types (ICard, IPlayer, Rule) come from the `suit` git submodule at `src/submodule/suit/types/`. Run `git submodule update --init --recursive` if types are missing (this runs automatically during `bun install`).
+
+## Coding Conventions
+
+### Prohibited Patterns
+
+- **`as unknown as` is strictly prohibited.** Use proper type guards, generics, or fix the type definitions instead. This pattern bypasses TypeScript's type checking and can hide bugs.
