@@ -15,22 +15,22 @@ interface ModeInfo {
 const MODES: ModeInfo[] = [
   {
     mode: 'freedom',
-    label: 'フリーダム',
+    label: 'FREEDOM',
     description: '制限なし。全カード使用可能。',
   },
   {
     mode: 'standard',
-    label: 'スタンダード',
+    label: 'STANDARD',
     description: 'Ver.1.2以降のカードのみ。同名カード3枚まで。',
   },
   {
     mode: 'legacy',
-    label: 'レガシー',
-    description: 'Ver.1.4EX3以前。1stジョーカー、手札加算方式。',
+    label: 'LEGACY',
+    description: 'Ver.1.4EX3以前のルール／カードプールに準拠。',
   },
   {
     mode: 'limited',
-    label: 'リミテッド',
+    label: 'LIMITED',
     description: 'デッキ合計オリジナリティ100以上必須。',
   },
 ];

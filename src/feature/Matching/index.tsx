@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/component/interface/button';
 import { useMatching } from '@/hooks/matching';
 import { useErrorOverlay } from '@/hooks/error-overlay';
+import { webSocketService } from '@/service/websocket';
 import { ModeSelector } from './ModeSelector';
 import { WaitingScreen } from './WaitingScreen';
 import { useMatchingRequest } from './hooks';
@@ -25,6 +26,20 @@ export const Matching = () => {
       reset();
     }
   }, [state.status, state.roomId, router, reset]);
+
+  // マッチングエラーハンドラーを設定
+  useEffect(() => {
+    webSocketService.setMatchingErrorHandler(errorCode => {
+      console.log('Matching error received:', errorCode);
+      setIsLoading(false);
+      setIsCanceling(false);
+      cancel();
+    });
+
+    return () => {
+      webSocketService.setMatchingErrorHandler(null);
+    };
+  }, [cancel]);
 
   const handleStartMatching = useCallback(() => {
     startSelecting();
