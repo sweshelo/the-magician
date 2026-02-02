@@ -84,7 +84,7 @@ export const Matching = () => {
   if (state.status === 'idle') {
     return (
       <div className="p-4 bg-white rounded-lg shadow-md max-w-lg mx-auto">
-        <h2 className="text-center text-xl font-bold mb-4 text-gray-400">ランクマッチ</h2>
+        <h2 className="text-center text-xl font-bold mb-4 text-gray-400">ランダムマッチ</h2>
         <div className="flex justify-center">
           <Button type="button" onClick={handleStartMatching}>
             マッチングを開始
