@@ -2,8 +2,8 @@ import { useCallback, useEffect } from 'react';
 import { useWebSocket } from '@/hooks/websocket/hooks';
 import { useMatching } from '@/hooks/matching';
 import { useSelfId } from '@/hooks/player-identity';
+import { useDeck } from '@/hooks/deck';
 import { LocalStorageHelper } from '@/service/local-storage';
-import { DeckService } from '@/service/deck-service';
 import type { Message } from '@/submodule/suit/types';
 import type {
   MatchingMode,
@@ -23,6 +23,7 @@ export const useMatchingRequest = (): UseMatchingRequestReturn => {
   const { websocket } = useWebSocket();
   const { queueJoined, matchingSuccess, cancel } = useMatching();
   const selfId = useSelfId();
+  const { mainDeck } = useDeck();
 
   // Listen for MatchingSuccess messages
   useEffect(() => {
@@ -49,10 +50,9 @@ export const useMatchingRequest = (): UseMatchingRequestReturn => {
         throw new Error('WebSocket is not connected');
       }
 
-      // Get player info and deck
+      // Get player info
       const playerName = LocalStorageHelper.playerName();
       const playerId = LocalStorageHelper.playerId();
-      const mainDeck = await DeckService.getMainDeck(null); // Guest mode for now
 
       if (!mainDeck) {
         throw new Error('メインデッキが設定されていません');
@@ -81,7 +81,7 @@ export const useMatchingRequest = (): UseMatchingRequestReturn => {
 
       queueJoined(response.payload.queueId, response.payload.position, mode);
     },
-    [websocket, selfId, queueJoined]
+    [websocket, selfId, queueJoined, mainDeck]
   );
 
   const cancelMatching = useCallback(async () => {

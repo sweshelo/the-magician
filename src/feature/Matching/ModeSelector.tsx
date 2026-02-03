@@ -2,9 +2,8 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { Button } from '@/component/interface/button';
-import { DeckService } from '@/service/deck-service';
+import { useDeck } from '@/hooks/deck';
 import type { MatchingMode } from '@/submodule/suit/types/message/payload/server';
-import type { DeckData } from '@/type/deck';
 
 interface ModeInfo {
   mode: MatchingMode;
@@ -57,7 +56,7 @@ const getIndicatorTooltip = (isValid: boolean, queueCount: number): string => {
 };
 
 export const ModeSelector = ({ onSelectMode, onCancel, isLoading, queueCounts }: Props) => {
-  const [mainDeck, setMainDeck] = useState<DeckData | null>(null);
+  const { mainDeck, isLoading: isDeckLoading } = useDeck();
   const [deckValidation, setDeckValidation] = useState<Record<MatchingMode, boolean>>({
     freedom: false,
     standard: false,
@@ -66,24 +65,17 @@ export const ModeSelector = ({ onSelectMode, onCancel, isLoading, queueCounts }:
   });
 
   useEffect(() => {
-    const loadDeck = async () => {
-      const deck = await DeckService.getMainDeck(null);
-      setMainDeck(deck);
-
-      if (deck) {
-        // TODO: Implement actual validation based on card catalog data
-        // For now, all modes are considered valid if deck exists
-        setDeckValidation({
-          freedom: true,
-          standard: true,
-          legacy: true,
-          limited: true,
-        });
-      }
-    };
-
-    loadDeck();
-  }, []);
+    if (mainDeck) {
+      // TODO: Implement actual validation based on card catalog data
+      // For now, all modes are considered valid if deck exists
+      setDeckValidation({
+        freedom: true,
+        standard: true,
+        legacy: true,
+        limited: true,
+      });
+    }
+  }, [mainDeck]);
 
   const handleSelectMode = useCallback(
     (mode: MatchingMode) => {
@@ -98,7 +90,7 @@ export const ModeSelector = ({ onSelectMode, onCancel, isLoading, queueCounts }:
     <div className="space-y-4">
       <h3 className="text-lg font-semibold text-gray-700 text-center">マッチングモード選択</h3>
 
-      {!mainDeck && (
+      {!mainDeck && !isDeckLoading && (
         <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-md">
           <p className="text-yellow-700 text-sm">
             メインデッキが設定されていません。デッキ編集画面でメインデッキを設定してください。
@@ -109,7 +101,7 @@ export const ModeSelector = ({ onSelectMode, onCancel, isLoading, queueCounts }:
       <div className="grid grid-cols-1 gap-3">
         {MODES.map(({ mode, label, description }) => {
           const isValid = deckValidation[mode];
-          const isDisabled = !mainDeck || !isValid || isLoading;
+          const isDisabled = !mainDeck || !isValid || isLoading || isDeckLoading;
 
           return (
             <button
