@@ -4,6 +4,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { Button } from '@/component/interface/button';
 import { useDeck } from '@/hooks/deck';
 import type { MatchingMode } from '@/submodule/suit/types/message/payload/server';
+import master from '@/submodule/suit/catalog/catalog';
+import { Tooltip } from 'react-tooltip';
 
 interface ModeInfo {
   mode: MatchingMode;
@@ -43,9 +45,10 @@ interface Props {
 
 // インジケータの色を決定
 const getIndicatorColor = (isValid: boolean, queueCount: number): string => {
-  if (!isValid) return 'bg-red-500';
-  if (queueCount > 0) return 'bg-green-500';
-  return 'bg-gray-400';
+  if (queueCount > 0) {
+    return isValid ? 'bg-green-500' : 'bg-orange-500';
+  }
+  return isValid ? 'bg-gray-400' : 'bg-red-500';
 };
 
 // インジケータのツールチップを決定
@@ -70,9 +73,11 @@ export const ModeSelector = ({ onSelectMode, onCancel, isLoading, queueCounts }:
       // For now, all modes are considered valid if deck exists
       setDeckValidation({
         freedom: true,
-        standard: true,
-        legacy: true,
-        limited: true,
+        standard: !mainDeck.cards.some(cardId => (master.get(cardId)?.info.version ?? 0) < 6),
+        legacy: !mainDeck.cards.some(cardId => (master.get(cardId)?.info.version ?? 0) > 14),
+        limited:
+          mainDeck.cards.reduce((sum, cardId) => (master.get(cardId)?.originality ?? 0) + sum, 0) >=
+          100,
       });
     }
   }, [mainDeck]);
@@ -112,7 +117,7 @@ export const ModeSelector = ({ onSelectMode, onCancel, isLoading, queueCounts }:
                 relative p-4 rounded-lg border-2 text-left transition-all
                 ${
                   isDisabled
-                    ? 'bg-gray-50 border-gray-200 cursor-not-allowed opacity-60'
+                    ? 'bg-gray-50 border-gray-200 opacity-60'
                     : 'bg-white border-gray-300 hover:border-indigo-500 hover:shadow-md cursor-pointer'
                 }
               `}
@@ -124,11 +129,23 @@ export const ModeSelector = ({ onSelectMode, onCancel, isLoading, queueCounts }:
                 </div>
                 <div
                   className={`
-                    w-3 h-3 rounded-full flex-shrink-0 ml-3
+                    w-5 h-5 rounded-full flex-shrink-0 ml-3
                     ${getIndicatorColor(isValid, queueCounts[mode])}
                   `}
                   title={getIndicatorTooltip(isValid, queueCounts[mode])}
+                  data-tooltip-id={mode}
                 />
+                <Tooltip id={mode}>
+                  {isDisabled && (
+                    <>
+                      デッキが条件を満たしていません
+                      <br />
+                    </>
+                  )}
+                  {queueCounts[mode] > 0
+                    ? 'マッチング待ちのプレイヤーがいます！'
+                    : 'マッチング待ちのプレイヤーはいません'}
+                </Tooltip>
               </div>
             </button>
           );
