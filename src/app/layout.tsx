@@ -30,11 +30,13 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const authSkip = process.env.AUTH_SKIP === 'true';
+
   return (
     <html lang="ja">
       <Analytics />
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <AuthProvider>
+        <AuthProvider authSkip={authSkip}>
           <DeckProvider>
             <GlobalContextProvider>{children}</GlobalContextProvider>
           </DeckProvider>
