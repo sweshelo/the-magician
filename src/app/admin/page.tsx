@@ -36,6 +36,7 @@ export default function AdminPage() {
   // ユーザー
   const [users, setUsers] = useState<(Profile & { credits: number })[]>([]);
   const [userCount, setUserCount] = useState(0);
+  const [userPage, setUserPage] = useState(1);
 
   // ローディング・エラー
   const [isLoading, setIsLoading] = useState(true);
@@ -66,7 +67,7 @@ export default function AdminPage() {
     if (isAdmin) {
       loadData();
     }
-  }, [isAdmin, activeTab, showUsedTickets]);
+  }, [isAdmin, activeTab, showUsedTickets, userPage]);
 
   const loadData = async () => {
     setIsLoading(true);
@@ -82,7 +83,7 @@ export default function AdminPage() {
         setTickets(result.tickets);
         setTicketCount(result.total);
       } else if (activeTab === 'users') {
-        const result = await getUsers();
+        const result = await getUsers({ page: userPage });
         setUsers(result.users);
         setUserCount(result.total);
       }
@@ -188,7 +189,10 @@ export default function AdminPage() {
           {(['tickets', 'users', 'config'] as const).map(tab => (
             <button
               key={tab}
-              onClick={() => setActiveTab(tab)}
+              onClick={() => {
+                setActiveTab(tab);
+                setUserPage(1);
+              }}
               className={`px-4 py-2 rounded-md transition-colors ${
                 activeTab === tab
                   ? 'bg-indigo-600 text-white'
@@ -373,50 +377,83 @@ export default function AdminPage() {
             ) : users.length === 0 ? (
               <div className="text-gray-400">ユーザーがいません</div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="text-gray-400 border-b border-gray-700">
-                      <th className="text-left py-2">ユーザー</th>
-                      <th className="text-left py-2">Discord ID</th>
-                      <th className="text-left py-2">クレジット</th>
-                      <th className="text-left py-2">管理者</th>
-                      <th className="text-left py-2">登録日</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {users.map(user => (
-                      <tr key={user.id} className="border-b border-gray-700">
-                        <td className="py-2">
-                          <div className="flex items-center gap-2">
-                            {user.avatar_url && (
-                              <img src={user.avatar_url} alt="" className="w-6 h-6 rounded-full" />
-                            )}
-                            <span className="text-white">{user.discord_username}</span>
-                          </div>
-                        </td>
-                        <td className="py-2 text-gray-400">{user.discord_id}</td>
-                        <td className="py-2 text-white">{user.credits}</td>
-                        <td className="py-2">
-                          <button
-                            onClick={() => handleToggleAdmin(user.id, user.is_admin)}
-                            className={`px-2 py-1 rounded text-xs ${
-                              user.is_admin
-                                ? 'bg-indigo-600 text-white'
-                                : 'bg-gray-600 text-gray-300'
-                            }`}
-                          >
-                            {user.is_admin ? '管理者' : '一般'}
-                          </button>
-                        </td>
-                        <td className="py-2 text-gray-400">
-                          {new Date(user.created_at).toLocaleDateString('ja-JP')}
-                        </td>
+              <>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="text-gray-400 border-b border-gray-700">
+                        <th className="text-left py-2">ユーザー</th>
+                        <th className="text-left py-2">Discord ID</th>
+                        <th className="text-left py-2">クレジット</th>
+                        <th className="text-left py-2">管理者</th>
+                        <th className="text-left py-2">登録日</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody>
+                      {users.map(user => (
+                        <tr key={user.id} className="border-b border-gray-700">
+                          <td className="py-2">
+                            <div className="flex items-center gap-2">
+                              {user.avatar_url && (
+                                <img
+                                  src={user.avatar_url}
+                                  alt=""
+                                  className="w-6 h-6 rounded-full"
+                                />
+                              )}
+                              <span className="text-white">{user.discord_username}</span>
+                            </div>
+                          </td>
+                          <td className="py-2 text-gray-400">{user.discord_id}</td>
+                          <td className="py-2 text-white">{user.credits}</td>
+                          <td className="py-2">
+                            <button
+                              onClick={() => handleToggleAdmin(user.id, user.is_admin)}
+                              className={`px-2 py-1 rounded text-xs ${
+                                user.is_admin
+                                  ? 'bg-indigo-600 text-white'
+                                  : 'bg-gray-600 text-gray-300'
+                              }`}
+                            >
+                              {user.is_admin ? '管理者' : '一般'}
+                            </button>
+                          </td>
+                          <td className="py-2 text-gray-400">
+                            {new Date(user.created_at).toLocaleDateString('ja-JP')}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* ページネーション */}
+                {(() => {
+                  const totalPages = Math.ceil(userCount / 50);
+                  if (totalPages <= 1) return null;
+                  return (
+                    <div className="flex items-center justify-center gap-4 mt-4">
+                      <button
+                        onClick={() => setUserPage(p => p - 1)}
+                        disabled={userPage <= 1}
+                        className="px-4 py-2 bg-gray-700 text-white rounded-md hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      >
+                        前へ
+                      </button>
+                      <span className="text-gray-300">
+                        {userPage} / {totalPages}
+                      </span>
+                      <button
+                        onClick={() => setUserPage(p => p + 1)}
+                        disabled={userPage >= totalPages}
+                        className="px-4 py-2 bg-gray-700 text-white rounded-md hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      >
+                        次へ
+                      </button>
+                    </div>
+                  );
+                })()}
+              </>
             )}
           </div>
         )}

@@ -1,6 +1,6 @@
 'use server';
 
-import { createClient } from '@/lib/supabase/server';
+import { createClient, createAdminClient } from '@/lib/supabase/server';
 import type { Ticket, Profile } from '@/type/supabase';
 
 // ===== 型定義 =====
@@ -277,7 +277,7 @@ export async function getUsers(options?: {
   const limit = options?.limit ?? 50;
   const offset = (page - 1) * limit;
 
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   const {
     data: profiles,
