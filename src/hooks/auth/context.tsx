@@ -7,8 +7,8 @@ import { createClient } from '@/lib/supabase/client';
 /**
  * 認証スキップ時のモックユーザー
  */
-const MOCK_USER: User = {
-  id: localStorage.getItem('playerId') ?? 'mock-player-id',
+const MOCK_USER = (id: string = 'mock-user-id'): User => ({
+  id,
   app_metadata: {},
   user_metadata: {
     avatar_url: '',
@@ -19,7 +19,7 @@ const MOCK_USER: User = {
   },
   aud: 'authenticated',
   created_at: new Date().toISOString(),
-};
+});
 
 export type AuthContextType = {
   user: User | null;
@@ -45,7 +45,7 @@ export const AuthProvider = ({ children, authSkip }: AuthProviderProps) => {
   useEffect(() => {
     // 認証スキップモードの場合
     if (authSkip) {
-      setUser(MOCK_USER);
+      setUser(MOCK_USER(localStorage.getItem('playerId') || undefined));
       setSession(null);
       setIsLoading(false);
       return;
