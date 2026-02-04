@@ -328,6 +328,40 @@ export async function getUsers(options?: {
 }
 
 /**
+ * ユーザーのクレジットを更新
+ */
+export async function updateUserCredits(
+  userId: string,
+  newBalance: number
+): Promise<{ success: boolean; message?: string }> {
+  if (process.env.AUTH_SKIP === 'true') {
+    return { success: true, message: '開発モード' };
+  }
+
+  const adminCheck = await checkAdminAccess();
+  if ('error' in adminCheck) {
+    return { success: false, message: adminCheck.error };
+  }
+
+  if (newBalance < 0) {
+    return { success: false, message: 'クレジットは0以上で指定してください' };
+  }
+
+  const supabase = createAdminClient();
+
+  const { error } = await supabase
+    .from('user_credits')
+    .upsert({ user_id: userId, balance: newBalance, updated_at: new Date().toISOString() });
+
+  if (error) {
+    console.error('クレジット更新エラー:', error);
+    return { success: false, message: 'クレジットの更新に失敗しました' };
+  }
+
+  return { success: true };
+}
+
+/**
  * ユーザーの管理者権限を変更
  */
 export async function setUserAdmin(
