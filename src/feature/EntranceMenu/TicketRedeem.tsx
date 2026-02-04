@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useAuth } from '@/hooks/auth';
 import { redeemTicket } from '@/actions/play';
+import Link from 'next/link';
 
 type TicketRedeemProps = {
   onSuccess?: () => void;
@@ -69,12 +70,19 @@ export const TicketRedeem = ({ onSuccess }: TicketRedeemProps) => {
         onClick={() => setIsExpanded(!isExpanded)}
         className="w-full flex items-center justify-between text-white font-medium"
       >
-        <span>チケットを使用</span>
+        <span>ランダムマッチのプレイ回数を増やす</span>
         <span className="text-gray-400">{isExpanded ? '▲' : '▼'}</span>
       </button>
 
       {isExpanded && (
         <div className="mt-3">
+          <div className="text-xs mb-3">
+            開発メンバーとしてカード効果実装やバグ修正に貢献するか
+            <Link className="underline text-blue-200 px-1" href={'https://ko-fi.com/sweshelo'}>
+              プロジェクトへの寄付
+            </Link>
+            を行うことでチケットを入手できます
+          </div>
           <form onSubmit={handleSubmit}>
             <div className="flex gap-2">
               <input

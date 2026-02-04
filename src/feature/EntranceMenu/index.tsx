@@ -2,6 +2,7 @@ import { PlayerNameEditor } from './PlayerNameEditor';
 import { DeckSelector } from './DeckSelector';
 import { AuthStatus } from './AuthStatus';
 import { MigrationBanner } from './MigrationBanner';
+import { TicketRedeem } from './TicketRedeem';
 
 export const EntranceMenu = () => {
   return (
@@ -13,6 +14,7 @@ export const EntranceMenu = () => {
       <MigrationBanner />
       <PlayerNameEditor />
       <DeckSelector />
+      <TicketRedeem />
     </div>
   );
 };

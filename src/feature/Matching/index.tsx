@@ -10,9 +10,12 @@ import { ModeSelector } from './ModeSelector';
 import { WaitingScreen } from './WaitingScreen';
 import { useMatchingRequest } from './hooks';
 import type { MatchingMode } from '@/submodule/suit/types/message/payload/server';
+import { useAuth } from '@/hooks/auth';
+import Link from 'next/link';
 
 export const Matching = () => {
   const router = useRouter();
+  const { user, isAuthSkipped } = useAuth();
   const { state, startSelecting, cancel, reset } = useMatching();
   const { startMatching, cancelMatching } = useMatchingRequest();
   const { showError } = useErrorOverlay();
@@ -85,6 +88,16 @@ export const Matching = () => {
       cancel();
     }
   }, [state.status, cancelMatching, cancel]);
+
+  if (!user && !isAuthSkipped)
+    return (
+      <div className="p-4 bg-white rounded-lg shadow-md max-w-lg mx-auto">
+        <h2 className="text-center text-xl font-bold mb-4 text-gray-400">ランダムマッチ</h2>
+        <div className="flex justify-center text-gray-400">
+          利用には <Link href={'/login'}>ログイン</Link> が必要です
+        </div>
+      </div>
+    );
 
   if (state.status === 'idle') {
     return (
