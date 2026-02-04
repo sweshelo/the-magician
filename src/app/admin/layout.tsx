@@ -1,47 +1,16 @@
-'use client';
-
-import { useEffect, useState } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
+// FIXME: TS 5.9 + Next.js 16.1.6 で 'next/navigation' から redirect をインポートすると TS2305 が発生するため内部パスを使用。
+// 修正されたら `import { redirect } from 'next/navigation'` に戻すこと。
+import { redirect } from 'next/dist/client/components/redirect';
 import { checkIsAdmin } from '@/actions/admin';
+import { AdminNav } from '@/feature/Admin/AdminNav';
 
-const tabs = [
-  { href: '/admin/tickets', label: 'チケット管理' },
-  { href: '/admin/users', label: 'ユーザー管理' },
-  { href: '/admin/config', label: 'システム設定' },
-] as const;
+export const dynamic = 'force-dynamic';
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    const check = async () => {
-      try {
-        const result = await checkIsAdmin();
-        setIsAdmin(result.isAdmin);
-        if (!result.isAdmin) {
-          router.push('/entrance');
-        }
-      } catch {
-        setIsAdmin(false);
-        router.push('/entrance');
-      }
-    };
-    check();
-  }, [router]);
-
-  if (isAdmin === null) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-900">
-        <div className="text-white">Loading...</div>
-      </div>
-    );
-  }
-
-  if (!isAdmin) {
-    return null;
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+  const result = await checkIsAdmin();
+  if (!result.isAdmin) {
+    redirect('/entrance');
   }
 
   return (
@@ -59,21 +28,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
 
         {/* ナビゲーション */}
-        <div className="flex gap-2 mb-6">
-          {tabs.map(tab => (
-            <Link
-              key={tab.href}
-              href={tab.href}
-              className={`px-4 py-2 rounded-md transition-colors ${
-                pathname === tab.href
-                  ? 'bg-indigo-600 text-white'
-                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-              }`}
-            >
-              {tab.label}
-            </Link>
-          ))}
-        </div>
+        <AdminNav />
 
         {children}
       </div>
