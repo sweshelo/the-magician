@@ -26,6 +26,7 @@ export default function Home() {
           description="自分だけのデッキを作成・編集"
           icon="🃏"
         />
+        <LinkCard href="/stats" title="統計" description="使用カードランキングを確認" icon="📊" />
         <LinkCard
           href="https://github.com/sweshelo/the-fool"
           title="ソースコード"
