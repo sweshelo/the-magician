@@ -103,9 +103,26 @@ export const Matching = () => {
     return (
       <div className="p-4 bg-white rounded-lg shadow-md max-w-lg mx-auto">
         <h2 className="text-center text-xl font-bold mb-4 text-gray-400">ランダムマッチ</h2>
-        <div className="flex justify-center">
+        <div className="flex flex-col justify-center gap-1">
+          <div className="bg-gray-800 p-2 text-white rounded">
+            <p className="text-center text-sm">注意</p>
+            <ul className="text-xs">
+              <li>
+                いつでも対戦が可能になる特性上、サーバの運用コストを抑えるために1日あたりの回数制限があります
+              </li>
+              <li>マリガンが開始された時点でプレイ回数を消費します</li>
+              <li>
+                何か問題が発生した際には<span className="text-red-500">まずリロード</span>
+                をお試し下さい
+              </li>
+              <li>技術的トラブルやバグを含めプレイ回数の復旧は行いません</li>
+              <li>
+                まずルーム作成による対戦によってプレイが正常に行えることを確認してから参加して下さい
+              </li>
+            </ul>
+          </div>
           <Button type="button" onClick={handleStartMatching}>
-            マッチングを開始
+            上記事項に同意しました
           </Button>
         </div>
       </div>
