@@ -14,6 +14,7 @@ import { useSearchParams } from 'next/navigation';
 import { STARTER_DECK } from '@/constants/deck';
 import { JokerSelectDialog } from './JokerSelectDialog';
 import { VirtualCardList } from './VirtualCardList';
+import { originality } from '@/helper/originality';
 
 // Memoized Card Component for DeckView
 const MemoizedCardView = memo(
@@ -867,6 +868,9 @@ export const DeckBuilder = ({ implementedIds }: DeckBuilderProps) => {
         </div>
 
         <div className="items-center justify-center flex flex-wrap my-2 gap-2">
+          <div className="px-3 py-1 border text-white rounded bg-gray-500 whitespace-nowrap">
+            originality {originality([...deck, ...jokers])}pts.
+          </div>
           <button
             className="px-3 py-1 border text-white rounded bg-blue-500 disabled:bg-indigo-900 whitespace-nowrap"
             onClick={handleOpenSaveDialog}
