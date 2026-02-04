@@ -3,6 +3,7 @@ import { DeckSelector } from './DeckSelector';
 import { AuthStatus } from './AuthStatus';
 import { MigrationBanner } from './MigrationBanner';
 import { TicketRedeem } from './TicketRedeem';
+import { PlayStatus } from './PlayStatus';
 
 export const EntranceMenu = () => {
   return (
@@ -15,6 +16,7 @@ export const EntranceMenu = () => {
       <PlayerNameEditor />
       <DeckSelector />
       <TicketRedeem />
+      <PlayStatus />
     </div>
   );
 };
