@@ -8,7 +8,7 @@ import { createClient } from '@/lib/supabase/client';
  * 認証スキップ時のモックユーザー
  */
 const MOCK_USER: User = {
-  id: 'mock-user-id' + new Date().toString(),
+  id: localStorage.getItem('playerId') ?? 'mock-player-id',
   app_metadata: {},
   user_metadata: {
     avatar_url: '',
