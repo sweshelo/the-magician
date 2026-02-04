@@ -20,7 +20,7 @@ export const useGameComponentHook = ({ id }: Props) => {
   const reset = useGameStore(state => state.reset);
   const [isConnected, setConnected] = useState<boolean>(websocket?.isConnected() ?? false);
   const isJoined = useRef(false);
-  const { handle } = useHandler();
+  const { handle } = useHandler({ roomId: id });
 
   // Discordログイン中はDiscord名・SupabaseユーザーIDを使用、未ログインはlocalStorageを使用
   const playerName =
