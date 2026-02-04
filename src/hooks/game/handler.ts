@@ -1,4 +1,3 @@
-import { useRef } from 'react';
 import { ICard, IUnit, Message } from '@/submodule/suit/types';
 import { useCardEffectDialog } from '@/hooks/card-effect-dialog';
 import { useWebSocketGame } from './websocket';
@@ -22,9 +21,8 @@ import { useUnitPosition } from '../unit-position';
 import { useSelectEffect } from '../select-effect';
 import { useTurnChangeEffect } from '../turn-change-effect';
 import { useGameResult } from '../game-result';
-import { recordPlay } from '@/actions/play';
 
-export const useHandler = (options?: { roomId?: string }) => {
+export const useHandler = () => {
   const { getUnitCenterPosition: getUnitPosition } = useUnitPosition();
   const { setShowMulligan } = useMulligan();
   const { startTimer, isTimerRunning } = useMulliganTimer();
@@ -49,7 +47,6 @@ export const useHandler = (options?: { roomId?: string }) => {
   const { showTurnChangeEffect } = useTurnChangeEffect();
   const { showGameResult } = useGameResult();
   const selfId = useSelfId();
-  const playConsumedRef = useRef(false);
 
   // 選択肢選択をPromiseで待つ
   const handleOptionSelection = (): Promise<string | null> => {
@@ -82,14 +79,6 @@ export const useHandler = (options?: { roomId?: string }) => {
           startTimer(10);
         } else {
           console.log('Timer already running, not resetting');
-        }
-
-        // 初回のMulliganStartでのみプレイ回数を消費
-        if (!playConsumedRef.current) {
-          playConsumedRef.current = true;
-          recordPlay({ roomId: options?.roomId }).catch(err => {
-            console.error('プレイ回数の消費に失敗:', err);
-          });
         }
         break;
       }

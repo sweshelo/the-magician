@@ -11,7 +11,6 @@ import { WaitingScreen } from './WaitingScreen';
 import { useMatchingRequest } from './hooks';
 import type { MatchingMode } from '@/submodule/suit/types/message/payload/server';
 import { useAuth } from '@/hooks/auth';
-import { getPlayStatus } from '@/actions/play';
 import Link from 'next/link';
 
 export const Matching = () => {
@@ -58,14 +57,6 @@ export const Matching = () => {
     async (mode: MatchingMode) => {
       setIsLoading(true);
       try {
-        // プレイ可能かチェック
-        const status = await getPlayStatus();
-        if (!status.canPlay) {
-          showError(status.message ?? 'プレイ可能回数がありません', 'プレイ制限');
-          cancel();
-          return;
-        }
-
         await startMatching(mode);
       } catch (error) {
         console.error('Failed to start matching:', error);
