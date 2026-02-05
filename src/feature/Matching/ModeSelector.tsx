@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 import { Button } from '@/component/interface/button';
 import { useDeck } from '@/hooks/deck';
 import type { MatchingMode } from '@/submodule/suit/types/message/payload/server';
@@ -60,26 +60,24 @@ const getIndicatorTooltip = (isValid: boolean, queueCount: number): string => {
 
 export const ModeSelector = ({ onSelectMode, onCancel, isLoading, queueCounts }: Props) => {
   const { mainDeck, isLoading: isDeckLoading } = useDeck();
-  const [deckValidation, setDeckValidation] = useState<Record<MatchingMode, boolean>>({
-    freedom: false,
-    standard: false,
-    legacy: false,
-    limited: false,
-  });
 
-  useEffect(() => {
-    if (mainDeck) {
-      // TODO: Implement actual validation based on card catalog data
-      // For now, all modes are considered valid if deck exists
-      setDeckValidation({
-        freedom: true,
-        standard: !mainDeck.cards.some(cardId => (master.get(cardId)?.info.version ?? 0) < 6),
-        legacy: !mainDeck.cards.some(cardId => (master.get(cardId)?.info.version ?? 0) > 14),
-        limited:
-          mainDeck.cards.reduce((sum, cardId) => (master.get(cardId)?.originality ?? 0) + sum, 0) >=
-          100,
-      });
+  const deckValidation = useMemo<Record<MatchingMode, boolean>>(() => {
+    if (!mainDeck) {
+      return {
+        freedom: false,
+        standard: false,
+        legacy: false,
+        limited: false,
+      };
     }
+    return {
+      freedom: true,
+      standard: !mainDeck.cards.some(cardId => (master.get(cardId)?.info.version ?? 0) < 6),
+      legacy: !mainDeck.cards.some(cardId => (master.get(cardId)?.info.version ?? 0) > 14),
+      limited:
+        mainDeck.cards.reduce((sum, cardId) => (master.get(cardId)?.originality ?? 0) + sum, 0) >=
+        100,
+    };
   }, [mainDeck]);
 
   const handleSelectMode = useCallback(
@@ -107,6 +105,7 @@ export const ModeSelector = ({ onSelectMode, onCancel, isLoading, queueCounts }:
         {MODES.map(({ mode, label, description }) => {
           const isValid = deckValidation[mode];
           const isDisabled = !mainDeck || !isValid || isLoading || isDeckLoading;
+          const isDeckInvalid = !!mainDeck && !isValid;
 
           return (
             <button
@@ -136,7 +135,7 @@ export const ModeSelector = ({ onSelectMode, onCancel, isLoading, queueCounts }:
                   data-tooltip-id={mode}
                 />
                 <Tooltip id={mode}>
-                  {isDisabled && (
+                  {isDeckInvalid && (
                     <>
                       デッキが条件を満たしていません
                       <br />

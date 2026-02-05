@@ -36,7 +36,8 @@ export const Matching = () => {
   // マッチングエラーハンドラーを設定
   useEffect(() => {
     webSocketService.setMatchingErrorHandler(errorCode => {
-      console.log('Matching error received:', errorCode);
+      console.error('Matching error received:', errorCode);
+      showError(`マッチング中にエラーが発生しました (${errorCode})`, 'マッチングエラー');
       setIsLoading(false);
       setIsCanceling(false);
       cancel();
@@ -45,7 +46,7 @@ export const Matching = () => {
     return () => {
       webSocketService.setMatchingErrorHandler(null);
     };
-  }, [cancel]);
+  }, [cancel, showError]);
 
   const handleStartMatching = useCallback(() => {
     startSelecting();
