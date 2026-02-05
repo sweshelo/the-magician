@@ -3,6 +3,7 @@ import { WebSocketProvider } from './websocket';
 import { SystemContextProvider } from './system';
 import { ErrorOverlayProvider } from './error-overlay';
 import { PlayerIdentityProvider } from './player-identity';
+import { MatchingProvider } from './matching';
 
 interface Props {
   children: ReactNode;
@@ -13,7 +14,9 @@ export const GlobalContextProvider = ({ children }: Props) => {
     <ErrorOverlayProvider>
       <WebSocketProvider>
         <PlayerIdentityProvider>
-          <SystemContextProvider>{children}</SystemContextProvider>
+          <SystemContextProvider>
+            <MatchingProvider>{children}</MatchingProvider>
+          </SystemContextProvider>
         </PlayerIdentityProvider>
       </WebSocketProvider>
     </ErrorOverlayProvider>

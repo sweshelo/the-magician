@@ -81,6 +81,11 @@ export const GameResultProvider = ({ children }: { children: ReactNode }) => {
 
       dispatch({ type: 'SHOW_RESULT', reason: params.reason, result });
 
+      // 既存のタイムアウトをクリア
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+
       // 3秒後に退室ボタンを表示
       timeoutRef.current = setTimeout(() => {
         dispatch({ type: 'SHOW_EXIT_BUTTON' });

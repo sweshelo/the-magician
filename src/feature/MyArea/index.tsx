@@ -37,9 +37,14 @@ export const MyArea = () => {
 
   useMyArea();
 
+  // ダイアログ表示条件: showSurrenderDialogがtrue かつ operableがtrue
+  const shouldShowSurrenderDialog = showSurrenderDialog && operable;
+
   return (
     <div className="relative flex justify-center p-4 min-h-[250px]">
-      {showSurrenderDialog && <SurrenderDialog onClose={() => setShowSurrenderDialog(false)} />}
+      {shouldShowSurrenderDialog && (
+        <SurrenderDialog onClose={() => setShowSurrenderDialog(false)} />
+      )}
       <div className="flex items-end gap-8">
         {/* Left column: Deck & Trash */}
         <div className="flex flex-col gap-3">

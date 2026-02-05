@@ -1,6 +1,6 @@
 'use server';
 
-import { createClient } from '@/lib/supabase/server';
+import { createClient, createAdminClient } from '@/lib/supabase/server';
 import type { Ticket, Profile } from '@/type/supabase';
 
 // ===== 型定義 =====
@@ -277,7 +277,7 @@ export async function getUsers(options?: {
   const limit = options?.limit ?? 50;
   const offset = (page - 1) * limit;
 
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   const {
     data: profiles,
@@ -325,6 +325,40 @@ export async function getUsers(options?: {
     users: usersWithCredits,
     total: count ?? 0,
   };
+}
+
+/**
+ * ユーザーのクレジットを更新
+ */
+export async function updateUserCredits(
+  userId: string,
+  newBalance: number
+): Promise<{ success: boolean; message?: string }> {
+  if (process.env.AUTH_SKIP === 'true') {
+    return { success: true, message: '開発モード' };
+  }
+
+  const adminCheck = await checkAdminAccess();
+  if ('error' in adminCheck) {
+    return { success: false, message: adminCheck.error };
+  }
+
+  if (newBalance < 0) {
+    return { success: false, message: 'クレジットは0以上で指定してください' };
+  }
+
+  const supabase = createAdminClient();
+
+  const { error } = await supabase
+    .from('user_credits')
+    .upsert({ user_id: userId, balance: newBalance, updated_at: new Date().toISOString() });
+
+  if (error) {
+    console.error('クレジット更新エラー:', error);
+    return { success: false, message: 'クレジットの更新に失敗しました' };
+  }
+
+  return { success: true };
 }
 
 /**

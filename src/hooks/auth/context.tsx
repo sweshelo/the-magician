@@ -7,8 +7,8 @@ import { createClient } from '@/lib/supabase/client';
 /**
  * 認証スキップ時のモックユーザー
  */
-const MOCK_USER: User = {
-  id: 'mock-user-id',
+const MOCK_USER = (id: string = 'mock-user-id'): User => ({
+  id,
   app_metadata: {},
   user_metadata: {
     avatar_url: '',
@@ -19,7 +19,7 @@ const MOCK_USER: User = {
   },
   aud: 'authenticated',
   created_at: new Date().toISOString(),
-};
+});
 
 export type AuthContextType = {
   user: User | null;
@@ -34,19 +34,18 @@ export const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 type AuthProviderProps = {
   children: ReactNode;
+  authSkip: boolean;
 };
 
-export const AuthProvider = ({ children }: AuthProviderProps) => {
+export const AuthProvider = ({ children, authSkip }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const isAuthSkipped = process.env.NEXT_PUBLIC_AUTH_SKIP === 'true';
-
   useEffect(() => {
     // 認証スキップモードの場合
-    if (isAuthSkipped) {
-      setUser(MOCK_USER);
+    if (authSkip) {
+      setUser(MOCK_USER(localStorage.getItem('playerId') || undefined));
       setSession(null);
       setIsLoading(false);
       return;
@@ -89,10 +88,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     return () => {
       subscription.unsubscribe();
     };
-  }, [isAuthSkipped]);
+  }, [authSkip]);
 
   const signInWithDiscord = useCallback(async () => {
-    if (isAuthSkipped) {
+    if (authSkip) {
       // スキップモードでは何もしない
       return;
     }
@@ -109,10 +108,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       console.error('Discordログインエラー:', error);
       throw error;
     }
-  }, [isAuthSkipped]);
+  }, [authSkip]);
 
   const signOut = useCallback(async () => {
-    if (isAuthSkipped) {
+    if (authSkip) {
       // スキップモードでは何もしない
       return;
     }
@@ -124,7 +123,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       console.error('ログアウトエラー:', error);
       throw error;
     }
-  }, [isAuthSkipped]);
+  }, [authSkip]);
 
   return (
     <AuthContext.Provider
@@ -132,7 +131,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         user,
         session,
         isLoading,
-        isAuthSkipped,
+        isAuthSkipped: authSkip,
         signInWithDiscord,
         signOut,
       }}

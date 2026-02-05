@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { updateSession } from '@/lib/supabase/middleware';
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   // 認証スキップモードの場合はそのまま通過
   if (process.env.NEXT_PUBLIC_AUTH_SKIP === 'true') {
     return NextResponse.next();

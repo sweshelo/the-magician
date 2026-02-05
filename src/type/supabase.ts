@@ -167,6 +167,35 @@ export interface Database {
           created_by?: string | null;
         };
       };
+      matches: {
+        Row: {
+          id: string;
+          player1_id: string | null;
+          player2_id: string | null;
+          player1_deck: string[] | null;
+          player2_deck: string[] | null;
+          winner_id: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          player1_id?: string | null;
+          player2_id?: string | null;
+          player1_deck?: string[] | null;
+          player2_deck?: string[] | null;
+          winner_id?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          player1_id?: string | null;
+          player2_id?: string | null;
+          player1_deck?: string[] | null;
+          player2_deck?: string[] | null;
+          winner_id?: string | null;
+          created_at?: string;
+        };
+      };
     };
     Functions: {
       get_today_free_play_count: {
@@ -197,6 +226,10 @@ export interface Database {
         Args: { p_credits: number; p_expires_at?: string };
         Returns: { id: string; code: string }[];
       };
+      get_card_usage_ranking: {
+        Args: Record<string, never>;
+        Returns: { card_id: string; use_count: number }[];
+      };
     };
   };
 }
@@ -217,3 +250,5 @@ export type SystemConfig = Database['public']['Tables']['system_config']['Row'];
 export type UserCredits = Database['public']['Tables']['user_credits']['Row'];
 export type Ticket = Database['public']['Tables']['tickets']['Row'];
 export type TicketInsert = Database['public']['Tables']['tickets']['Insert'];
+
+export type Match = Database['public']['Tables']['matches']['Row'];

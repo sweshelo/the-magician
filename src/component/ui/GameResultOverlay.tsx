@@ -1,14 +1,21 @@
 'use client';
 
 import { useGameResult } from '@/hooks/game-result';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { Button } from '@/component/interface/button';
 import { useMemo } from 'react';
+import { webSocketService } from '@/service/websocket';
+import type { Message } from '@/submodule/suit/types';
+import type { LeaveRoomRequestPayload } from '@/submodule/suit/types/message/payload/server';
 
 export const GameResultOverlay = () => {
   const { state } = useGameResult();
   const { isVisible, reason, result, showExitButton } = state;
   const router = useRouter();
+  const pathname = usePathname();
+
+  // useParams が使えないので pathname をパースする
+  const roomId = pathname.split('/')[2];
 
   // 終了理由テキスト
   const { reasonText, reasonSubText } = useMemo(() => {
@@ -31,6 +38,12 @@ export const GameResultOverlay = () => {
           reasonSubText: '投了',
         };
       }
+      default: {
+        return {
+          reasonText: 'GAME END',
+          reasonSubText: '',
+        };
+      }
     }
   }, [reason]);
 
@@ -45,6 +58,19 @@ export const GameResultOverlay = () => {
   const circleColorClass = result === 'win' ? 'border-yellow-500' : 'border-red-500';
 
   const handleExit = () => {
+    // LeaveRoomRequest を送信（fire-and-forget）
+    if (roomId) {
+      webSocketService.send({
+        action: {
+          handler: 'room',
+          type: 'leave',
+        },
+        payload: {
+          type: 'LeaveRoomRequest',
+          roomId,
+        },
+      } satisfies Message<LeaveRoomRequestPayload>);
+    }
     router.push('/entrance');
   };
 

@@ -10,6 +10,9 @@ const nextConfig: NextConfig = {
     ],
     unoptimized: true,
   },
+  async rewrites() {
+    return [{ source: '/admin', destination: '/admin/tickets' }];
+  },
 };
 
 export default nextConfig;
