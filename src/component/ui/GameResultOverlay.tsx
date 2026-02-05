@@ -38,6 +38,12 @@ export const GameResultOverlay = () => {
           reasonSubText: '投了',
         };
       }
+      default: {
+        return {
+          reasonText: 'GAME END',
+          reasonSubText: '',
+        };
+      }
     }
   }, [reason]);
 
