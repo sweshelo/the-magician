@@ -13,6 +13,7 @@ import type {
   MatchingCancelResponsePayload,
 } from '@/submodule/suit/types/message/payload/server';
 import type { MatchingSuccessPayload } from '@/submodule/suit/types/message/payload/client';
+import { useAuth } from '@/hooks/auth';
 
 interface UseMatchingRequestReturn {
   startMatching: (mode: MatchingMode) => Promise<void>;
@@ -24,6 +25,7 @@ export const useMatchingRequest = (): UseMatchingRequestReturn => {
   const { queueJoined, matchingSuccess, cancel } = useMatching();
   const selfId = useSelfId();
   const { mainDeck } = useDeck();
+  const { user } = useAuth();
 
   // Listen for MatchingSuccess messages
   useEffect(() => {
@@ -52,10 +54,13 @@ export const useMatchingRequest = (): UseMatchingRequestReturn => {
 
       // Get player info
       const playerName = LocalStorageHelper.playerName();
-      const playerId = LocalStorageHelper.playerId();
 
       if (!mainDeck) {
         throw new Error('メインデッキが設定されていません');
+      }
+
+      if (!user?.id) {
+        throw new Error('ユーザIDが不正です。ログインしていますか？');
       }
 
       const response = await websocket.request<
@@ -72,7 +77,7 @@ export const useMatchingRequest = (): UseMatchingRequestReturn => {
           mode,
           player: {
             name: playerName,
-            id: playerId,
+            id: user?.id,
             deck: mainDeck.cards,
           },
           jokersOwned: mainDeck.jokers,
@@ -81,7 +86,7 @@ export const useMatchingRequest = (): UseMatchingRequestReturn => {
 
       queueJoined(response.payload.queueId, response.payload.position, mode);
     },
-    [websocket, selfId, queueJoined, mainDeck]
+    [websocket, selfId, queueJoined, mainDeck, user?.id]
   );
 
   const cancelMatching = useCallback(async () => {
