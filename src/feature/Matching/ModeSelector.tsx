@@ -41,6 +41,7 @@ interface Props {
   onCancel: () => void;
   isLoading: boolean;
   queueCounts: Record<MatchingMode, number>;
+  activeGames: number;
 }
 
 // インジケータの色を決定
@@ -58,7 +59,13 @@ const getIndicatorTooltip = (isValid: boolean, queueCount: number): string => {
   return '待機中: 0人';
 };
 
-export const ModeSelector = ({ onSelectMode, onCancel, isLoading, queueCounts }: Props) => {
+export const ModeSelector = ({
+  onSelectMode,
+  onCancel,
+  isLoading,
+  queueCounts,
+  activeGames,
+}: Props) => {
   const { mainDeck, isLoading: isDeckLoading } = useDeck();
 
   const deckValidation = useMemo<Record<MatchingMode, boolean>>(() => {
@@ -102,6 +109,8 @@ export const ModeSelector = ({ onSelectMode, onCancel, isLoading, queueCounts }:
           </p>
         </div>
       )}
+
+      <div className="text-center text-gray-400">現在{activeGames}組が対戦中です</div>
 
       <div className="grid grid-cols-1 gap-3">
         {MODES.map(({ mode, label, description }) => {
