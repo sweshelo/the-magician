@@ -8,7 +8,7 @@ import type { MatchingStatusPayload } from '@/submodule/suit/types/message/paylo
 
 export const useQueueStatus = () => {
   const { websocket } = useWebSocket();
-  const { updateQueueCounts } = useMatching();
+  const { updateQueueCounts, updateActiveGames } = useMatching();
 
   // マッチング状況をサーバーにリクエスト
   const requestQueueStatus = useCallback(() => {
@@ -36,6 +36,7 @@ export const useQueueStatus = () => {
       if (payload.type === 'MatchingStatus') {
         const statusPayload = payload as MatchingStatusPayload;
         updateQueueCounts(statusPayload.queues);
+        updateActiveGames(statusPayload.activeGames);
       }
     };
 

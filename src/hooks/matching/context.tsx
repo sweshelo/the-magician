@@ -13,6 +13,7 @@ export interface MatchingState {
   roomId: string | null;
   opponentName: string | null;
   queueCounts: Record<MatchingMode, number>;
+  activeGames: number;
 }
 
 export type MatchingAction =
@@ -21,7 +22,8 @@ export type MatchingAction =
   | { type: 'MATCHING_SUCCESS'; roomId: string; opponentName: string }
   | { type: 'CANCEL' }
   | { type: 'RESET' }
-  | { type: 'UPDATE_QUEUE_COUNTS'; queues: Record<MatchingMode, number> };
+  | { type: 'UPDATE_QUEUE_COUNTS'; queues: Record<MatchingMode, number> }
+  | { type: 'UPDATE_ACTIVE_GAMES'; count: number };
 
 export type MatchingContextType = {
   state: MatchingState;
@@ -31,6 +33,7 @@ export type MatchingContextType = {
   cancel: () => void;
   reset: () => void;
   updateQueueCounts: (queues: Record<MatchingMode, number>) => void;
+  updateActiveGames: (count: number) => void;
 };
 
 export const MatchingContext = createContext<MatchingContextType | undefined>(undefined);
@@ -48,6 +51,7 @@ const initialState: MatchingState = {
     legacy: 0,
     limited: 0,
   },
+  activeGames: 0,
 };
 
 function matchingReducer(state: MatchingState, action: MatchingAction): MatchingState {
@@ -81,6 +85,8 @@ function matchingReducer(state: MatchingState, action: MatchingAction): Matching
       return initialState;
     case 'UPDATE_QUEUE_COUNTS':
       return { ...state, queueCounts: action.queues };
+    case 'UPDATE_ACTIVE_GAMES':
+      return { ...state, activeGames: action.count };
     default:
       return state;
   }
@@ -113,6 +119,10 @@ export const MatchingProvider = ({ children }: { children: ReactNode }) => {
     dispatch({ type: 'UPDATE_QUEUE_COUNTS', queues });
   }, []);
 
+  const updateActiveGames = useCallback((count: number) => {
+    dispatch({ type: 'UPDATE_ACTIVE_GAMES', count });
+  }, []);
+
   const contextValue = useMemo(
     () => ({
       state,
@@ -122,6 +132,7 @@ export const MatchingProvider = ({ children }: { children: ReactNode }) => {
       cancel,
       reset,
       updateQueueCounts,
+      updateActiveGames,
     }),
     [state, startSelecting, queueJoined, matchingSuccess, cancel, reset, updateQueueCounts]
   );

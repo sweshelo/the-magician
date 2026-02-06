@@ -141,6 +141,7 @@ export const Matching = () => {
           onCancel={handleCancel}
           isLoading={isLoading}
           queueCounts={state.queueCounts}
+          activeGames={state.activeGames}
         />
       </div>
     );
