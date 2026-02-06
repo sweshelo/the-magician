@@ -75,8 +75,10 @@ export const ModeSelector = ({ onSelectMode, onCancel, isLoading, queueCounts }:
       standard: !mainDeck.cards.some(cardId => (master.get(cardId)?.info.version ?? 0) < 6),
       legacy: !mainDeck.cards.some(cardId => (master.get(cardId)?.info.version ?? 0) > 14),
       limited:
-        mainDeck.cards.reduce((sum, cardId) => (master.get(cardId)?.originality ?? 0) + sum, 0) >=
-        100,
+        [...(mainDeck.jokers ?? []), ...mainDeck.cards].reduce(
+          (sum, cardId) => (master.get(cardId)?.originality ?? 0) + sum,
+          0
+        ) >= 100,
     };
   }, [mainDeck]);
 
