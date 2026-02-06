@@ -131,9 +131,10 @@ class WebSocketService extends EventEmitter {
     const userMessage = ErrorMessage[payload.errorCode] || 'エラーが発生しました';
     console.error(`[${payload.errorCode}] ${payload.message}`, payload.details);
 
-    // マッチングエラーの場合、専用ハンドラーを呼び出す
+    // マッチングエラーの場合、専用ハンドラーを呼び出して終了
     if (payload.errorCode.startsWith('MATCHING') && this.matchingErrorHandler) {
       this.matchingErrorHandler(payload.errorCode);
+      return; // 二重呼び出しを防止
     }
 
     if (this.errorHandler) {

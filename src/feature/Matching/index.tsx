@@ -10,6 +10,7 @@ import { ModeSelector } from './ModeSelector';
 import { WaitingScreen } from './WaitingScreen';
 import { useMatchingRequest } from './hooks';
 import type { MatchingMode } from '@/submodule/suit/types/message/payload/server';
+import { ErrorMessage, type ErrorCode } from '@/submodule/suit/constant/error';
 import { useAuth } from '@/hooks/auth';
 import Link from 'next/link';
 
@@ -37,7 +38,9 @@ export const Matching = () => {
   useEffect(() => {
     webSocketService.setMatchingErrorHandler(errorCode => {
       console.error('Matching error received:', errorCode);
-      showError(`マッチング中にエラーが発生しました (${errorCode})`, 'マッチングエラー');
+      const message =
+        ErrorMessage[errorCode as ErrorCode] ?? `マッチング中にエラーが発生しました (${errorCode})`;
+      showError(message, 'マッチングエラー');
       setIsLoading(false);
       setIsCanceling(false);
       cancel();
