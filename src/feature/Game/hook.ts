@@ -68,9 +68,11 @@ export const useGameComponentHook = ({ id }: Props) => {
           player: {
             name: playerName,
             id: playerId,
-            deck: mainDeck?.cards ?? STARTER_DECK,
+            deck: {
+              cards: mainDeck?.cards ?? STARTER_DECK,
+              jokers: mainDeck?.jokers ?? STARTER_JOKERS,
+            },
           },
-          jokersOwned: mainDeck?.jokers ?? STARTER_JOKERS,
         },
       } satisfies Message<PlayerEntryPayload>);
     }
