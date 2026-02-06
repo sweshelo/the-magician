@@ -134,7 +134,16 @@ export const MatchingProvider = ({ children }: { children: ReactNode }) => {
       updateQueueCounts,
       updateActiveGames,
     }),
-    [state, startSelecting, queueJoined, matchingSuccess, cancel, reset, updateQueueCounts]
+    [
+      state,
+      startSelecting,
+      queueJoined,
+      matchingSuccess,
+      cancel,
+      reset,
+      updateQueueCounts,
+      updateActiveGames,
+    ]
   );
 
   return <MatchingContext.Provider value={contextValue}>{children}</MatchingContext.Provider>;

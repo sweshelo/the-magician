@@ -44,7 +44,7 @@ export const useQueueStatus = () => {
     return () => {
       websocket.off('message', handleMessage);
     };
-  }, [websocket, updateQueueCounts]);
+  }, [websocket, updateQueueCounts, updateActiveGames]);
 
   return { requestQueueStatus };
 };
