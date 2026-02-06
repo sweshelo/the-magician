@@ -1,14 +1,16 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useTimer } from './hooks';
 import { useGameStore, useWebSocketGame } from '@/hooks/game';
 import { useSystemContext } from '@/hooks/system/hooks';
-import { useIsMyTurn } from '@/hooks/game/hooks';
+import { useIsMyTurn, useRule } from '@/hooks/game/hooks';
 
 const CircularTimer = () => {
-  const { totalSeconds, maxTime } = useTimer();
+  const { totalSeconds, maxTime, setOnExpire } = useTimer();
   const { operable, setOperable } = useSystemContext();
   const { game } = useGameStore();
   const isMyTurn = useIsMyTurn();
+  const rule = useRule();
+  const turnEndRef = useRef<(() => void) | null>(null);
 
   // 残り時間の割合を計算
   const timeRatio = maxTime > 0 ? totalSeconds / maxTime : 0;
@@ -51,7 +53,26 @@ const CircularTimer = () => {
       },
     });
     setOperable(false);
-  }, [send, setOperable]);
+  }, [send, setOperable, totalSeconds]);
+
+  // turnEndの参照を更新
+  useEffect(() => {
+    turnEndRef.current = turnEnd;
+  }, [turnEnd]);
+
+  // タイマー強制設定が有効な場合、タイムアウト時に自動ターン終了
+  useEffect(() => {
+    if (rule?.misc?.autoEndOnTimeout && isMyTurn && operable) {
+      setOnExpire(() => {
+        turnEndRef.current?.();
+      });
+    } else {
+      setOnExpire(null);
+    }
+    return () => {
+      setOnExpire(null);
+    };
+  }, [rule?.misc?.autoEndOnTimeout, isMyTurn, operable, setOnExpire]);
 
   return (
     <div className="flex flex-col items-center justify-center">

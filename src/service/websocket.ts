@@ -6,7 +6,7 @@ import {
   PlayerDisconnectedPayload,
   PlayerReconnectedPayload,
 } from '@/submodule/suit/types';
-import { ErrorCode } from '@/submodule/suit/constant/error';
+import { ErrorCode, ErrorMessage } from '@/submodule/suit/constant/error';
 import EventEmitter from 'events';
 
 class WebSocketService extends EventEmitter {
@@ -14,6 +14,7 @@ class WebSocketService extends EventEmitter {
   private errorHandler?: (message: string, title?: string, onConfirm?: () => void) => void;
   private warningHandler?: (message: string, title?: string, onConfirm?: () => void) => void;
   private disconnectHandler?: (isWaitingReconnect: boolean) => void;
+  private matchingErrorHandler: ((errorCode: ErrorCode) => void) | null = null;
 
   constructor(url: string) {
     super();
@@ -84,6 +85,13 @@ class WebSocketService extends EventEmitter {
     this.disconnectHandler = handler;
   }
 
+  /**
+   * マッチングエラーハンドラーを設定
+   */
+  setMatchingErrorHandler(handler: ((errorCode: ErrorCode) => void) | null): void {
+    this.matchingErrorHandler = handler;
+  }
+
   // メッセージをサーバに送る
   // 主にゲーム内で利用
   send(message: Message): void {
@@ -120,8 +128,14 @@ class WebSocketService extends EventEmitter {
    * エラー通知を処理
    */
   private handleError(payload: ErrorPayload): void {
-    const userMessage = this.getJapaneseErrorMessage(payload.errorCode);
+    const userMessage = ErrorMessage[payload.errorCode] || 'エラーが発生しました';
     console.error(`[${payload.errorCode}] ${payload.message}`, payload.details);
+
+    // マッチングエラーの場合、専用ハンドラーを呼び出して終了
+    if (payload.errorCode.startsWith('MATCHING') && this.matchingErrorHandler) {
+      this.matchingErrorHandler(payload.errorCode);
+      return; // 二重呼び出しを防止
+    }
 
     if (this.errorHandler) {
       this.errorHandler(userMessage);
@@ -176,28 +190,6 @@ class WebSocketService extends EventEmitter {
     if (this.disconnectHandler) {
       this.disconnectHandler(false);
     }
-  }
-
-  /**
-   * エラーコードから日本語メッセージへのマッピング
-   */
-  private getJapaneseErrorMessage(errorCode: ErrorCode): string {
-    const messages: Record<string, string> = {
-      [ErrorCode.CONN_DISCONNECTED]: '接続が切断されました',
-      [ErrorCode.CONN_TIMEOUT]: '接続がタイムアウトしました',
-      [ErrorCode.CONN_INVALID_MESSAGE]: '無効なメッセージを受信しました',
-      [ErrorCode.ROOM_NOT_FOUND]: 'ルームが見つかりません',
-      [ErrorCode.ROOM_FULL]: 'ルームが満員です',
-      [ErrorCode.ROOM_CLOSED]: 'ルームが閉じられました',
-      [ErrorCode.GAME_INVALID_MOVE]: '無効な手です',
-      [ErrorCode.GAME_NOT_YOUR_TURN]: 'あなたのターンではありません',
-      [ErrorCode.GAME_INVALID_STATE]: 'ゲーム状態が無効です',
-      [ErrorCode.VALID_INVALID_PAYLOAD]: '無効なデータです',
-      [ErrorCode.VALID_MISSING_FIELD]: '必須項目が不足しています',
-      [ErrorCode.SYS_INTERNAL_ERROR]: 'サーバーエラーが発生しました',
-      [ErrorCode.SYS_UNKNOWN_ERROR]: 'エラーが発生しました',
-    };
-    return messages[errorCode] || 'エラーが発生しました';
   }
 }
 

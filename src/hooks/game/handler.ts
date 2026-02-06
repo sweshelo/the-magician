@@ -20,6 +20,7 @@ import { useStatusChange } from '../status-change';
 import { useUnitPosition } from '../unit-position';
 import { useSelectEffect } from '../select-effect';
 import { useTurnChangeEffect } from '../turn-change-effect';
+import { useGameResult } from '../game-result';
 
 export const useHandler = () => {
   const { getUnitCenterPosition: getUnitPosition } = useUnitPosition();
@@ -44,6 +45,7 @@ export const useHandler = () => {
   const { addStatusChange } = useStatusChange();
   const { addTargetUnit } = useSelectEffect();
   const { showTurnChangeEffect } = useTurnChangeEffect();
+  const { showGameResult } = useGameResult();
   const selfId = useSelfId();
 
   // 選択肢選択をPromiseで待つ
@@ -307,6 +309,20 @@ export const useHandler = () => {
         const turnTime = rule?.system?.turnTime ?? 60;
         resetWithDuration(turnTime);
         if (!isMyTurn) setOperable(false);
+        break;
+      }
+
+      // ゲーム終了
+      case 'SituationCompleted': {
+        console.log('[Handler] SituationCompleted received');
+        play('game-end');
+        showGameResult(
+          {
+            winner: payload.winner,
+            reason: payload.reason,
+          },
+          selfId
+        );
         break;
       }
 

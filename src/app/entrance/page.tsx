@@ -1,6 +1,7 @@
 import { RoomCreator } from '@/feature/RoomCreator';
 import { RoomEntrance } from '@/feature/RoomEntrance';
 import { EntranceMenu } from '@/feature/EntranceMenu';
+import { Matching } from '@/feature/Matching';
 import { Metadata } from 'next';
 import Link from 'next/link';
 
@@ -19,6 +20,7 @@ export default function Page() {
           デッキ編集
         </Link>
         <EntranceMenu />
+        <Matching />
         <RoomCreator />
         <RoomEntrance />
       </div>

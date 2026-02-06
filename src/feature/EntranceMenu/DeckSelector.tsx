@@ -4,18 +4,22 @@ import { useState } from 'react';
 import { useDeck } from '@/hooks/deck';
 import { DeckPreview } from '@/feature/DeckBuilder/DeckPreview';
 import { ICard } from '@/submodule/suit/types';
-import catalog from '@/submodule/suit/catalog/catalog';
+import { originality } from '@/helper/originality';
 
 export const DeckSelector = () => {
   const { decks, mainDeck, isLoading, setMainDeck } = useDeck();
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [isDeckListOpen, setIsDeckListOpen] = useState(false);
+  const [deckError, setDeckError] = useState<string | null>(null);
 
   const handleSetMainDeck = async (deckId: string) => {
+    setDeckError(null);
     try {
       await setMainDeck(deckId);
       setIsDeckListOpen(false);
     } catch (error) {
+      const message = error instanceof Error ? error.message : 'メインデッキの設定に失敗しました';
+      setDeckError(message);
       console.error('メインデッキ設定エラー:', error);
     }
   };
@@ -34,53 +38,6 @@ export const DeckSelector = () => {
     }));
   };
 
-  const checkDeckRegulation = (cards: string[]) => {
-    // カード情報を取得
-    const cardInfos = cards
-      .map(catalogId => {
-        const cardData = catalog.get(catalogId);
-        if (!cardData) {
-          console.warn(`カタログに存在しないカードID: ${catalogId}`);
-          return null;
-        }
-        return cardData;
-      })
-      .filter(Boolean); // nullを除外
-
-    // 1. バージョン0チェック
-    const hasVersionZero = cardInfos.some(card => card!.info.version === 0);
-    if (hasVersionZero) {
-      return { text: '使用不可', color: 'text-gray-400' };
-    }
-
-    // 2. 同名カード4枚以上チェック
-    const cardNameCounts = new Map<string, number>();
-    cardInfos.forEach(card => {
-      if (card) {
-        const count = cardNameCounts.get(card.name) || 0;
-        cardNameCounts.set(card.name, count + 1);
-      }
-    });
-
-    const hasTooManyDuplicates = Array.from(cardNameCounts.values()).some(count => count >= 4);
-    if (hasTooManyDuplicates) {
-      return { text: 'レギュレーション違反', color: 'text-red-400' };
-    }
-
-    // 3. バージョン1-5チェック
-    const hasLimitedVersions = cardInfos.some(card => {
-      if (!card) return false;
-      const version = card.info.version;
-      return version >= 1 && version <= 5;
-    });
-    if (hasLimitedVersions) {
-      return { text: 'レギュレーション制限', color: 'text-yellow-400' };
-    }
-
-    // 4. 制限なし
-    return { text: '使用可能', color: 'text-green-400' };
-  };
-
   const getDeckStatus = () => {
     if (!mainDeck) {
       return { text: 'デッキが設定されていません', color: 'text-red-400' };
@@ -91,9 +48,6 @@ export const DeckSelector = () => {
         color: 'text-yellow-400',
       };
     }
-
-    // レギュレーションチェックを実行
-    return checkDeckRegulation(mainDeck.cards);
   };
 
   const status = getDeckStatus();
@@ -119,7 +73,12 @@ export const DeckSelector = () => {
       <div className="mb-4 p-3 bg-gray-700 rounded-md">
         <div className="flex items-center justify-between mb-2">
           <span className="text-white font-medium">{mainDeck ? mainDeck.title : '未設定'}</span>
-          <span className={`text-sm ${status.color}`}>{status.text}</span>
+          {status && <span className={`text-sm ${status.color}`}>{status.text}</span>}
+          {mainDeck && (
+            <div className="text-gray-400 text-sm">
+              Originality {originality([...mainDeck.cards, ...(mainDeck.jokers ?? [])])}P
+            </div>
+          )}
         </div>
 
         {mainDeck && <div className="text-gray-400 text-sm">{mainDeck.cards.length}枚のカード</div>}
@@ -142,6 +101,13 @@ export const DeckSelector = () => {
           デッキ選択
         </button>
       </div>
+
+      {/* Error message */}
+      {deckError && (
+        <div className="p-3 bg-red-900 border border-red-600 rounded-md mb-4">
+          <p className="text-red-200 text-sm">{deckError}</p>
+        </div>
+      )}
 
       {/* No deck warning */}
       {!mainDeck && (
@@ -176,7 +142,15 @@ export const DeckSelector = () => {
                   >
                     <div className="flex justify-between items-center">
                       <span className="text-white font-medium">{deck.title}</span>
-                      <span className="text-gray-400 text-sm">{deck.cards.length}枚</span>
+                      <p className="flex gap-2">
+                        {(deck.jokers?.length ?? 0) < 2 && (
+                          <span className="text-red-400 text-sm">JOKERなし</span>
+                        )}
+                        <span className="text-gray-400 text-sm">
+                          {originality([...deck.cards, ...(deck.jokers ?? [])])}P
+                        </span>
+                        <span className="text-gray-400 text-sm">{deck.cards.length}枚</span>
+                      </p>
                     </div>
                     {mainDeck?.id === deck.id && (
                       <span className="text-blue-300 text-xs">現在のメインデッキ</span>

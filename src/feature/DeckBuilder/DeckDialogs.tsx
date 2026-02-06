@@ -80,6 +80,10 @@ export const DeckSaveDialog = ({
       setImportError('cards配列が見つかりません');
       return;
     }
+    if (!obj.cards.every((c: unknown) => typeof c === 'string')) {
+      setImportError('cardsは文字列配列である必要があります');
+      return;
+    }
     if (obj.cards.length !== 40) {
       setImportError('デッキは40枚である必要があります');
       return;
@@ -89,6 +93,10 @@ export const DeckSaveDialog = ({
     const importJokers = obj.jokers || [];
     if (!Array.isArray(importJokers)) {
       setImportError('jokersは配列である必要があります');
+      return;
+    }
+    if (!importJokers.every((j: unknown) => typeof j === 'string')) {
+      setImportError('jokersは文字列配列である必要があります');
       return;
     }
     if (importJokers.length > 2) {

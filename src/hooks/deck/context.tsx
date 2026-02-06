@@ -33,14 +33,14 @@ type DeckProviderProps = {
 };
 
 export const DeckProvider = ({ children }: DeckProviderProps) => {
-  const { user, isLoading: isAuthLoading } = useAuth();
+  const { user, isAuthSkipped, isLoading: isAuthLoading } = useAuth();
   const [decks, setDecks] = useState<DeckData[]>([]);
   const [mainDeck, setMainDeckState] = useState<DeckData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [hasLocalDecks, setHasLocalDecks] = useState(false);
 
-  const userId = user?.id ?? null;
+  const userId = !isAuthSkipped ? (user?.id ?? null) : null;
 
   // デッキを読み込み
   const refreshDecks = useCallback(async () => {
@@ -57,7 +57,7 @@ export const DeckProvider = ({ children }: DeckProviderProps) => {
       setMainDeckState(main);
 
       // ログイン中かつLocalStorageにデッキがあるかチェック
-      if (userId) {
+      if (userId && !isAuthSkipped) {
         const { LocalStorageHelper } = await import('@/service/local-storage');
         const localDecks = LocalStorageHelper.getAllDecks();
         setHasLocalDecks(localDecks.length > 0);
@@ -87,7 +87,13 @@ export const DeckProvider = ({ children }: DeckProviderProps) => {
       jokers: string[] = [],
       isMain: boolean = false
     ): Promise<DeckData> => {
-      const saved = await DeckService.saveDeck(userId, title, cards, jokers, isMain);
+      const saved = await DeckService.saveDeck(
+        isAuthSkipped ? null : userId,
+        title,
+        cards,
+        jokers,
+        isMain
+      );
       await refreshDecks();
       return saved;
     },

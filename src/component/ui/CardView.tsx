@@ -52,10 +52,6 @@ export const CardView = ({
 
   const { setSelectedCard, setDetailCard, setDetailPosition } = useSystemContext();
 
-  // Determine if we're in the DeckBuilder component by checking the URL
-  const isInDeckBuilder =
-    typeof window !== 'undefined' && window.location.pathname.includes('/builder');
-
   const handleCardClick = useCallback(() => {
     if (isICard(card)) {
       // Left click only sets selectedCard, not detailCard
@@ -86,11 +82,7 @@ export const CardView = ({
     onShortPress: () => {
       // Short press should only trigger selection, not detail view
       if (isICard(card)) {
-        if (!isInDeckBuilder) {
-          setSelectedCard(prev => (prev?.catalogId === card.catalogId ? undefined : card));
-        } else {
-          setSelectedCard(prev => (prev?.catalogId === card.catalogId ? undefined : card));
-        }
+        setSelectedCard(prev => (prev?.catalogId === card.catalogId ? undefined : card));
       }
       // Also call the onClick prop if provided (for CardsDialog, etc.)
       onClick?.();
@@ -165,9 +157,12 @@ export const CardView = ({
                     className={`w-5 h-5 flex items-center justify-center font-bold text-white ${catalog ? getColorCode(catalog.color) : ''}`}
                     style={{ position: 'relative', zIndex: 1 }}
                   >
-                    {(cardAsICard?.currentCost ??
-                      master.get(cardAsICard?.catalogId || '')?.cost ??
-                      0) - (isMitigated ? 1 : 0)}
+                    {Math.max(
+                      (cardAsICard?.currentCost ??
+                        master.get(cardAsICard?.catalogId || '')?.cost ??
+                        0) - (isMitigated ? 1 : 0),
+                      0
+                    )}
                   </div>
                 )}
               </div>

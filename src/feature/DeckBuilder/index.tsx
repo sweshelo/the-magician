@@ -14,6 +14,7 @@ import { useSearchParams } from 'next/navigation';
 import { STARTER_DECK } from '@/constants/deck';
 import { JokerSelectDialog } from './JokerSelectDialog';
 import { VirtualCardList } from './VirtualCardList';
+import { originality } from '@/helper/originality';
 
 // Memoized Card Component for DeckView
 const MemoizedCardView = memo(
@@ -101,6 +102,29 @@ const FilterControls = memo(
     sortBy: SortOption;
     setSortBy: (sort: SortOption) => void;
   }) => {
+    const setStandard = useCallback(() => {
+      availableVersions
+        .filter(
+          v => (v >= 6 && !selectedVersions.includes(v)) || (v < 6 && selectedVersions.includes(v))
+        )
+        .forEach(v => toggleVersion(v));
+    }, [availableVersions, selectedVersions, toggleVersion]);
+    const isStandardComp = useMemo(() => selectedVersions.every(v => v >= 6), [selectedVersions]);
+
+    const setLegacy = useCallback(() => {
+      availableVersions
+        .filter(
+          v =>
+            (v >= 1 && v <= 14 && !selectedVersions.includes(v)) ||
+            (v > 14 && selectedVersions.includes(v))
+        )
+        .forEach(v => toggleVersion(v));
+    }, [availableVersions, selectedVersions, toggleVersion]);
+    const isLegacyComp = useMemo(
+      () => selectedVersions.every(v => v <= 14 && v !== 0),
+      [selectedVersions]
+    );
+
     return (
       <>
         <details className="w-full max-w-6xl p-4">
@@ -236,6 +260,20 @@ const FilterControls = memo(
               {/* バージョンフィルタ */}
               <div className="filter-group">
                 <h3 className="font-bold mb-2">バージョン</h3>
+                <div className="flex gap-2 mb-2">
+                  <button
+                    className={`px-3 py-1 border rounded ${isLegacyComp ? 'bg-green-500 text-white' : 'bg-gray-500'}`}
+                    onClick={setLegacy}
+                  >
+                    Legacy
+                  </button>
+                  <button
+                    className={`px-3 py-1 border rounded ${isStandardComp ? 'bg-green-500 text-white' : 'bg-gray-500'}`}
+                    onClick={setStandard}
+                  >
+                    Standard
+                  </button>
+                </div>
                 <div className="flex flex-wrap gap-2">
                   {availableVersions.map(version => (
                     <button
@@ -450,7 +488,7 @@ export const DeckBuilder = ({ implementedIds }: DeckBuilderProps) => {
   const [selectedSpecies, setSelectedSpecies] = useState<string[]>([]);
   const [selectedOriginalities, setSelectedOriginalities] = useState<number[]>([]);
   const [selectedVersions, setSelectedVersions] = useState<number[]>([
-    6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
+    6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 20, 21, 22, 23, 24, 25, 26, 27, 28,
   ]);
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [selectedCosts, setSelectedCosts] = useState<(number | string)[]>([]);
@@ -830,6 +868,9 @@ export const DeckBuilder = ({ implementedIds }: DeckBuilderProps) => {
         </div>
 
         <div className="items-center justify-center flex flex-wrap my-2 gap-2">
+          <div className="px-3 py-1 border text-white rounded bg-gray-500 whitespace-nowrap">
+            originality {originality([...deck, ...jokers])}pts.
+          </div>
           <button
             className="px-3 py-1 border text-white rounded bg-blue-500 disabled:bg-indigo-900 whitespace-nowrap"
             onClick={handleOpenSaveDialog}

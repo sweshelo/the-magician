@@ -18,11 +18,17 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    template: '%s | The Fool',
-    absolute: 'The Fool',
+    template: '%s | Revolutions',
+    absolute: 'Revolutions',
   },
   description: 'CODE OF JOKER Simulator',
-  keywords: ['CODE OF JOKER', 'COJ', 'コード・オブ・ジョーカー', 'コードオブジョーカー'],
+  keywords: [
+    'CODE OF JOKER',
+    'COJ',
+    'コード・オブ・ジョーカー',
+    'コードオブジョーカー',
+    'シミュレータ',
+  ],
 };
 
 export default function RootLayout({
@@ -30,11 +36,13 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const authSkip = process.env.AUTH_SKIP === 'true';
+
   return (
     <html lang="ja">
       <Analytics />
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <AuthProvider>
+        <AuthProvider authSkip={authSkip}>
           <DeckProvider>
             <GlobalContextProvider>{children}</GlobalContextProvider>
           </DeckProvider>

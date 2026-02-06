@@ -47,9 +47,18 @@ export function usePlayLimit(): UsePlayLimitReturn {
         if (result.success) {
           // プレイ状態を更新
           await checkCanPlay();
+          return true;
         }
 
-        return result.success;
+        // 失敗理由を反映し、状態も更新
+        // checkCanPlayの例外は握りつぶしてresult.messageを優先
+        try {
+          await checkCanPlay();
+        } catch {
+          // noop: result.message を優先
+        }
+        setError(result.message ?? 'プレイ可能回数がありません');
+        return false;
       } catch (err) {
         const message = err instanceof Error ? err.message : 'プレイの記録に失敗しました';
         setError(message);

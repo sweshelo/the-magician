@@ -2,8 +2,9 @@
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { StatusChange, useStatusChange } from '@/hooks/status-change';
+import { useGameStore } from '@/hooks/game';
 
-export type StatusChangeType = 'damage' | 'level' | 'bp' | 'base-bp' | 'block';
+export type StatusChangeType = 'block' | 'bp' | 'base-bp' | 'damage' | 'level' | 'overclock';
 
 interface StatusChangeEffectProps {
   unitId: string;
@@ -24,6 +25,14 @@ export const StatusChangeEffect: React.FC<StatusChangeEffectProps> = ({
   const [phase, setPhase] = useState<'initial' | 'appear' | 'hold' | 'fadeOut'>('initial');
   const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
   const onCompleteRef = useRef(onComplete);
+  const { players } = useGameStore();
+  const unit = useMemo(
+    () =>
+      Object.values(players ?? {})
+        .flatMap(player => player.field)
+        .find(unit => unit.id === unitId),
+    [players, unitId]
+  );
 
   // onCompleteが変更されたらrefを更新
   useEffect(() => {
@@ -100,22 +109,31 @@ export const StatusChangeEffect: React.FC<StatusChangeEffectProps> = ({
   const DisplayContent = ({ type, value }: { type: string; value: number | string }) => {
     // Determine label text based on type and value
     let labelText = '';
+    let valueText = '';
 
     switch (type) {
       case 'bp':
         labelText = typeof value === 'number' && value > 0 ? 'BPアップ' : 'BPダウン';
+        valueText = value.toString();
         break;
       case 'base-bp':
         labelText = typeof value === 'number' && value > 0 ? '基本BPアップ' : '基本BPダウン';
+        valueText = value.toString();
         break;
       case 'damage':
         labelText = 'BPダメージ';
+        valueText = value.toString();
         break;
       case 'level':
         labelText = typeof value === 'number' && value > 0 ? 'クロックアップ' : 'クロックダウン';
+        valueText = unit ? `レベル${unit.lv}` : '';
         break;
       case 'block':
         labelText = 'BLOCK';
+        break;
+      case 'overclock':
+        labelText = 'オーバークロック';
+        valueText = unit ? `レベル${unit.lv}` : '';
         break;
       default:
         return null;
@@ -144,16 +162,13 @@ export const StatusChangeEffect: React.FC<StatusChangeEffectProps> = ({
       color: 'white',
     };
 
-    // Determine value text - block type doesn't show value
-    const valueText = type === 'block' ? '' : type === 'level' ? `Lv ${value}` : value;
-
     return (
       <>
         <div className="text-md text-center w-full" style={labelStyle}>
           {labelText}
         </div>
         {valueText && (
-          <div className="text-lg border-t-1" style={valueStyle}>
+          <div className="text-lg border-t" style={valueStyle}>
             {valueText}
           </div>
         )}

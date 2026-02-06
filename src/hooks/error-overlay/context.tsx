@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, ReactNode, useReducer, useMemo } from 'react';
+import { ErrorOverlay } from '@/component/ui/ErrorOverlay';
 
 type ErrorType = 'error' | 'warning' | 'info' | 'success';
 
@@ -141,6 +142,23 @@ export const ErrorOverlayProvider = ({ children }: { children: ReactNode }) => {
   );
 
   return (
-    <ErrorOverlayContext.Provider value={contextValue}>{children}</ErrorOverlayContext.Provider>
+    <ErrorOverlayContext.Provider value={contextValue}>
+      {children}
+      <ErrorOverlay
+        isOpen={state.isOpen}
+        type={state.type}
+        title={state.title}
+        message={state.message}
+        confirmButtonText={state.confirmButtonText}
+        onConfirm={() => {
+          if (state.onConfirmCallback) {
+            state.onConfirmCallback();
+          }
+          hideOverlay();
+        }}
+        autoClose={state.autoClose}
+        autoCloseDelay={state.autoCloseDelay}
+      />
+    </ErrorOverlayContext.Provider>
   );
 };

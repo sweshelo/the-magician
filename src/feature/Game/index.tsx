@@ -41,9 +41,8 @@ import { CardView } from '@/component/ui/CardView';
 import { JokerGauge } from '@/component/ui/JokerGauge';
 import { Button } from '@/component/interface/button';
 import { LoadingOverlay } from '@/component/ui/LoadingOverlay';
-import { ErrorOverlay } from '@/component/ui/ErrorOverlay';
-import { useErrorOverlay } from '@/hooks/error-overlay';
 import { TurnChangeEffect } from '@/component/ui/TurnChangeEffect';
+import { GameResultOverlay } from '@/component/ui/GameResultOverlay';
 import { useSelfId } from '@/hooks/player-identity';
 
 interface RoomProps {
@@ -54,7 +53,6 @@ export const Game = ({ id }: RoomProps) => {
   useGameComponentHook({ id });
   const { openCardsDialog } = useCardsDialog();
   const { cursorCollisionSize } = useSystemContext();
-  const { state: errorState, hideOverlay } = useErrorOverlay();
   const selfTheme = useSelfTheme();
   const opponentTheme = useOpponentTheme();
 
@@ -154,6 +152,7 @@ export const Game = ({ id }: RoomProps) => {
         {/* カード使用エフェクト */}
         <CardUsageEffect />
         <TurnChangeEffect />
+        <GameResultOverlay />
 
         {/* 選択オーバーレイ */}
         <InterceptSelectionOverlay />
@@ -167,23 +166,6 @@ export const Game = ({ id }: RoomProps) => {
           subMessage={
             isMatching ? `RoomID: ${id} | 対戦相手の入室を待っています` : '対戦相手が切断しました'
           }
-        />
-
-        {/* エラーオーバーレイ */}
-        <ErrorOverlay
-          isOpen={errorState.isOpen}
-          type={errorState.type}
-          title={errorState.title}
-          message={errorState.message}
-          confirmButtonText={errorState.confirmButtonText}
-          onConfirm={() => {
-            if (errorState.onConfirmCallback) {
-              errorState.onConfirmCallback();
-            }
-            hideOverlay();
-          }}
-          autoClose={errorState.autoClose}
-          autoCloseDelay={errorState.autoCloseDelay}
         />
 
         {/* メインゲームコンテナ */}
@@ -267,7 +249,7 @@ export const Game = ({ id }: RoomProps) => {
                     ))}
                   </div>
                 </div>
-                <JokerGauge percentage={opponent?.joker.gauge || 0} />
+                <JokerGauge percentage={opponent?.joker.gauge || 0} jokers={opponent?.joker.card} />
               </div>
               <div className="flex gap-4">
                 {opponent?.deck && (
