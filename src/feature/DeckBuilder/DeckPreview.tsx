@@ -2,7 +2,7 @@ import { RichButton } from '@/component/ui/RichButton';
 import { getImageUrl } from '@/helper/image';
 import master from '@/submodule/suit/catalog/catalog';
 import { ICard } from '@/submodule/suit/types';
-import { ReactElement } from 'react';
+import { ReactNode } from 'react';
 
 interface DeckPreviewProps {
   deck: {
@@ -10,7 +10,7 @@ interface DeckPreviewProps {
     joker?: ICard[];
   };
   onClose: () => void;
-  children?: ReactElement;
+  children?: ReactNode;
 }
 
 const JOKER_TABLE = [

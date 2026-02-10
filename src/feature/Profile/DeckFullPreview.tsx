@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import master from '@/submodule/suit/catalog/catalog';
 import { DeckPreview } from '@/feature/DeckBuilder/DeckPreview';
 import { colorTable } from '@/helper/color';
 import type { ICard } from '@/submodule/suit/types';
 import { RichButton } from '@/component/ui/RichButton';
+import { useDeck } from '@/hooks/deck';
 interface Deck {
   cards: string[];
   jokers: string[];
@@ -50,17 +51,34 @@ function DeckColorBar({ cards }: { cards: string[] }) {
   );
 }
 
-export function DeckFullPreview({ deck }: { deck: Deck | null }) {
+export function DeckFullPreview({ deck, isOwns }: { deck: Deck; isOwns?: boolean }) {
   const [isOpen, setIsOpen] = useState(false);
-
-  if (!deck || deck.cards.length === 0) {
-    return <span className="text-gray-400 text-xs">-</span>;
-  }
 
   const deckForPreview = {
     cards: deck.cards.map(id => ({ catalogId: id }) as ICard),
     joker: deck.jokers.map(id => ({ id }) as ICard),
   };
+
+  const { saveDeck, decks } = useDeck();
+  const handleSaveDeck = useCallback(() => {
+    const deckName = prompt('デッキ名を入力してください');
+
+    if (!deckName || !deckName.trim()) {
+      alert('デッキ名が必要です');
+      return;
+    }
+
+    // タイトル重複チェック
+    if (decks.some(d => d.title === deckName.trim())) {
+      alert('同じ名前のデッキが既に存在します');
+      return;
+    }
+
+    // 保存
+    saveDeck(deckName.trim(), deck.cards, deck.jokers, false)
+      .then(() => alert('保存しました'))
+      .catch(() => alert('保存に失敗しました'));
+  }, [saveDeck, decks, deck.cards, deck.jokers]);
 
   return (
     <>
@@ -72,7 +90,11 @@ export function DeckFullPreview({ deck }: { deck: Deck | null }) {
       </button>
       {isOpen && (
         <DeckPreview deck={deckForPreview} onClose={() => setIsOpen(false)}>
-          <RichButton colorScheme="blue">自分のデッキに保存する</RichButton>
+          {!isOwns ? (
+            <RichButton colorScheme="blue" onClick={handleSaveDeck}>
+              自分のデッキに保存する
+            </RichButton>
+          ) : null}
         </DeckPreview>
       )}
     </>

@@ -123,7 +123,7 @@ export function MatchHistory({
                       )}
                     </td>
                     <td className="px-4 py-3 hidden md:table-cell">
-                      <DeckFullPreview deck={match.me.deck} />
+                      <DeckFullPreview deck={match.me.deck} isOwns={true} />
                     </td>
                     <td className="px-4 py-3 hidden md:table-cell">
                       <DeckFullPreview deck={match.opponent.deck} />

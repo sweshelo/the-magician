@@ -38,13 +38,13 @@ export const DeckSaveDialog = ({
   const [importError, setImportError] = useState('');
   const [importSuccess, setImportSuccess] = useState('');
 
-  useEffect(() => {
-    if (isOpen) {
-      setTitle(''); // Reset title
-      setSelectedDeck(null); // Reset selection
-      setSaveMode('new'); // Default to new
-    }
-  }, [isOpen]);
+  const handleClose = () => {
+    // Reset states when closing
+    setTitle('');
+    setSelectedDeck(null);
+    setSaveMode('new');
+    onClose();
+  };
 
   const handleSave = () => {
     const finalTitle = saveMode === 'new' ? title : selectedDeck!;
@@ -54,7 +54,7 @@ export const DeckSaveDialog = ({
     }
 
     onSave(finalTitle, isMainDeck);
-    onClose();
+    handleClose();
   };
 
   const handleDeckSelect = (deckTitle: string) => {
@@ -213,7 +213,7 @@ export const DeckSaveDialog = ({
               className="px-3 py-1 bg-green-600 text-white rounded"
               onClick={async () => {
                 try {
-                  const json = JSON.stringify({ cards: deck, jokers }, null, 2);
+                  const json = JSON.stringify({ cards: deck, jokers });
                   await navigator.clipboard.writeText(json);
                   setCopyFeedback('デッキ内容をコピーしました');
                   setTimeout(() => setCopyFeedback(''), 2000);
@@ -265,7 +265,7 @@ export const DeckSaveDialog = ({
         </div>
         {/* --- 既存の保存/キャンセルボタン --- */}
         <div className="flex justify-end gap-2 mt-6">
-          <button className="px-4 py-2 bg-gray-600 text-white rounded" onClick={onClose}>
+          <button className="px-4 py-2 bg-gray-600 text-white rounded" onClick={handleClose}>
             キャンセル
           </button>
           <button
