@@ -5,6 +5,10 @@ import { checkAdminAccess } from '@/actions/admin';
 import type { Profile, Match } from '@/type/supabase';
 
 // ===== 型定義 =====
+interface Deck {
+  cards: string[];
+  jokers: string[];
+}
 
 export type ProfileStats = {
   totalMatches: number;
@@ -18,17 +22,35 @@ export type ProfileResponse = {
   stats: ProfileStats;
 } | null;
 
-export type MatchWithOpponent = Match & {
-  opponent: Profile | null;
-  result: 'win' | 'lose' | 'draw';
-  myDeck: string[] | null;
-  opponentDeck: string[] | null;
+export type MatchWithOpponent = {
+  id: string;
+  started_at: string | null;
+  ended_at: string | null;
+  total_rounds: number | null;
+  total_turns: number | null;
+  matching_mode: string | null;
+  end_reason: string | null;
+  opponent: {
+    id: string;
+    name: string;
+    deck: Deck;
+  };
+  me: {
+    deck: Deck;
+    is_first_player: boolean;
+  };
+  result: 'win' | 'lose' | 'unknown';
 };
 
 export type MatchListResponse = {
   matches: MatchWithOpponent[];
   total: number;
 };
+
+export type PublicProfileResponse = {
+  userName: string;
+  stats: ProfileStats;
+} | null;
 
 // ===== ヘルパー =====
 
@@ -47,8 +69,8 @@ function computeStats(matches: Match[], userId: string): ProfileStats {
   return { totalMatches, wins, losses, winRate };
 }
 
-function determineResult(match: Match, userId: string): 'win' | 'lose' | 'draw' {
-  if (match.winner_index === null) return 'draw';
+function determineResult(match: Match, userId: string): 'win' | 'lose' | 'unknown' {
+  if (match.winner_index === null) return 'unknown';
   return match.winner_index === getPlayerIndex(match, userId) ? 'win' : 'lose';
 }
 
@@ -57,53 +79,36 @@ function jsonToDeck(deck: unknown): string[] | null {
   return null;
 }
 
-function getMyDeck(match: Match, userId: string): string[] | null {
-  if (match.player1_id === userId) return jsonToDeck(match.player1_deck);
-  return jsonToDeck(match.player2_deck);
-}
-
-function getOpponentDeck(match: Match, userId: string): string[] | null {
-  if (match.player1_id === userId) return jsonToDeck(match.player2_deck);
-  return jsonToDeck(match.player1_deck);
-}
-
-function getOpponentId(match: Match, userId: string): string | null {
-  if (match.player1_id === userId) return match.player2_id;
-  return match.player1_id;
-}
-
-async function enrichMatchesWithOpponents(
-  matches: Match[],
-  userId: string
-): Promise<MatchWithOpponent[]> {
-  // 対戦相手IDを収集
-  const opponentIds = [
-    ...new Set(
-      matches.map(m => getOpponentId(m, userId)).filter((id): id is string => id !== null)
-    ),
-  ];
-
-  // 対戦相手のプロフィールをadminClientでバッチ取得（profilesのRLSは自分のみSELECT可のため）
-  let opponentMap = new Map<string, Profile>();
-  if (opponentIds.length > 0) {
-    const adminClient = createAdminClient();
-    const { data: opponents } = await adminClient
-      .from('profiles')
-      .select('*')
-      .in('id', opponentIds);
-
-    if (opponents) {
-      opponentMap = new Map(opponents.map(p => [p.id, p]));
-    }
-  }
-
-  return matches.map(match => ({
-    ...match,
-    opponent: opponentMap.get(getOpponentId(match, userId) ?? '') ?? null,
-    result: determineResult(match, userId),
-    myDeck: getMyDeck(match, userId),
-    opponentDeck: getOpponentDeck(match, userId),
-  }));
+function enrichMatchesWithOpponents(matches: Match[], userId: string): MatchWithOpponent[] {
+  return matches.map(match => {
+    const isPlayer1 = match.player1_id === userId;
+    const playerIndex = isPlayer1 ? 0 : 1;
+    return {
+      id: match.id,
+      started_at: match.started_at,
+      ended_at: match.ended_at,
+      total_rounds: match.total_rounds,
+      total_turns: match.total_turns,
+      matching_mode: match.matching_mode,
+      end_reason: match.end_reason,
+      opponent: {
+        id: (isPlayer1 ? match.player2_id : match.player1_id) ?? '',
+        name: isPlayer1 ? match.player2_name : match.player1_name,
+        deck: {
+          cards: jsonToDeck(isPlayer1 ? match.player2_deck : match.player1_deck) ?? [],
+          jokers: jsonToDeck(isPlayer1 ? match.player2_jokers : match.player1_jokers) ?? [],
+        },
+      },
+      me: {
+        deck: {
+          cards: jsonToDeck(isPlayer1 ? match.player1_deck : match.player2_deck) ?? [],
+          jokers: jsonToDeck(isPlayer1 ? match.player1_jokers : match.player2_jokers) ?? [],
+        },
+        is_first_player: match.first_player_index === playerIndex,
+      },
+      result: determineResult(match, userId),
+    };
+  });
 }
 
 // ===== Server Actions =====
@@ -185,7 +190,7 @@ export async function getMyMatches(options?: {
     .order('started_at', { ascending: false })
     .range(offset, offset + limit - 1);
 
-  const enrichedMatches = await enrichMatchesWithOpponents(data ?? [], user.id);
+  const enrichedMatches = enrichMatchesWithOpponents(data ?? [], user.id);
 
   return {
     matches: enrichedMatches,
@@ -266,10 +271,81 @@ export async function getUserMatches(
     .order('started_at', { ascending: false })
     .range(offset, offset + limit - 1);
 
-  const enrichedMatches = await enrichMatchesWithOpponents(data ?? [], userId);
+  const enrichedMatches = enrichMatchesWithOpponents(data ?? [], userId);
 
   return {
     matches: enrichedMatches,
+    total: count ?? 0,
+  };
+}
+
+// ===== 公開プロフィール =====
+
+/** ユーザーIDからマッチ履歴内のプレイヤー名を取得 */
+function resolveUserName(matches: Match[], userId: string): string {
+  for (const match of matches) {
+    if (match.player1_id === userId) return match.player1_name;
+    if (match.player2_id === userId) return match.player2_name;
+  }
+  return '不明';
+}
+
+/**
+ * 公開プロフィール: 任意ユーザーのプロフィール情報と戦績サマリーを取得
+ * RLS により、現在のログインユーザーが参加した試合のみが返される
+ */
+export async function getPublicProfile(userId: string): Promise<PublicProfileResponse> {
+  if (process.env.AUTH_SKIP === 'true') {
+    return {
+      userName: 'テストユーザー',
+      stats: { totalMatches: 0, wins: 0, losses: 0, winRate: 0 },
+    };
+  }
+
+  const supabase = await createClient();
+
+  const { data: matches } = await supabase
+    .from('matches')
+    .select('*')
+    .or(`player1_id.eq.${userId},player2_id.eq.${userId}`);
+
+  if (!matches || matches.length === 0) return null;
+
+  const userName = resolveUserName(matches, userId);
+  const stats = computeStats(matches, userId);
+
+  return { userName, stats };
+}
+
+/**
+ * 公開プロフィール: 任意ユーザーの対戦履歴を取得
+ * RLS により、現在のログインユーザーが参加した試合のみが返される
+ */
+export async function getProfileMatches(
+  userId: string,
+  options?: { page?: number; limit?: number }
+): Promise<MatchListResponse> {
+  if (process.env.AUTH_SKIP === 'true') {
+    return { matches: [], total: 0 };
+  }
+
+  const supabase = await createClient();
+
+  const page = options?.page ?? 1;
+  const limit = options?.limit ?? 20;
+  const offset = (page - 1) * limit;
+
+  const { data, count } = await supabase
+    .from('matches')
+    .select('*', { count: 'exact' })
+    .or(`player1_id.eq.${userId},player2_id.eq.${userId}`)
+    .order('started_at', { ascending: false })
+    .range(offset, offset + limit - 1);
+
+  const profileMatches = enrichMatchesWithOpponents(data ?? [], userId);
+
+  return {
+    matches: profileMatches,
     total: count ?? 0,
   };
 }

@@ -24,7 +24,7 @@ export default async function ProfilePage({
 
   return (
     <div className="min-h-screen bg-gray-100 py-10 px-4 flex flex-col items-center">
-      <div className="w-full max-w-4xl">
+      <div className="w-full max-w-6xl">
         <div className="text-center mb-6">
           <Link href="/" className="text-gray-500 hover:text-gray-700 text-sm mb-2 inline-block">
             &larr; TOPに戻る

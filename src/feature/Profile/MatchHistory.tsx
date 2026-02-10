@@ -1,45 +1,18 @@
-import { getImageUrl } from '@/helper/image';
-import master from '@/submodule/suit/catalog/catalog';
+import Link from 'next/link';
 import { Pagination } from '@/component/ui/Pagination';
+import { DeckFullPreview } from '@/feature/Profile/DeckFullPreview';
 import type { MatchWithOpponent } from '@/actions/profile';
 
-const DECK_PREVIEW_COUNT = 5;
-
-function DeckPreview({ deck }: { deck: string[] | null }) {
-  if (!deck || deck.length === 0) {
-    return <span className="text-gray-400 text-xs">-</span>;
-  }
-
-  const previewCards = deck.slice(0, DECK_PREVIEW_COUNT);
-  const remaining = deck.length - DECK_PREVIEW_COUNT;
-
-  return (
-    <div className="flex items-center gap-0.5">
-      {previewCards.map((cardId, i) => (
-        /* eslint-disable-next-line @next/next/no-img-element */
-        <img
-          key={`${cardId}-${i}`}
-          src={getImageUrl(cardId, 'small')}
-          alt={master.get(cardId)?.name ?? cardId}
-          title={master.get(cardId)?.name ?? cardId}
-          className="w-7 h-7 object-cover rounded"
-        />
-      ))}
-      {remaining > 0 && <span className="text-xs text-gray-400 ml-1">+{remaining}枚</span>}
-    </div>
-  );
-}
-
-function ResultBadge({ result }: { result: 'win' | 'lose' | 'draw' }) {
+function ResultBadge({ result }: { result: 'win' | 'lose' | 'unknown' }) {
   const styles = {
     win: 'bg-blue-100 text-blue-800',
     lose: 'bg-red-100 text-red-800',
-    draw: 'bg-gray-100 text-gray-800',
+    unknown: 'bg-gray-100 text-gray-800',
   };
   const labels = {
     win: '勝利',
     lose: '敗北',
-    draw: '引分',
+    unknown: '不明',
   };
 
   return (
@@ -47,6 +20,11 @@ function ResultBadge({ result }: { result: 'win' | 'lose' | 'draw' }) {
       {labels[result]}
     </span>
   );
+}
+
+function MatchingModeBadge({ mode }: { mode: string | null }) {
+  if (!mode) return <span className="text-gray-400 text-xs">-</span>;
+  return <span className="text-xs text-gray-600">{mode}</span>;
 }
 
 export function MatchHistory({
@@ -61,6 +39,7 @@ export function MatchHistory({
   basePath: string;
 }) {
   const totalPages = Math.ceil(total / 20);
+  const profileLinkPrefix = basePath.startsWith('/admin/') ? '/admin/users/' : '/profile/';
 
   return (
     <div className="bg-white rounded-lg shadow overflow-hidden">
@@ -81,6 +60,15 @@ export function MatchHistory({
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                     結果
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase hidden sm:table-cell">
+                    種別
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase hidden sm:table-cell">
+                    R数
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase hidden sm:table-cell">
+                    先/後
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                     対戦相手
@@ -107,28 +95,38 @@ export function MatchHistory({
                     <td className="px-4 py-3">
                       <ResultBadge result={match.result} />
                     </td>
+                    <td className="px-4 py-3 hidden sm:table-cell">
+                      <MatchingModeBadge mode={match.matching_mode} />
+                    </td>
+                    <td className="px-4 py-3 hidden sm:table-cell">
+                      <span className="text-sm text-gray-600">{match.total_rounds ?? '-'}</span>
+                    </td>
+                    <td className="px-4 py-3 hidden sm:table-cell">
+                      <span
+                        className={`text-xs font-medium ${match.me.is_first_player ? 'text-blue-600' : 'text-red-600'}`}
+                      >
+                        {match.me.is_first_player ? '先攻' : '後攻'}
+                      </span>
+                    </td>
                     <td className="px-4 py-3">
-                      <div className="flex items-center gap-2">
-                        {match.opponent?.avatar_url && (
-                          /* eslint-disable-next-line @next/next/no-img-element */
-                          <img
-                            src={match.opponent.avatar_url}
-                            alt=""
-                            className="w-6 h-6 rounded-full"
-                          />
-                        )}
+                      {match.opponent.id ? (
+                        <Link
+                          href={`${profileLinkPrefix}${match.opponent.id}`}
+                          className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
+                        >
+                          {match.opponent.name || '不明'}
+                        </Link>
+                      ) : (
                         <span className="text-sm text-gray-900">
-                          {match.opponent?.display_name ??
-                            match.opponent?.discord_username ??
-                            '不明'}
+                          {match.opponent.name || '不明'}
                         </span>
-                      </div>
+                      )}
                     </td>
                     <td className="px-4 py-3 hidden md:table-cell">
-                      <DeckPreview deck={match.myDeck} />
+                      <DeckFullPreview deck={match.me.deck} />
                     </td>
                     <td className="px-4 py-3 hidden md:table-cell">
-                      <DeckPreview deck={match.opponentDeck} />
+                      <DeckFullPreview deck={match.opponent.deck} />
                     </td>
                   </tr>
                 ))}

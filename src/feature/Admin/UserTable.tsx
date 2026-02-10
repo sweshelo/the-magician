@@ -62,12 +62,17 @@ export function UserTable({ users }: { users: (Profile & { credits: number })[] 
             {users.map(user => (
               <tr key={user.id} className="border-b border-gray-700">
                 <td className="py-2">
-                  <div className="flex items-center gap-2">
-                    {user.avatar_url && (
-                      <img src={user.avatar_url} alt="" className="w-6 h-6 rounded-full" />
-                    )}
-                    <span className="text-white">{user.discord_username}</span>
-                  </div>
+                  <Link
+                    href={`/admin/users/${user.id}`}
+                    className="text-indigo-400 hover:text-indigo-300 text-xs"
+                  >
+                    <div className="flex items-center gap-2">
+                      {user.avatar_url && (
+                        <img src={user.avatar_url} alt="" className="w-6 h-6 rounded-full" />
+                      )}
+                      <span className="text-white">{user.discord_username}</span>
+                    </div>
+                  </Link>
                 </td>
                 <td className="py-2 text-gray-400">{user.discord_id}</td>
                 <td className="py-2">
@@ -120,14 +125,6 @@ export function UserTable({ users }: { users: (Profile & { credits: number })[] 
                 </td>
                 <td className="py-2 text-gray-400">
                   {new Date(user.created_at).toLocaleDateString('ja-JP')}
-                </td>
-                <td className="py-2">
-                  <Link
-                    href={`/admin/users/${user.id}`}
-                    className="text-indigo-400 hover:text-indigo-300 text-xs"
-                  >
-                    詳細
-                  </Link>
                 </td>
               </tr>
             ))}
