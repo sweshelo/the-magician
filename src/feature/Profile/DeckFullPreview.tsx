@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { getImageUrl } from '@/helper/image';
 import master from '@/submodule/suit/catalog/catalog';
 import { DeckPreview } from '@/feature/DeckBuilder/DeckPreview';
+import { colorTable } from '@/helper/color';
 import type { ICard } from '@/submodule/suit/types';
 
 interface Deck {
@@ -11,25 +11,41 @@ interface Deck {
   jokers: string[];
 }
 
-const DECK_PREVIEW_COUNT = 5;
+const defaultHex = colorTable.cardColorHex[0];
 
-function InlinePreview({ deck }: { deck: string[] }) {
-  const previewCards = deck.slice(0, DECK_PREVIEW_COUNT);
-  const remaining = deck.length - DECK_PREVIEW_COUNT;
+function DeckColorBar({ cards }: { cards: string[] }) {
+  const counts = new Map<number, { normal: number; intercept: number }>();
+
+  for (const cardId of cards) {
+    const catalog = master.get(cardId);
+    const color = catalog?.color ?? 0;
+    const isIntercept = catalog?.type === 'intercept';
+    const entry = counts.get(color) ?? { normal: 0, intercept: 0 };
+    if (isIntercept) {
+      entry.intercept++;
+    } else {
+      entry.normal++;
+    }
+    counts.set(color, entry);
+  }
+
+  const segments: { flexGrow: number; backgroundColor: string }[] = [];
+  for (const [color, { normal, intercept }] of counts) {
+    const hex =
+      colorTable.cardColorHex[color as keyof typeof colorTable.cardColorHex] ?? defaultHex;
+    if (normal > 0) {
+      segments.push({ flexGrow: normal, backgroundColor: hex.normal });
+    }
+    if (intercept > 0) {
+      segments.push({ flexGrow: intercept, backgroundColor: hex.dark });
+    }
+  }
 
   return (
-    <div className="flex items-center gap-0.5">
-      {previewCards.map((cardId, i) => (
-        /* eslint-disable-next-line @next/next/no-img-element */
-        <img
-          key={`${cardId}-${i}`}
-          src={getImageUrl(cardId, 'small')}
-          alt={master.get(cardId)?.name ?? cardId}
-          title={master.get(cardId)?.name ?? cardId}
-          className="w-7 h-7 object-cover rounded"
-        />
+    <div className="h-4 w-full rounded overflow-hidden flex">
+      {segments.map((style, i) => (
+        <div key={i} style={style} />
       ))}
-      {remaining > 0 && <span className="text-xs text-gray-400 ml-1">+{remaining}枚</span>}
     </div>
   );
 }
@@ -50,9 +66,9 @@ export function DeckFullPreview({ deck }: { deck: Deck | null }) {
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="cursor-pointer hover:opacity-80 transition-opacity"
+        className="w-full cursor-pointer hover:opacity-80 transition-opacity"
       >
-        <InlinePreview deck={deck.cards} />
+        <DeckColorBar cards={deck.cards} />
       </button>
       {isOpen && <DeckPreview deck={deckForPreview} onClose={() => setIsOpen(false)} />}
     </>
