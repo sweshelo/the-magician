@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { setUserAdmin, updateUserCredits } from '@/actions/admin';
 import type { Profile } from '@/type/supabase';
 
@@ -54,6 +55,7 @@ export function UserTable({ users }: { users: (Profile & { credits: number })[] 
               <th className="text-left py-2">クレジット</th>
               <th className="text-left py-2">管理者</th>
               <th className="text-left py-2">登録日</th>
+              <th className="text-left py-2"></th>
             </tr>
           </thead>
           <tbody>
@@ -108,7 +110,7 @@ export function UserTable({ users }: { users: (Profile & { credits: number })[] 
                 </td>
                 <td className="py-2">
                   <button
-                    onClick={() => handleToggleAdmin(user.id, user.is_admin)}
+                    onClick={() => handleToggleAdmin(user.id, user.is_admin ?? false)}
                     className={`px-2 py-1 rounded text-xs ${
                       user.is_admin ? 'bg-indigo-600 text-white' : 'bg-gray-600 text-gray-300'
                     }`}
@@ -118,6 +120,14 @@ export function UserTable({ users }: { users: (Profile & { credits: number })[] 
                 </td>
                 <td className="py-2 text-gray-400">
                   {new Date(user.created_at).toLocaleDateString('ja-JP')}
+                </td>
+                <td className="py-2">
+                  <Link
+                    href={`/admin/users/${user.id}`}
+                    className="text-indigo-400 hover:text-indigo-300 text-xs"
+                  >
+                    詳細
+                  </Link>
                 </td>
               </tr>
             ))}

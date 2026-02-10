@@ -15,7 +15,7 @@ export interface Database {
           discord_username: string;
           display_name: string | null;
           avatar_url: string | null;
-          is_admin: boolean;
+          is_admin: boolean | null;
           created_at: string;
           updated_at: string;
         };
@@ -25,7 +25,7 @@ export interface Database {
           discord_username: string;
           display_name?: string | null;
           avatar_url?: string | null;
-          is_admin?: boolean;
+          is_admin?: boolean | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -35,7 +35,7 @@ export interface Database {
           discord_username?: string;
           display_name?: string | null;
           avatar_url?: string | null;
-          is_admin?: boolean;
+          is_admin?: boolean | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -47,7 +47,7 @@ export interface Database {
           title: string;
           cards: string[];
           jokers: string[];
-          is_main: boolean;
+          is_main: boolean | null;
           created_at: string;
           updated_at: string;
         };
@@ -80,7 +80,7 @@ export interface Database {
           played_at: string;
           room_id: string | null;
           result: string | null;
-          consumption_type: string;
+          consumption_type: string | null;
         };
         Insert: {
           id?: string;
@@ -167,33 +167,133 @@ export interface Database {
           created_by?: string | null;
         };
       };
+      game_actions: {
+        Row: {
+          action_handler: string;
+          action_type: string;
+          created_at: string | null;
+          id: string;
+          match_id: string;
+          payload: Json;
+          player_id: string | null;
+          round: number;
+          sequence_number: number;
+          turn: number;
+        };
+        Insert: {
+          action_handler: string;
+          action_type: string;
+          created_at?: string | null;
+          id?: string;
+          match_id: string;
+          payload: Json;
+          player_id?: string | null;
+          round: number;
+          sequence_number: number;
+          turn: number;
+        };
+        Update: {
+          action_handler?: string;
+          action_type?: string;
+          created_at?: string | null;
+          id?: string;
+          match_id?: string;
+          payload?: Json;
+          player_id?: string | null;
+          round?: number;
+          sequence_number?: number;
+          turn?: number;
+        };
+      };
       matches: {
         Row: {
           id: string;
+          end_reason: string | null;
+          ended_at: string | null;
+          first_player_index: number | null;
+          matching_mode: string | null;
+          player1_deck: Json;
           player1_id: string | null;
+          player1_jokers: Json | null;
+          player1_name: string;
+          player2_deck: Json;
           player2_id: string | null;
-          player1_deck: string[] | null;
-          player2_deck: string[] | null;
-          winner_id: string | null;
-          created_at: string;
+          player2_jokers: Json | null;
+          player2_name: string;
+          room_id: string;
+          seed: number | null;
+          started_at: string | null;
+          total_rounds: number | null;
+          total_turns: number | null;
+          winner_index: number | null;
         };
         Insert: {
           id?: string;
+          end_reason?: string | null;
+          ended_at?: string | null;
+          first_player_index?: number | null;
+          matching_mode?: string | null;
+          player1_deck: Json;
           player1_id?: string | null;
+          player1_jokers?: Json | null;
+          player1_name: string;
+          player2_deck: Json;
           player2_id?: string | null;
-          player1_deck?: string[] | null;
-          player2_deck?: string[] | null;
-          winner_id?: string | null;
-          created_at?: string;
+          player2_jokers?: Json | null;
+          player2_name: string;
+          room_id: string;
+          seed?: number | null;
+          started_at?: string | null;
+          total_rounds?: number | null;
+          total_turns?: number | null;
+          winner_index?: number | null;
         };
         Update: {
           id?: string;
+          end_reason?: string | null;
+          ended_at?: string | null;
+          first_player_index?: number | null;
+          matching_mode?: string | null;
+          player1_deck?: Json;
           player1_id?: string | null;
+          player1_jokers?: Json | null;
+          player1_name?: string;
+          player2_deck?: Json;
           player2_id?: string | null;
-          player1_deck?: string[] | null;
-          player2_deck?: string[] | null;
-          winner_id?: string | null;
-          created_at?: string;
+          player2_jokers?: Json | null;
+          player2_name?: string;
+          room_id?: string;
+          seed?: number | null;
+          started_at?: string | null;
+          total_rounds?: number | null;
+          total_turns?: number | null;
+          winner_index?: number | null;
+        };
+      };
+      rooms: {
+        Row: {
+          created_at: string | null;
+          created_by: string | null;
+          id: string;
+          name: string;
+          room_id: string;
+          rule: Json;
+        };
+        Insert: {
+          created_at?: string | null;
+          created_by?: string | null;
+          id?: string;
+          name: string;
+          room_id: string;
+          rule: Json;
+        };
+        Update: {
+          created_at?: string | null;
+          created_by?: string | null;
+          id?: string;
+          name?: string;
+          room_id?: string;
+          rule?: Json;
         };
       };
     };

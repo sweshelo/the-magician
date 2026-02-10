@@ -38,7 +38,7 @@ export type UserListResponse = {
 
 // ===== ヘルパー =====
 
-async function checkAdminAccess(): Promise<{ userId: string } | { error: string }> {
+export async function checkAdminAccess(): Promise<{ userId: string } | { error: string }> {
   const supabase = await createClient();
 
   const {
