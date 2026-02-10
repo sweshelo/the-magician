@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, ReactNode, useContext, useState, useCallback, useEffect } from 'react';
+import { createContext, ReactNode, useContext, useState, useCallback } from 'react';
 
 export type PlayerRole = 'player' | 'spectator' | 'unknown';
 
@@ -65,30 +65,23 @@ interface Props {
 }
 
 export const PlayerIdentityProvider = ({ children }: Props) => {
-  const [state, setState] = useState<PlayerIdentityState>({
-    selfId: null,
-    role: 'unknown',
-    isResolved: false,
-  });
-
-  // Restore identity from SessionStorage on mount
-  useEffect(() => {
+  // Initialize state with stored value or default
+  const [state, setState] = useState<PlayerIdentityState>(() => {
     const stored = getStoredIdentity();
     if (stored) {
-      setState({
+      return {
         selfId: stored.selfId,
         role: stored.role,
         isResolved: true,
-      });
-    } else {
-      // 保存データがない場合も解決済みとする
-      setState({
-        selfId: null,
-        role: 'unknown',
-        isResolved: true,
-      });
+      };
     }
-  }, []);
+    // 保存データがない場合も解決済みとする
+    return {
+      selfId: null,
+      role: 'unknown',
+      isResolved: true,
+    };
+  });
 
   const setSelfId = useCallback((id: string, role: 'player' | 'spectator') => {
     setState({

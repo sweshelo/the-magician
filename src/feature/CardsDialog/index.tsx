@@ -17,10 +17,13 @@ export const CardsDialog = () => {
     confirmSelection,
     timeLimit,
   } = useCardsDialog();
-  const [isAnimating, setIsAnimating] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const animationKey = useRef(0);
   const startTimeRef = useRef<number | null>(null);
+  
+  // isAnimating is derived from isOpen and isClosing
+  const isAnimating = isOpen || isClosing;
 
   // Handle card click
   const handleCardClick = useCallback(
@@ -83,14 +86,14 @@ export const CardsDialog = () => {
     };
   }, [isOpen, isSelector, timeLimit, handleTimeExpiration, cards]);
 
-  // Handle animation when the dialog opens/closes
+  // Handle animation when the dialog closes
   useEffect(() => {
-    if (isOpen) {
-      setIsAnimating(true);
-    } else {
+    if (!isOpen) {
+      // Start closing animation
+      setIsClosing(true);
       // Give time for the closing animation to play
       const timeout = setTimeout(() => {
-        setIsAnimating(false);
+        setIsClosing(false);
       }, 100);
       return () => clearTimeout(timeout);
     }

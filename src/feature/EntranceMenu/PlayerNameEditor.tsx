@@ -1,14 +1,15 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { LocalStorageHelper } from '@/service/local-storage';
 import { useAuth } from '@/hooks/auth/hooks';
 
 export const PlayerNameEditor = () => {
   const { user } = useAuth();
-  const [playerName, setPlayerName] = useState('');
+  const initialName = LocalStorageHelper.playerName();
+  const [playerName, setPlayerName] = useState(initialName);
   const [isEditing, setIsEditing] = useState(false);
-  const [tempName, setTempName] = useState('');
+  const [tempName, setTempName] = useState(initialName);
 
   // Discordログイン中かどうか
   const isDiscordLoggedIn = !!user;
@@ -16,12 +17,6 @@ export const PlayerNameEditor = () => {
     user?.user_metadata?.full_name ||
     user?.user_metadata?.name ||
     user?.user_metadata?.preferred_username;
-
-  useEffect(() => {
-    const currentName = LocalStorageHelper.playerName();
-    setPlayerName(currentName);
-    setTempName(currentName);
-  }, []);
 
   const handleStartEdit = () => {
     setIsEditing(true);
