@@ -1,7 +1,8 @@
-import { ProgressConfirmButton } from '@/component/ui/ProgressConfirmButton';
+import { RichButton } from '@/component/ui/RichButton';
 import { getImageUrl } from '@/helper/image';
 import master from '@/submodule/suit/catalog/catalog';
 import { ICard } from '@/submodule/suit/types';
+import { ReactElement } from 'react';
 
 interface DeckPreviewProps {
   deck: {
@@ -9,6 +10,7 @@ interface DeckPreviewProps {
     joker?: ICard[];
   };
   onClose: () => void;
+  children?: ReactElement;
 }
 
 const JOKER_TABLE = [
@@ -16,7 +18,7 @@ const JOKER_TABLE = [
   { suffix: '2nd', color: 'border-yellow-500' },
 ];
 
-export const DeckPreview = ({ deck, onClose }: DeckPreviewProps) => {
+export const DeckPreview = ({ deck, onClose, children }: DeckPreviewProps) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-95">
       <div className="flex flex-col items-center">
@@ -61,8 +63,9 @@ export const DeckPreview = ({ deck, onClose }: DeckPreviewProps) => {
             </div>
           </div>
         )}
-        <div className="mt-6 flex justify-center">
-          <ProgressConfirmButton buttonText="閉じる" onConfirm={onClose} />
+        <div className="mt-6 flex justify-center gap-2">
+          <RichButton onClick={onClose}>閉じる</RichButton>
+          {children}
         </div>
       </div>
     </div>

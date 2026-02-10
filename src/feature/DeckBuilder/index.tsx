@@ -5,10 +5,11 @@ import { CardView } from '@/component/ui/CardView';
 import { defaultUIColors } from '@/helper/color';
 import master from '@/submodule/suit/catalog/catalog';
 import { ICard, Catalog } from '@/submodule/suit/types';
-import { useCallback, useEffect, useMemo, useState, memo, useRef, useLayoutEffect } from 'react';
+import { useCallback, useMemo, useState, memo, useRef, useLayoutEffect } from 'react';
 import { DeckSaveDialog, DeckLoadDialog } from './DeckDialogs';
 import { useDeck } from '@/hooks/deck';
 import type { DeckData } from '@/type/deck';
+import { Button } from '@/component/interface/button';
 import { DeckPreview } from './DeckPreview';
 import { useSearchParams } from 'next/navigation';
 import { STARTER_DECK } from '@/constants/deck';
@@ -494,10 +495,16 @@ export const DeckBuilder = ({ implementedIds }: DeckBuilderProps) => {
   const [selectedCosts, setSelectedCosts] = useState<(number | string)[]>([]);
   const [sortBy, setSortBy] = useState<SortOption>('id');
 
-  // Available filter options
-  const [availableSpecies, setAvailableSpecies] = useState<string[]>([]);
-  const [availableOriginalities, setAvailableOriginalities] = useState<number[]>([]);
-  const [availableVersions, setAvailableVersions] = useState<number[]>([]);
+  // Available filter options (computed once from static catalog data)
+  const availableSpecies = useMemo(() => getUniqueValues(catalog => catalog.species).sort(), []);
+  const availableOriginalities = useMemo(
+    () => getUniqueValues(catalog => catalog.originality).sort((a, b) => a - b),
+    []
+  );
+  const availableVersions = useMemo(
+    () => getUniqueValues(catalog => catalog.info.version).sort((a, b) => a - b),
+    []
+  );
 
   // Deck preview state
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
@@ -510,24 +517,18 @@ export const DeckBuilder = ({ implementedIds }: DeckBuilderProps) => {
   const searchParams = useSearchParams();
   const limitBreak = Boolean(searchParams.get('limitbreak'));
 
-  // Load available filter options
-  useEffect(() => {
-    setAvailableSpecies(getUniqueValues(catalog => catalog.species).sort());
-    setAvailableOriginalities(
-      getUniqueValues(catalog => catalog.originality).sort((a, b) => a - b)
-    );
-    setAvailableVersions(getUniqueValues(catalog => catalog.info.version).sort((a, b) => a - b));
-  }, []);
-
   // Load main deck from useDeck (Supabase or LocalStorage)
-  useEffect(() => {
+  // React recommended pattern: store previous props to detect changes during render
+  const [prevSavedDeck, setPrevSavedDeck] = useState(savedMainDeck);
+  if (savedMainDeck !== prevSavedDeck) {
+    setPrevSavedDeck(savedMainDeck);
     if (!isDeckLoading && savedMainDeck) {
       setDeck(savedMainDeck.cards);
       setJokers(savedMainDeck.jokers || []);
       setCurrentDeckTitle(savedMainDeck.title);
       setCurrentDeckId(savedMainDeck.id);
     }
-  }, [isDeckLoading, savedMainDeck]);
+  }
 
   const handleCardClick = useCallback((index: number) => {
     setDeck(prev => {
@@ -871,37 +872,37 @@ export const DeckBuilder = ({ implementedIds }: DeckBuilderProps) => {
           <div className="px-3 py-1 border text-white rounded bg-gray-500 whitespace-nowrap">
             originality {originality([...deck, ...jokers])}pts.
           </div>
-          <button
-            className="px-3 py-1 border text-white rounded bg-blue-500 disabled:bg-indigo-900 whitespace-nowrap"
+          <Button
+            colorScheme="blue"
+            size="md"
+            className="whitespace-nowrap"
             onClick={handleOpenSaveDialog}
             disabled={deck.length !== 40}
           >
             保存する
-          </button>
-          <button
-            className="px-3 py-1 border text-white rounded bg-gray-500 whitespace-nowrap"
-            onClick={sortDeck}
-          >
+          </Button>
+          <Button colorScheme="gray" size="md" className="whitespace-nowrap" onClick={sortDeck}>
             ソート
-          </button>
-          <button
-            className="px-3 py-1 border text-white rounded bg-red-500 whitespace-nowrap"
-            onClick={deleteDeck}
-          >
+          </Button>
+          <Button colorScheme="red" size="md" className="whitespace-nowrap" onClick={deleteDeck}>
             デッキをリセット
-          </button>
-          <button
-            className="px-3 py-1 border text-white rounded bg-green-500 whitespace-nowrap"
+          </Button>
+          <Button
+            colorScheme="green"
+            size="md"
+            className="whitespace-nowrap"
             onClick={() => setLoadDialogOpen(true)}
           >
             デッキ一覧
-          </button>
-          <button
-            className="px-3 py-1 border text-white rounded bg-black-700 whitespace-nowrap"
+          </Button>
+          <Button
+            colorScheme="dark"
+            size="md"
+            className="whitespace-nowrap"
             onClick={() => setIsPreviewOpen(true)}
           >
             プレビュー
-          </button>
+          </Button>
           {currentDeckTitle && (
             <span className="ml-2 text-gray-300">
               現在のデッキ: {currentDeckTitle}

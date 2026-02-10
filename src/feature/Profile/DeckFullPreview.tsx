@@ -5,7 +5,7 @@ import master from '@/submodule/suit/catalog/catalog';
 import { DeckPreview } from '@/feature/DeckBuilder/DeckPreview';
 import { colorTable } from '@/helper/color';
 import type { ICard } from '@/submodule/suit/types';
-
+import { RichButton } from '@/component/ui/RichButton';
 interface Deck {
   cards: string[];
   jokers: string[];
@@ -70,7 +70,11 @@ export function DeckFullPreview({ deck }: { deck: Deck | null }) {
       >
         <DeckColorBar cards={deck.cards} />
       </button>
-      {isOpen && <DeckPreview deck={deckForPreview} onClose={() => setIsOpen(false)} />}
+      {isOpen && (
+        <DeckPreview deck={deckForPreview} onClose={() => setIsOpen(false)}>
+          <RichButton colorScheme="blue">自分のデッキに保存する</RichButton>
+        </DeckPreview>
+      )}
     </>
   );
 }
