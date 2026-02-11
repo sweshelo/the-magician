@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react';
+import { useRef } from 'react';
 import './ProgressConfirmButton.css';
 
 type ProgressConfirmButtonProps = {
@@ -20,15 +20,8 @@ export const ProgressConfirmButton = ({
   className = '',
   isRunning = true,
 }: ProgressConfirmButtonProps) => {
-  const animationKey = useRef(0);
+  const animationKey = `${timeLimit}`;
   const progressBarRef = useRef<HTMLDivElement | null>(null);
-
-  // Timer initialization logic
-  useEffect(() => {
-    if (timeLimit && isRunning) {
-      animationKey.current += 1;
-    }
-  }, [timeLimit, isRunning]);
 
   return (
     <div className={`w-72 ${className}`}>
@@ -36,7 +29,7 @@ export const ProgressConfirmButton = ({
         <div className="w-full h-10 bg-gray-700 rounded-lg overflow-hidden relative">
           <div
             ref={progressBarRef}
-            key={animationKey.current}
+            key={animationKey}
             className={`h-full bg-red-700 countdown-animation ${isRunning ? 'countdown-animation-running' : 'countdown-animation-paused'}`}
             style={{
               width: '100%',

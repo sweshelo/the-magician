@@ -10,6 +10,16 @@ export const colorTable = {
     5: 'bg-purple-600', // Purple (lighter than before)
   },
 
+  // Card Color Hex Values (for inline styles)
+  cardColorHex: {
+    0: { normal: '#9ca3af', dark: '#6b7280' },
+    1: { normal: '#dc2626', dark: '#991b1b' },
+    2: { normal: '#eab308', dark: '#a16207' },
+    3: { normal: '#3b82f6', dark: '#1e40af' },
+    4: { normal: '#22c55e', dark: '#15803d' },
+    5: { normal: '#9333ea', dark: '#6b21a8' },
+  },
+
   // Symbol Colors
   symbols: {
     life: 'text-red-400',

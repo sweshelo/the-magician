@@ -1,7 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { Tooltip } from 'react-tooltip';
 import { UseFormRegisterReturn } from 'react-hook-form';
 
@@ -36,13 +35,6 @@ export const NumberInput: React.FC<NumberInputProps> = ({
   // Initialize with defaultValue if provided, otherwise use min
   const initialValue = defaultValue !== undefined ? String(defaultValue) : String(min);
   const [value, setValue] = useState<string>(initialValue);
-
-  // Update value when defaultValue changes externally
-  useEffect(() => {
-    if (defaultValue !== undefined) {
-      setValue(String(defaultValue));
-    }
-  }, [defaultValue]);
 
   // Handle changes from either input
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

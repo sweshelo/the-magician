@@ -2,7 +2,7 @@
 
 import { useSystemContext } from '@/hooks/system/hooks';
 import { useDraggable, useDroppable } from '@dnd-kit/core';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 import { CardView } from './CardView';
 import { ChainOverlay } from './ChainOverlay';
 import { ICard } from '@/submodule/suit/types';
@@ -21,7 +21,6 @@ interface Props {
 const empty: ICard[] = [];
 
 export const HandView = ({ card, isSmall = false, source = 'hand' }: Props) => {
-  const [isHighlighted, setHighlighted] = useState(false);
   const selfId = useSelfId();
 
   const cpSelector = useCallback(
@@ -82,9 +81,10 @@ export const HandView = ({ card, isSmall = false, source = 'hand' }: Props) => {
     [setDraggableRef, setDroppableRef]
   );
 
-  useEffect(() => {
-    setHighlighted(activeCard?.id !== card.id && isSameCard);
-  }, [activeCard?.data, activeCard?.id, card.catalogId, card.id, isSameCard, isStrictOverride]);
+  const isHighlighted = useMemo(
+    () => activeCard?.id !== card.id && isSameCard,
+    [activeCard?.id, card.id, isSameCard]
+  );
 
   const mitigate = useMemo(() => isMitigated(card, trigger), [card, trigger]);
 

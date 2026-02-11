@@ -78,9 +78,11 @@ export const useMatchingRequest = (): UseMatchingRequestReturn => {
           player: {
             name: playerName,
             id: user?.id,
-            deck: mainDeck.cards,
+            deck: {
+              cards: mainDeck.cards,
+              jokers: mainDeck.jokers ?? [],
+            },
           },
-          jokersOwned: mainDeck.jokers,
         },
       } satisfies Message<MatchingStartRequestPayload>);
 

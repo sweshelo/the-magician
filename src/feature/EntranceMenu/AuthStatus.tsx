@@ -62,12 +62,20 @@ export const AuthStatus = () => {
             <div className="text-gray-400 text-sm">Discord連携済み</div>
           </div>
         </div>
-        <button
-          onClick={() => signOut()}
-          className="px-3 py-1 bg-gray-600 text-gray-300 rounded-md hover:bg-gray-500 transition-colors text-sm"
-        >
-          ログアウト
-        </button>
+        <div className="flex gap-2">
+          <Link
+            href={'/profile'}
+            className="px-3 py-1 bg-gray-600 text-gray-300 rounded-md hover:bg-gray-500 transition-colors text-sm"
+          >
+            戦績
+          </Link>
+          <button
+            onClick={() => signOut()}
+            className="px-3 py-1 bg-gray-600 text-gray-300 rounded-md hover:bg-gray-500 transition-colors text-sm"
+          >
+            ログアウト
+          </button>
+        </div>
       </div>
     </div>
   );
