@@ -34,7 +34,11 @@ export const MulliganProvider: React.FC<{ children: ReactNode }> = ({ children }
     if (timerStartRef.current === null || !timerRunning) return;
 
     const intervalId = setInterval(() => {
-      const elapsedSeconds = (Date.now() - timerStartRef.current!) / 1000;
+      if (timerStartRef.current === null) {
+        clearInterval(intervalId);
+        return;
+      }
+      const elapsedSeconds = (Date.now() - timerStartRef.current) / 1000;
       const newTimeLeft = Math.max(initialTimeRef.current - elapsedSeconds, 0);
 
       setTimeLeft(parseFloat(newTimeLeft.toFixed(2)));

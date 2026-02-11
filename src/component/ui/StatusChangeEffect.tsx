@@ -195,7 +195,7 @@ export const StatusChangeEffect: React.FC<StatusChangeEffectProps> = ({
           transition: 'all 0.3s ease-out',
         }}
       >
-        <DisplayContent type={type} value={value as number} unit={unit} />
+        <DisplayContent type={type} value={value} unit={unit} />
       </div>
     </div>
   );

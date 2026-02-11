@@ -72,7 +72,7 @@ export const Button: React.FC<Props> = ({
   return (
     <button
       type={type}
-      className={`flex justify-center rounded-md shadow-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${variantStyles} ${sizeStyles} ${className}`}
+      className={`flex justify-center rounded-md border shadow-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${variantStyles} ${sizeStyles} ${className}`}
       {...props}
     />
   );

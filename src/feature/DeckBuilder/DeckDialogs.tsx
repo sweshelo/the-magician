@@ -43,6 +43,7 @@ export const DeckSaveDialog = ({
     setTitle('');
     setSelectedDeck(null);
     setSaveMode('new');
+    setIsMainDeck(false);
     onClose();
   };
 

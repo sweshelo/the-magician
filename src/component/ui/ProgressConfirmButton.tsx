@@ -1,4 +1,4 @@
-import { useRef, useMemo } from 'react';
+import { useRef } from 'react';
 import './ProgressConfirmButton.css';
 
 type ProgressConfirmButtonProps = {
@@ -20,8 +20,7 @@ export const ProgressConfirmButton = ({
   className = '',
   isRunning = true,
 }: ProgressConfirmButtonProps) => {
-  // Use a combination of timeLimit and isRunning as the key to force re-render
-  const animationKey = useMemo(() => `${timeLimit}-${isRunning ? '1' : '0'}`, [timeLimit, isRunning]);
+  const animationKey = `${timeLimit}`;
   const progressBarRef = useRef<HTMLDivElement | null>(null);
 
   return (

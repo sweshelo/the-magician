@@ -85,12 +85,17 @@ export function MatchHistory({
                 {matches.map(match => (
                   <tr key={match.id} className="hover:bg-gray-50">
                     <td className="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">
-                      {new Date(match.started_at ?? match.ended_at ?? '').toLocaleString('ja-JP', {
-                        month: 'numeric',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
+                      {match.started_at || match.ended_at
+                        ? new Date(match.started_at ?? match.ended_at ?? '').toLocaleString(
+                            'ja-JP',
+                            {
+                              month: 'numeric',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            }
+                          )
+                        : '-'}
                     </td>
                     <td className="px-4 py-3">
                       <ResultBadge result={match.result} />
