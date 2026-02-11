@@ -128,7 +128,7 @@ CREATE POLICY "Players can view their own matches"
 
 ## ページ遷移図
 
-```
+```text
 TOP (/)
 ├── マイページ (/profile)       ← 新規追加
 │   └── ページネーション (/profile?page=N)
