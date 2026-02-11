@@ -52,6 +52,8 @@ export type PublicProfileResponse = {
   stats: ProfileStats;
 } | null;
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 // ===== ヘルパー =====
 
 /** ユーザーがplayer1かplayer2かを判定し、そのインデックス(0 or 1)を返す */
@@ -202,6 +204,8 @@ export async function getMyMatches(options?: {
  * 管理者用: 任意ユーザーのプロフィールと戦績を取得
  */
 export async function getUserProfile(userId: string): Promise<ProfileResponse> {
+  if (!UUID_RE.test(userId)) return null;
+
   if (process.env.AUTH_SKIP === 'true') {
     return {
       profile: {
@@ -249,6 +253,8 @@ export async function getUserMatches(
   userId: string,
   options?: { page?: number; limit?: number }
 ): Promise<MatchListResponse> {
+  if (!UUID_RE.test(userId)) return { matches: [], total: 0 };
+
   if (process.env.AUTH_SKIP === 'true') {
     return { matches: [], total: 0 };
   }
@@ -295,6 +301,8 @@ function resolveUserName(matches: Match[], userId: string): string {
  * RLS により、現在のログインユーザーが参加した試合のみが返される
  */
 export async function getPublicProfile(userId: string): Promise<PublicProfileResponse> {
+  if (!UUID_RE.test(userId)) return null;
+
   if (process.env.AUTH_SKIP === 'true') {
     return {
       userName: 'テストユーザー',
@@ -325,6 +333,8 @@ export async function getProfileMatches(
   userId: string,
   options?: { page?: number; limit?: number }
 ): Promise<MatchListResponse> {
+  if (!UUID_RE.test(userId)) return { matches: [], total: 0 };
+
   if (process.env.AUTH_SKIP === 'true') {
     return { matches: [], total: 0 };
   }
