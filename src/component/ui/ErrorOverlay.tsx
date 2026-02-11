@@ -47,9 +47,8 @@ export const ErrorOverlay: React.FC<ErrorOverlayProps> = ({
   const handleConfirm = useCallback(() => {
     if (message === ErrorMessage[ErrorCode.ROOM_NOT_FOUND]) {
       router.push('/entrance');
-    } else if (onConfirm) {
-      onConfirm();
     }
+    onConfirm?.();
   }, [message, onConfirm, router]);
 
   // 自動閉じる機能

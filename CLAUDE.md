@@ -20,12 +20,6 @@ bun run build
 
 # Start production server
 bun start
-
-# Linting
-bun run lint
-
-# Type checking
-bun run tsc
 ```
 
 ## Environment Setup

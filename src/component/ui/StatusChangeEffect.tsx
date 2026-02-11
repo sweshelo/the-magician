@@ -14,6 +14,83 @@ interface StatusChangeEffectProps {
   onComplete?: () => void;
 }
 
+// DisplayContent コンポーネントを外部に定義
+interface DisplayContentProps {
+  type: string;
+  value: number | string;
+  unit?: { lv: number } | undefined;
+}
+
+const DisplayContent = ({ type, value, unit }: DisplayContentProps) => {
+  // Determine label text based on type and value
+  let labelText = '';
+  let valueText = '';
+
+  switch (type) {
+    case 'bp':
+      labelText = typeof value === 'number' && value > 0 ? 'BPアップ' : 'BPダウン';
+      valueText = value.toString();
+      break;
+    case 'base-bp':
+      labelText = typeof value === 'number' && value > 0 ? '基本BPアップ' : '基本BPダウン';
+      valueText = value.toString();
+      break;
+    case 'damage':
+      labelText = 'BPダメージ';
+      valueText = value.toString();
+      break;
+    case 'level':
+      labelText = typeof value === 'number' && value > 0 ? 'クロックアップ' : 'クロックダウン';
+      valueText = unit ? `レベル${unit.lv}` : '';
+      break;
+    case 'block':
+      labelText = 'BLOCK';
+      break;
+    case 'overclock':
+      labelText = 'オーバークロック';
+      valueText = unit ? `レベル${unit.lv}` : '';
+      break;
+    default:
+      return null;
+  }
+
+  // Define text shadow styles based on value
+  // Label color is based on type and value
+  const labelShadowColor =
+    type === 'block'
+      ? 'rgba(59, 130, 246, 0.9)' // blue-500 for block
+      : typeof value === 'number' && value > 0
+        ? 'rgba(6, 182, 212, 0.9)' // cyan-500 for positive
+        : 'rgba(239, 68, 68, 0.9)'; // red-500 for negative
+  // Value shadow is always red
+  const valueShadowColor = 'rgba(239, 68, 68, 0.9)'; // red-500
+
+  const labelStyle = {
+    textShadow: `0 0 10px ${labelShadowColor}, 0 0 8px ${labelShadowColor}`,
+    fontWeight: 'bold',
+    color: 'white',
+  };
+
+  const valueStyle = {
+    textShadow: `0 0 10px ${valueShadowColor}, 0 0 8px ${valueShadowColor}`,
+    fontWeight: 'bold',
+    color: 'white',
+  };
+
+  return (
+    <>
+      <div className="text-md text-center w-full" style={labelStyle}>
+        {labelText}
+      </div>
+      {valueText && (
+        <div className="text-lg border-t" style={valueStyle}>
+          {valueText}
+        </div>
+      )}
+    </>
+  );
+};
+
 export const StatusChangeEffect: React.FC<StatusChangeEffectProps> = ({
   unitId,
   type,
@@ -21,8 +98,8 @@ export const StatusChangeEffect: React.FC<StatusChangeEffectProps> = ({
   position,
   onComplete,
 }) => {
-  // フェーズ状態の管理
-  const [phase, setPhase] = useState<'initial' | 'appear' | 'hold' | 'fadeOut'>('initial');
+  // フェーズ状態の管理 - 'initial'から'hold'に直接遷移するため、初期値を'hold'に設定
+  const [phase, setPhase] = useState<'appear' | 'hold' | 'fadeOut'>('hold');
   const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
   const onCompleteRef = useRef(onComplete);
   const { players } = useGameStore();
@@ -63,9 +140,7 @@ export const StatusChangeEffect: React.FC<StatusChangeEffectProps> = ({
     // フェーズに応じたタイムアウト設定
     let timeout: NodeJS.Timeout;
 
-    if (phase === 'initial') {
-      setPhase('hold');
-    } else if (phase === 'hold') {
+    if (phase === 'hold') {
       // 保持フェーズからfadeOutへ
       timeout = setTimeout(() => setPhase('fadeOut'), 1000);
       timeoutsRef.current.push(timeout);
@@ -106,76 +181,6 @@ export const StatusChangeEffect: React.FC<StatusChangeEffectProps> = ({
     }
   }, [phase, effectPosition]);
 
-  const DisplayContent = ({ type, value }: { type: string; value: number | string }) => {
-    // Determine label text based on type and value
-    let labelText = '';
-    let valueText = '';
-
-    switch (type) {
-      case 'bp':
-        labelText = typeof value === 'number' && value > 0 ? 'BPアップ' : 'BPダウン';
-        valueText = value.toString();
-        break;
-      case 'base-bp':
-        labelText = typeof value === 'number' && value > 0 ? '基本BPアップ' : '基本BPダウン';
-        valueText = value.toString();
-        break;
-      case 'damage':
-        labelText = 'BPダメージ';
-        valueText = value.toString();
-        break;
-      case 'level':
-        labelText = typeof value === 'number' && value > 0 ? 'クロックアップ' : 'クロックダウン';
-        valueText = unit ? `レベル${unit.lv}` : '';
-        break;
-      case 'block':
-        labelText = 'BLOCK';
-        break;
-      case 'overclock':
-        labelText = 'オーバークロック';
-        valueText = unit ? `レベル${unit.lv}` : '';
-        break;
-      default:
-        return null;
-    }
-
-    // Define text shadow styles based on value
-    // Label color is based on type and value
-    const labelShadowColor =
-      type === 'block'
-        ? 'rgba(59, 130, 246, 0.9)' // blue-500 for block
-        : typeof value === 'number' && value > 0
-          ? 'rgba(6, 182, 212, 0.9)' // cyan-500 for positive
-          : 'rgba(239, 68, 68, 0.9)'; // red-500 for negative
-    // Value shadow is always red
-    const valueShadowColor = 'rgba(239, 68, 68, 0.9)'; // red-500
-
-    const labelStyle = {
-      textShadow: `0 0 10px ${labelShadowColor}, 0 0 8px ${labelShadowColor}`,
-      fontWeight: 'bold',
-      color: 'white',
-    };
-
-    const valueStyle = {
-      textShadow: `0 0 10px ${valueShadowColor}, 0 0 8px ${valueShadowColor}`,
-      fontWeight: 'bold',
-      color: 'white',
-    };
-
-    return (
-      <>
-        <div className="text-md text-center w-full" style={labelStyle}>
-          {labelText}
-        </div>
-        {valueText && (
-          <div className="text-lg border-t" style={valueStyle}>
-            {valueText}
-          </div>
-        )}
-      </>
-    );
-  };
-
   return (
     <div
       className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none w-32"
@@ -190,7 +195,7 @@ export const StatusChangeEffect: React.FC<StatusChangeEffectProps> = ({
           transition: 'all 0.3s ease-out',
         }}
       >
-        <DisplayContent type={type} value={value as number} />
+        <DisplayContent type={type} value={value} unit={unit} />
       </div>
     </div>
   );

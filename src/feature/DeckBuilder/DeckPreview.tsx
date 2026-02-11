@@ -1,7 +1,8 @@
-import { ProgressConfirmButton } from '@/component/ui/ProgressConfirmButton';
+import { RichButton } from '@/component/ui/RichButton';
 import { getImageUrl } from '@/helper/image';
 import master from '@/submodule/suit/catalog/catalog';
 import { ICard } from '@/submodule/suit/types';
+import { ReactNode } from 'react';
 
 interface DeckPreviewProps {
   deck: {
@@ -9,6 +10,7 @@ interface DeckPreviewProps {
     joker?: ICard[];
   };
   onClose: () => void;
+  children?: ReactNode;
 }
 
 const JOKER_TABLE = [
@@ -16,7 +18,7 @@ const JOKER_TABLE = [
   { suffix: '2nd', color: 'border-yellow-500' },
 ];
 
-export const DeckPreview = ({ deck, onClose }: DeckPreviewProps) => {
+export const DeckPreview = ({ deck, onClose, children }: DeckPreviewProps) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-95">
       <div className="flex flex-col items-center">
@@ -31,9 +33,9 @@ export const DeckPreview = ({ deck, onClose }: DeckPreviewProps) => {
           <div className="flex justify-center">
             {/* デフォルト値の 1192 は 10*112+8*9 */}
             <div className={`flex flex-wrap justify-start gap-2`} style={{ width: 1192 }}>
-              {deck.cards?.map(card => (
+              {deck.cards?.map((card, index) => (
                 <div
-                  key={card.catalogId}
+                  key={`deck-preview-${card.catalogId}-${index}`}
                   className={`w-28 h-39 border-2 border-slate-600 rounded justify-center items-center text-slate-500 relative dnd-clickable`}
                   style={{
                     backgroundImage: `url(${getImageUrl(card?.catalogId)})`,
@@ -61,8 +63,9 @@ export const DeckPreview = ({ deck, onClose }: DeckPreviewProps) => {
             </div>
           </div>
         )}
-        <div className="mt-6 flex justify-center">
-          <ProgressConfirmButton buttonText="閉じる" onConfirm={onClose} />
+        <div className="mt-6 flex justify-center gap-2">
+          <RichButton onClick={onClose}>閉じる</RichButton>
+          {children}
         </div>
       </div>
     </div>

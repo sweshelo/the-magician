@@ -95,7 +95,13 @@ class WebSocketService extends EventEmitter {
   // メッセージをサーバに送る
   // 主にゲーム内で利用
   send(message: Message): void {
-    this.socket.send(JSON.stringify(message));
+    if (this.isConnected()) {
+      this.socket.send(JSON.stringify(message));
+    } else {
+      this.once('open', () => {
+        this.socket.send(JSON.stringify(message));
+      });
+    }
   }
 
   // あるメッセージに対してサーバ側の応答を待たす
@@ -103,7 +109,18 @@ class WebSocketService extends EventEmitter {
   async request<T extends RequestPayload, R extends ResponsePayload>(
     message: Message<T>
   ): Promise<Message<R>> {
-    this.socket.send(JSON.stringify(message));
+    const doSend = () => this.socket.send(JSON.stringify(message));
+
+    if (this.isConnected()) {
+      doSend();
+    } else {
+      await new Promise<void>(resolve => {
+        this.once('open', () => {
+          doSend();
+          resolve();
+        });
+      });
+    }
 
     return await new Promise((resolve, reject) => {
       const handler = (e: MessageEvent): void => {

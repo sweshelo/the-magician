@@ -71,22 +71,13 @@ export const PlayerIdentityProvider = ({ children }: Props) => {
     isResolved: false,
   });
 
-  // Restore identity from SessionStorage on mount
   useEffect(() => {
     const stored = getStoredIdentity();
     if (stored) {
-      setState({
-        selfId: stored.selfId,
-        role: stored.role,
-        isResolved: true,
-      });
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Mount-time initialization from sessionStorage
+      setState({ selfId: stored.selfId, role: stored.role, isResolved: true });
     } else {
-      // 保存データがない場合も解決済みとする
-      setState({
-        selfId: null,
-        role: 'unknown',
-        isResolved: true,
-      });
+      setState(prev => ({ ...prev, isResolved: true }));
     }
   }, []);
 

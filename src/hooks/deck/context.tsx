@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useCallback, useEffect, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { useAuth } from '@/hooks/auth';
 import { DeckService } from '@/service/deck-service';
 import type { DeckData } from '@/type/deck';
@@ -70,7 +70,7 @@ export const DeckProvider = ({ children }: DeckProviderProps) => {
     } finally {
       setIsLoading(false);
     }
-  }, [userId]);
+  }, [userId, isAuthSkipped]);
 
   // 認証状態が確定したらデッキを読み込み
   useEffect(() => {
@@ -97,7 +97,7 @@ export const DeckProvider = ({ children }: DeckProviderProps) => {
       await refreshDecks();
       return saved;
     },
-    [userId, refreshDecks]
+    [userId, isAuthSkipped, refreshDecks]
   );
 
   // デッキを削除
@@ -138,23 +138,35 @@ export const DeckProvider = ({ children }: DeckProviderProps) => {
     setHasLocalDecks(false);
   }, []);
 
-  return (
-    <DeckContext.Provider
-      value={{
-        decks,
-        mainDeck,
-        isLoading: isLoading || isAuthLoading,
-        error,
-        refreshDecks,
-        saveDeck,
-        deleteDeck,
-        setMainDeck,
-        migrateFromLocalStorage,
-        clearLocalStorage,
-        hasLocalDecks,
-      }}
-    >
-      {children}
-    </DeckContext.Provider>
+  const value = useMemo(
+    () => ({
+      decks,
+      mainDeck,
+      isLoading: isLoading || isAuthLoading,
+      error,
+      refreshDecks,
+      saveDeck,
+      deleteDeck,
+      setMainDeck,
+      migrateFromLocalStorage,
+      clearLocalStorage,
+      hasLocalDecks,
+    }),
+    [
+      decks,
+      mainDeck,
+      isLoading,
+      isAuthLoading,
+      error,
+      refreshDecks,
+      saveDeck,
+      deleteDeck,
+      setMainDeck,
+      migrateFromLocalStorage,
+      clearLocalStorage,
+      hasLocalDecks,
+    ]
   );
+
+  return <DeckContext.Provider value={value}>{children}</DeckContext.Provider>;
 };

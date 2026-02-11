@@ -28,6 +28,12 @@ export default function Home() {
         />
         <LinkCard href="/stats" title="統計" description="使用カードランキングを確認" icon="📊" />
         <LinkCard
+          href="/profile"
+          title="マイページ"
+          description="自分の対戦履歴やデッキ使用履歴を確認"
+          icon="👤"
+        />
+        <LinkCard
           href="https://github.com/sweshelo/the-fool"
           title="ソースコード"
           description="GitHubでプロジェクトを確認"

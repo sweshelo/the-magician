@@ -27,13 +27,16 @@ export const useGameComponentHook = ({ id }: Props) => {
     user?.user_metadata?.full_name || user?.user_metadata?.name || LocalStorageHelper.playerName();
   const playerId = user?.id || LocalStorageHelper.playerId();
 
-  // メッセージハンドラー（クリーンアップのために関数参照を保持）
-  const messageHandler = useCallback(
-    (message: Message) => {
-      handle(message);
-    },
-    [handle]
-  );
+  // handleの最新参照を保持（stale closure防止）
+  const handleRef = useRef(handle);
+  useEffect(() => {
+    handleRef.current = handle;
+  });
+
+  // 安定した参照のメッセージハンドラー（常にhandleRefの最新値を呼び出す）
+  const messageHandler = useCallback((message: Message) => {
+    handleRef.current(message);
+  }, []);
 
   // refを使用してクリーンアップ時に最新の値を参照
   const websocketRef = useRef(websocket);

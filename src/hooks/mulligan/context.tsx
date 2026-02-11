@@ -8,8 +8,8 @@ interface MulliganContextType {
   timeLeft: number;
   setOnTimeout: (callback: (() => void) | null) => void;
   // Timer state - do not modify directly
-  _timerStart: React.MutableRefObject<number | null>;
-  _initialTime: React.MutableRefObject<number>;
+  timerStartRef: React.MutableRefObject<number | null>;
+  initialTimeRef: React.MutableRefObject<number>;
   _setTimerRunning: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
@@ -18,8 +18,8 @@ const MulliganContext = createContext<MulliganContextType | undefined>(undefined
 export const MulliganProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [showMulligan, setShowMulligan] = useState(false);
   const [timeLeft, setTimeLeft] = useState(10);
-  const timerStart = useRef<number | null>(null); // null when timer not running
-  const initialTime = useRef<number>(10); // Initial time value in seconds
+  const timerStartRef = useRef<number | null>(null); // null when timer not running
+  const initialTimeRef = useRef<number>(10); // Initial time value in seconds
   const [timerRunning, setTimerRunning] = useState(false); // We'll use this state to trigger effect
   const onTimeoutRef = useRef<(() => void) | null>(null);
   const timeoutFiredRef = useRef(false);
@@ -31,18 +31,22 @@ export const MulliganProvider: React.FC<{ children: ReactNode }> = ({ children }
 
   // Global timer that runs continuously in the background
   useEffect(() => {
-    if (timerStart.current === null || !timerRunning) return;
+    if (timerStartRef.current === null || !timerRunning) return;
 
     const intervalId = setInterval(() => {
-      const elapsedSeconds = (Date.now() - timerStart.current!) / 1000;
-      const newTimeLeft = Math.max(initialTime.current - elapsedSeconds, 0);
+      if (timerStartRef.current === null) {
+        clearInterval(intervalId);
+        return;
+      }
+      const elapsedSeconds = (Date.now() - timerStartRef.current) / 1000;
+      const newTimeLeft = Math.max(initialTimeRef.current - elapsedSeconds, 0);
 
       setTimeLeft(parseFloat(newTimeLeft.toFixed(2)));
 
       if (newTimeLeft <= 0) {
         clearInterval(intervalId);
         setTimerRunning(false);
-        timerStart.current = null;
+        timerStartRef.current = null;
         // タイムアウトコールバックを実行（二重発火防止）
         if (onTimeoutRef.current && !timeoutFiredRef.current) {
           timeoutFiredRef.current = true;
@@ -61,8 +65,8 @@ export const MulliganProvider: React.FC<{ children: ReactNode }> = ({ children }
         setShowMulligan,
         timeLeft,
         setOnTimeout,
-        _timerStart: timerStart,
-        _initialTime: initialTime,
+        timerStartRef,
+        initialTimeRef,
         _setTimerRunning: setTimerRunning,
       }}
     >
@@ -81,24 +85,24 @@ export const useMulligan = (): MulliganContextType => {
 
 // Helper functions to manipulate the timer
 export const useTimer = () => {
-  const { _timerStart, _initialTime, _setTimerRunning } = useMulligan();
+  const { timerStartRef, initialTimeRef, _setTimerRunning } = useMulligan();
 
   // Start a new timer with the given duration
   const startTimer = (duration: number = 10) => {
-    _initialTime.current = duration;
-    _timerStart.current = Date.now();
+    initialTimeRef.current = duration;
+    timerStartRef.current = Date.now();
     _setTimerRunning(true); // Trigger the effect
   };
 
   // Stop the timer
   const stopTimer = () => {
-    _timerStart.current = null;
+    timerStartRef.current = null;
     _setTimerRunning(false);
   };
 
   // Check if timer is already running
   const isTimerRunning = () => {
-    return _timerStart.current !== null;
+    return timerStartRef.current !== null;
   };
 
   return { startTimer, stopTimer, isTimerRunning };

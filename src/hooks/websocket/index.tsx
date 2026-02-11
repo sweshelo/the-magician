@@ -11,13 +11,11 @@ export type WebSocketContextType = {
 export const WebSocketContext = createContext<WebSocketContextType | undefined>(undefined);
 
 export const WebSocketProvider = ({ children }: { children: ReactNode }) => {
-  const [websocket, setWebsocket] = useState<typeof webSocketService | undefined>(undefined);
+  const [websocket] = useState<typeof webSocketService | undefined>(webSocketService);
 
   const errorOverlayContext = useContext(ErrorOverlayContext);
 
   useEffect(() => {
-    setWebsocket(webSocketService);
-
     // エラーハンドラーを設定
     if (errorOverlayContext) {
       webSocketService.setErrorHandler((message, title, onConfirm) => {

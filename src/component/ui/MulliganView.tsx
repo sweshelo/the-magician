@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useWebSocketGame } from '@/hooks/game/websocket';
 import { useSoundV2 } from '@/hooks/soundV2';
 import { Message, createMessage } from '@/submodule/suit/types';
@@ -15,11 +15,8 @@ export const MulliganView: React.FC = () => {
   const rule = useRule();
   const handleNoRef = useRef<(() => void) | null>(null);
 
-  // Use local rendering state to ensure smooth animation
-  const [displayTime, setDisplayTime] = useState<string>('10"00');
-
-  // Update the display time whenever timeLeft changes
-  useEffect(() => {
+  // Calculate display time as a derived value
+  const displayTime = useMemo(() => {
     // Format time as 00"00 with centiseconds
     const seconds = Math.floor(timeLeft);
     const centiseconds = Math.floor((timeLeft - seconds) * 100);
@@ -28,7 +25,7 @@ export const MulliganView: React.FC = () => {
     const formattedSeconds = seconds < 10 ? `0${seconds}` : `${seconds}`;
     const formattedCentiseconds = centiseconds < 10 ? `0${centiseconds}` : `${centiseconds}`;
 
-    setDisplayTime(`${formattedSeconds}"${formattedCentiseconds}`);
+    return `${formattedSeconds}"${formattedCentiseconds}`;
   }, [timeLeft]);
 
   const handleNo = useCallback(() => {

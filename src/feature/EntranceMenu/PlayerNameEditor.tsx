@@ -10,18 +10,19 @@ export const PlayerNameEditor = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [tempName, setTempName] = useState('');
 
+  useEffect(() => {
+    const name = LocalStorageHelper.playerName();
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Mount-time initialization from localStorage
+    setPlayerName(name);
+    setTempName(name);
+  }, []);
+
   // Discordログイン中かどうか
   const isDiscordLoggedIn = !!user;
   const discordName =
     user?.user_metadata?.full_name ||
     user?.user_metadata?.name ||
     user?.user_metadata?.preferred_username;
-
-  useEffect(() => {
-    const currentName = LocalStorageHelper.playerName();
-    setPlayerName(currentName);
-    setTempName(currentName);
-  }, []);
 
   const handleStartEdit = () => {
     setIsEditing(true);
