@@ -350,11 +350,11 @@ export const useHandler = () => {
             }
             break;
           case 'freeze':
-            pauseTimer();
             // remainingTime があれば同期
             if (payload.remainingTime !== undefined) {
               setRemainingTime(payload.remainingTime);
             }
+            pauseTimer();
             setOperable(false);
             break;
         }
