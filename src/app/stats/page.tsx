@@ -1,22 +1,12 @@
 import { Metadata } from 'next';
-import { createAdminClient } from '@/lib/supabase/server';
-import master from '@/submodule/suit/catalog/catalog';
+import { getRankingMaster } from '@/actions/ranking';
 import { getImageUrl } from '@/helper/image';
 import Link from 'next/link';
 
-export const revalidate = 86400;
+export const revalidate = 604800;
 
 export const metadata: Metadata = {
   title: '統計 - 使用カードランキング',
-};
-
-const colorNames: Record<number, string> = {
-  0: '無',
-  1: '赤',
-  2: '黄',
-  3: '青',
-  4: '緑',
-  5: '紫',
 };
 
 const colorClasses: Record<number, string> = {
@@ -57,30 +47,8 @@ const typeLabels: Record<string, string> = {
   joker: 'ジョーカー',
 };
 
-async function getCardUsageRanking() {
-  const supabase = createAdminClient();
-  const { data, error } = await supabase.rpc('get_card_usage_ranking');
-  if (error) {
-    console.error('カード使用ランキング取得エラー:', error);
-    return [];
-  }
-  return (data ?? []) as { card_id: string; use_count: number }[];
-}
-
-async function getTotalMatchCount() {
-  const supabase = createAdminClient();
-  const { count, error } = await supabase
-    .from('matches')
-    .select('*', { count: 'exact', head: true });
-  if (error) {
-    console.error('マッチ数取得エラー:', error);
-    return 0;
-  }
-  return count ?? 0;
-}
-
 export default async function StatsPage() {
-  const [ranking, totalMatches] = await Promise.all([getCardUsageRanking(), getTotalMatchCount()]);
+  const { ranking, totalMatches, generatedAt } = await getRankingMaster();
 
   return (
     <div className="min-h-screen bg-gray-100 py-10 px-4 flex flex-col items-center">
@@ -91,6 +59,9 @@ export default async function StatsPage() {
         <h1 className="text-3xl font-bold text-gray-900 mb-2">使用カードランキング</h1>
         <p className="text-gray-600">
           全 {totalMatches.toLocaleString()} 試合のデッキデータから集計
+        </p>
+        <p className="text-gray-400 text-xs mt-1">
+          最終更新: {new Date(generatedAt).toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' })}
         </p>
       </div>
 
@@ -125,51 +96,46 @@ export default async function StatsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {ranking.map((item, index) => {
-                  const card = master.get(item.card_id);
-                  return (
-                    <tr key={item.card_id} className="hover:bg-gray-50">
-                      <td className="px-3 py-2 text-sm font-medium text-gray-500">{index + 1}</td>
-                      <td className="px-3 py-2">
-                        <div className="flex items-center gap-3">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
-                            src={getImageUrl(item.card_id, 'small')}
-                            alt={card?.name ?? item.card_id}
-                            className="w-10 h-10 object-cover rounded"
-                          />
-                          <span className="text-sm font-medium text-gray-900">
-                            {card?.name ?? item.card_id}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-3 py-2 hidden sm:table-cell">
-                        {card && (
-                          <span
-                            className={`inline-block px-2 py-0.5 text-xs font-medium rounded ${rarityClasses[card.rarity] ?? ''}`}
-                          >
-                            {rarityLabels[card.rarity] ?? card.rarity}
-                          </span>
-                        )}
-                      </td>
-                      <td className="px-3 py-2 text-xs text-gray-600 hidden sm:table-cell">
-                        {card ? (typeLabels[card.type] ?? card.type) : '-'}
-                      </td>
-                      <td className="px-3 py-2 hidden sm:table-cell">
-                        {card && (
-                          <span
-                            className={`inline-flex items-center justify-center w-7 h-7 rounded text-xs font-bold ${colorClasses[card.color] ?? 'bg-gray-400 text-white'}`}
-                          >
-                            {card.cost}
-                          </span>
-                        )}
-                      </td>
-                      <td className="px-3 py-2 text-right text-sm font-semibold text-gray-700">
-                        {item.use_count.toLocaleString()}
-                      </td>
-                    </tr>
-                  );
-                })}
+                {ranking.map(entry => (
+                  <tr key={entry.cardId} className="hover:bg-gray-50">
+                    <td className="px-3 py-2 text-sm font-medium text-gray-500">{entry.rank}</td>
+                    <td className="px-3 py-2">
+                      <div className="flex items-center gap-3">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={getImageUrl(entry.cardId, 'small')}
+                          alt={entry.name}
+                          className="w-10 h-10 object-cover rounded"
+                        />
+                        <span className="text-sm font-medium text-gray-900">{entry.name}</span>
+                      </div>
+                    </td>
+                    <td className="px-3 py-2 hidden sm:table-cell">
+                      {entry.rarity && (
+                        <span
+                          className={`inline-block px-2 py-0.5 text-xs font-medium rounded ${rarityClasses[entry.rarity] ?? ''}`}
+                        >
+                          {rarityLabels[entry.rarity] ?? entry.rarity}
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-3 py-2 text-xs text-gray-600 hidden sm:table-cell">
+                      {entry.type ? (typeLabels[entry.type] ?? entry.type) : '-'}
+                    </td>
+                    <td className="px-3 py-2 hidden sm:table-cell">
+                      {entry.rarity && (
+                        <span
+                          className={`inline-flex items-center justify-center w-7 h-7 rounded text-xs font-bold ${colorClasses[entry.color] ?? 'bg-gray-400 text-white'}`}
+                        >
+                          {entry.cost}
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-3 py-2 text-right text-sm font-semibold text-gray-700">
+                      {entry.useCount.toLocaleString()}
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
