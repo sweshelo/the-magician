@@ -3,30 +3,16 @@
 import { unstable_cache } from 'next/cache';
 import { createAdminClient } from '@/lib/supabase/server';
 import master from '@/submodule/suit/catalog/catalog';
-
-export type RankingEntry = {
-  rank: number;
-  cardId: string;
-  name: string;
-  useCount: number;
-  rarity: string;
-  type: string;
-  cost: number;
-  color: number;
-};
-
-export type RankingMasterResponse = {
-  ranking: RankingEntry[];
-  totalMatches: number;
-  generatedAt: string;
-};
+import type { RankingEntry, RankingMasterResponse } from './ranking.types';
+import { getImplementedCardIds } from '@/helper/card';
 
 async function fetchRankingMaster(): Promise<RankingMasterResponse> {
   const supabase = createAdminClient();
 
-  const [rankingResult, matchCountResult] = await Promise.all([
+  const [rankingResult, matchCountResult, implementedIds] = await Promise.all([
     supabase.rpc('get_card_usage_ranking'),
     supabase.from('matches').select('*', { count: 'exact', head: true }),
+    getImplementedCardIds(),
   ]);
 
   if (rankingResult.error) {
@@ -41,6 +27,7 @@ async function fetchRankingMaster(): Promise<RankingMasterResponse> {
   const rawRanking = (rankingResult.data ?? []) as { card_id: string; use_count: number }[];
   const totalMatches = matchCountResult.count ?? 0;
 
+  // Build ranking from usage data, deduplicating by card name
   const seenNames = new Set<string>();
   const ranking: RankingEntry[] = [];
   let rank = 1;
@@ -62,6 +49,34 @@ async function fetchRankingMaster(): Promise<RankingMasterResponse> {
       cost: card?.cost ?? 0,
       color: card?.color ?? 0,
     });
+    rank++;
+  }
+
+  // Append implemented cards with 0 usage
+  const zeroUsageEntries: RankingEntry[] = [];
+  for (const id of implementedIds) {
+    const card = master.get(id);
+    if (!card) continue;
+    if (seenNames.has(card.name)) continue;
+    seenNames.add(card.name);
+
+    zeroUsageEntries.push({
+      rank: 0, // assigned below
+      cardId: id,
+      name: card.name,
+      useCount: 0,
+      rarity: card.rarity,
+      type: card.type,
+      cost: card.cost,
+      color: card.color,
+    });
+  }
+
+  // Sort zero-usage cards alphabetically by name for stable ordering
+  zeroUsageEntries.sort((a, b) => a.name.localeCompare(b.name, 'ja'));
+  for (const entry of zeroUsageEntries) {
+    entry.rank = rank;
+    ranking.push(entry);
     rank++;
   }
 

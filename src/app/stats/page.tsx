@@ -1,5 +1,7 @@
 import { Metadata } from 'next';
 import { getRankingMaster } from '@/actions/ranking';
+import { ORIGINALITY_TIERS } from '@/actions/ranking.types';
+import type { RankingEntry } from '@/actions/ranking.types';
 import { getImageUrl } from '@/helper/image';
 import Link from 'next/link';
 
@@ -96,51 +98,78 @@ export default async function StatsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {ranking.map(entry => (
-                  <tr key={entry.cardId} className="hover:bg-gray-50">
-                    <td className="px-3 py-2 text-sm font-medium text-gray-500">{entry.rank}</td>
-                    <td className="px-3 py-2">
-                      <div className="flex items-center gap-3">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={getImageUrl(entry.cardId, 'small')}
-                          alt={entry.name}
-                          className="w-10 h-10 object-cover rounded"
-                        />
-                        <span className="text-sm font-medium text-gray-900">{entry.name}</span>
-                      </div>
-                    </td>
-                    <td className="px-3 py-2 hidden sm:table-cell">
-                      {entry.rarity && (
-                        <span
-                          className={`inline-block px-2 py-0.5 text-xs font-medium rounded ${rarityClasses[entry.rarity] ?? ''}`}
-                        >
-                          {rarityLabels[entry.rarity] ?? entry.rarity}
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-3 py-2 text-xs text-gray-600 hidden sm:table-cell">
-                      {entry.type ? (typeLabels[entry.type] ?? entry.type) : '-'}
-                    </td>
-                    <td className="px-3 py-2 hidden sm:table-cell">
-                      {entry.rarity && (
-                        <span
-                          className={`inline-flex items-center justify-center w-7 h-7 rounded text-xs font-bold ${colorClasses[entry.color] ?? 'bg-gray-400 text-white'}`}
-                        >
-                          {entry.cost}
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-3 py-2 text-right text-sm font-semibold text-gray-700">
-                      {entry.useCount.toLocaleString()}
-                    </td>
-                  </tr>
-                ))}
+                {ranking.map(entry => {
+                  const tier = ORIGINALITY_TIERS.find(
+                    t =>
+                      entry.rank >= t.startRank && (t.endRank === null || entry.rank <= t.endRank)
+                  );
+                  const showTierHeader = tier && entry.rank === tier.startRank;
+
+                  return (
+                    <RankingRow
+                      key={entry.cardId}
+                      entry={entry}
+                      tierHeader={showTierHeader ? tier.label : undefined}
+                    />
+                  );
+                })}
               </tbody>
             </table>
           </div>
         )}
       </div>
     </div>
+  );
+}
+
+function RankingRow({ entry, tierHeader }: { entry: RankingEntry; tierHeader?: string }) {
+  return (
+    <>
+      {tierHeader && (
+        <tr className="bg-gray-800">
+          <td colSpan={6} className="px-4 py-2 text-sm font-bold text-white tracking-wide">
+            {tierHeader}
+          </td>
+        </tr>
+      )}
+      <tr className="hover:bg-gray-50">
+        <td className="px-3 py-2 text-sm font-medium text-gray-500">{entry.rank}</td>
+        <td className="px-3 py-2">
+          <div className="flex items-center gap-3">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={getImageUrl(entry.cardId, 'small')}
+              alt={entry.name}
+              className="w-10 h-10 object-cover rounded"
+            />
+            <span className="text-sm font-medium text-gray-900">{entry.name}</span>
+          </div>
+        </td>
+        <td className="px-3 py-2 hidden sm:table-cell">
+          {entry.rarity && (
+            <span
+              className={`inline-block px-2 py-0.5 text-xs font-medium rounded ${rarityClasses[entry.rarity] ?? ''}`}
+            >
+              {rarityLabels[entry.rarity] ?? entry.rarity}
+            </span>
+          )}
+        </td>
+        <td className="px-3 py-2 text-xs text-gray-600 hidden sm:table-cell">
+          {entry.type ? (typeLabels[entry.type] ?? entry.type) : '-'}
+        </td>
+        <td className="px-3 py-2 hidden sm:table-cell">
+          {entry.rarity && (
+            <span
+              className={`inline-flex items-center justify-center w-7 h-7 rounded text-xs font-bold ${colorClasses[entry.color] ?? 'bg-gray-400 text-white'}`}
+            >
+              {entry.cost}
+            </span>
+          )}
+        </td>
+        <td className="px-3 py-2 text-right text-sm font-semibold text-gray-700">
+          {entry.useCount.toLocaleString()}
+        </td>
+      </tr>
+    </>
   );
 }

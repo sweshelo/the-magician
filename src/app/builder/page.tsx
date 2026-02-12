@@ -1,23 +1,12 @@
 import { DeckBuilder } from '@/feature/DeckBuilder';
 import { defaultUIColors } from '@/helper/color';
+import { getImplementedCardIds } from '@/helper/card';
 import { Metadata } from 'next';
 import { Suspense } from 'react';
 
 export const metadata: Metadata = {
   title: 'Deck Builder',
 };
-
-async function getImplementedCardIds() {
-  try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_SECURE_CONNECTION === 'true' ? 'https://' : 'http://'}${process.env.NEXT_PUBLIC_SERVER_HOST}/api/cards`
-    );
-    if (!res.ok) return [];
-    return await res.json();
-  } catch {
-    return [];
-  }
-}
 
 function DeckBuilderWrapper({ implementedIds }: { implementedIds: string[] }) {
   return (
