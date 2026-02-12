@@ -5,9 +5,11 @@ import { useDeck } from '@/hooks/deck';
 import { DeckPreview } from '@/feature/DeckBuilder/DeckPreview';
 import { ICard } from '@/submodule/suit/types';
 import { originality } from '@/helper/originality';
+import { useOriginalityMap } from '@/hooks/originality';
 
 export const DeckSelector = () => {
   const { decks, mainDeck, isLoading, setMainDeck } = useDeck();
+  const { opMap, isLoading: isOpLoading } = useOriginalityMap();
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [isDeckListOpen, setIsDeckListOpen] = useState(false);
   const [deckError, setDeckError] = useState<string | null>(null);
@@ -76,7 +78,11 @@ export const DeckSelector = () => {
           {status && <span className={`text-sm ${status.color}`}>{status.text}</span>}
           {mainDeck && (
             <div className="text-gray-400 text-sm">
-              Originality {originality([...mainDeck.cards, ...(mainDeck.jokers ?? [])])}P
+              Originality{' '}
+              {isOpLoading
+                ? '...'
+                : originality([...mainDeck.cards, ...(mainDeck.jokers ?? [])], opMap)}
+              P
             </div>
           )}
         </div>
@@ -147,7 +153,10 @@ export const DeckSelector = () => {
                           <span className="text-red-400 text-sm">JOKERなし</span>
                         )}
                         <span className="text-gray-400 text-sm">
-                          {originality([...deck.cards, ...(deck.jokers ?? [])])}P
+                          {isOpLoading
+                            ? '...'
+                            : originality([...deck.cards, ...(deck.jokers ?? [])], opMap)}
+                          P
                         </span>
                         <span className="text-gray-400 text-sm">{deck.cards.length}枚</span>
                       </p>

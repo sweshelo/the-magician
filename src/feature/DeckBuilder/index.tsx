@@ -441,9 +441,10 @@ DeckView.displayName = 'DeckView';
 
 type DeckBuilderProps = {
   implementedIds?: string[];
+  opMap: Record<string, number>;
 };
 
-export const DeckBuilder = ({ implementedIds }: DeckBuilderProps) => {
+export const DeckBuilder = ({ implementedIds, opMap }: DeckBuilderProps) => {
   // useDeck hook for Supabase/LocalStorage deck management
   const {
     mainDeck: savedMainDeck,
@@ -497,10 +498,7 @@ export const DeckBuilder = ({ implementedIds }: DeckBuilderProps) => {
 
   // Available filter options (computed once from static catalog data)
   const availableSpecies = useMemo(() => getUniqueValues(catalog => catalog.species).sort(), []);
-  const availableOriginalities = useMemo(
-    () => getUniqueValues(catalog => catalog.originality).sort((a, b) => a - b),
-    []
-  );
+  const availableOriginalities = useMemo(() => [0, 1, 2, 4, 8], []);
   const availableVersions = useMemo(
     () => getUniqueValues(catalog => catalog.info.version).sort((a, b) => a - b),
     []
@@ -667,7 +665,8 @@ export const DeckBuilder = ({ implementedIds }: DeckBuilderProps) => {
 
       // Originality filter
       const matchesOriginality =
-        selectedOriginalities.length === 0 || selectedOriginalities.includes(catalog.originality);
+        selectedOriginalities.length === 0 ||
+        selectedOriginalities.includes(opMap[catalog.id] ?? 0);
 
       // Version filter
       const matchesVersion =
@@ -740,6 +739,7 @@ export const DeckBuilder = ({ implementedIds }: DeckBuilderProps) => {
     showNotImplemented,
     sortBy,
     nameToRankOrder,
+    opMap,
   ]);
 
   const handleOpenSaveDialog = useCallback(() => {
@@ -870,7 +870,7 @@ export const DeckBuilder = ({ implementedIds }: DeckBuilderProps) => {
 
         <div className="items-center justify-center flex flex-wrap my-2 gap-2">
           <div className="px-3 py-1 border text-white rounded bg-gray-500 whitespace-nowrap">
-            originality {originality([...deck, ...jokers])}pts.
+            originality {originality([...deck, ...jokers], opMap)}pts.
           </div>
           <Button
             colorScheme="blue"
