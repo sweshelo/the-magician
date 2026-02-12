@@ -52,6 +52,33 @@ export type PublicProfileResponse = {
   stats: ProfileStats;
 } | null;
 
+export type GlobalMatchEntry = {
+  id: string;
+  started_at: string | null;
+  ended_at: string | null;
+  total_rounds: number | null;
+  total_turns: number | null;
+  matching_mode: string | null;
+  end_reason: string | null;
+  player1: {
+    id: string;
+    name: string;
+    deck: Deck;
+  };
+  player2: {
+    id: string;
+    name: string;
+    deck: Deck;
+  };
+  winner_index: number | null;
+  first_player_index: number | null;
+};
+
+export type GlobalMatchListResponse = {
+  matches: GlobalMatchEntry[];
+  total: number;
+};
+
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 // ===== ヘルパー =====
@@ -281,6 +308,68 @@ export async function getUserMatches(
 
   return {
     matches: enrichedMatches,
+    total: count ?? 0,
+  };
+}
+
+/**
+ * 管理者用: 全対戦履歴を取得（ユーザーを問わない）
+ */
+export async function getAllMatches(options?: {
+  page?: number;
+  limit?: number;
+}): Promise<GlobalMatchListResponse> {
+  if (process.env.AUTH_SKIP === 'true') {
+    return { matches: [], total: 0 };
+  }
+
+  const adminCheck = await checkAdminAccess();
+  if ('error' in adminCheck) {
+    return { matches: [], total: 0 };
+  }
+
+  const page = options?.page ?? 1;
+  const limit = options?.limit ?? 20;
+  const offset = (page - 1) * limit;
+
+  const adminClient = createAdminClient();
+
+  const { data, count } = await adminClient
+    .from('matches')
+    .select('*', { count: 'exact' })
+    .order('started_at', { ascending: false })
+    .range(offset, offset + limit - 1);
+
+  const matches: GlobalMatchEntry[] = (data ?? []).map(match => ({
+    id: match.id,
+    started_at: match.started_at,
+    ended_at: match.ended_at,
+    total_rounds: match.total_rounds,
+    total_turns: match.total_turns,
+    matching_mode: match.matching_mode,
+    end_reason: match.end_reason,
+    player1: {
+      id: match.player1_id ?? '',
+      name: match.player1_name,
+      deck: {
+        cards: jsonToDeck(match.player1_deck) ?? [],
+        jokers: jsonToDeck(match.player1_jokers) ?? [],
+      },
+    },
+    player2: {
+      id: match.player2_id ?? '',
+      name: match.player2_name,
+      deck: {
+        cards: jsonToDeck(match.player2_deck) ?? [],
+        jokers: jsonToDeck(match.player2_jokers) ?? [],
+      },
+    },
+    winner_index: match.winner_index,
+    first_player_index: match.first_player_index,
+  }));
+
+  return {
+    matches,
     total: count ?? 0,
   };
 }
