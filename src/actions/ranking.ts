@@ -36,7 +36,7 @@ async function fetchRankingMaster(): Promise<RankingMasterResponse> {
     const card = master.get(item.card_id);
     const name = card?.name ?? item.card_id;
 
-    if (seenNames.has(name)) continue;
+    if (seenNames.has(name) || card?.species?.includes('ウィルス')) continue;
     seenNames.add(name);
 
     ranking.push({
@@ -57,7 +57,7 @@ async function fetchRankingMaster(): Promise<RankingMasterResponse> {
   for (const id of implementedIds) {
     const card = master.get(id);
     if (!card) continue;
-    if (seenNames.has(card.name)) continue;
+    if (seenNames.has(card.name) || card.species?.includes('ウィルス')) continue;
     seenNames.add(card.name);
 
     zeroUsageEntries.push({
