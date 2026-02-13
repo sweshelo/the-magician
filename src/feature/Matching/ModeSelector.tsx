@@ -5,6 +5,7 @@ import { Button } from '@/component/interface/button';
 import { useDeck } from '@/hooks/deck';
 import type { MatchingMode } from '@/submodule/suit/types/message/payload/server';
 import master from '@/submodule/suit/catalog/catalog';
+import { useOriginalityMap } from '@/hooks/originality';
 import { Tooltip } from 'react-tooltip';
 
 interface ModeInfo {
@@ -67,6 +68,7 @@ export const ModeSelector = ({
   activeGames,
 }: Props) => {
   const { mainDeck, isLoading: isDeckLoading } = useDeck();
+  const { opMap } = useOriginalityMap();
 
   const deckValidation = useMemo<Record<MatchingMode, boolean>>(() => {
     if (!mainDeck) {
@@ -83,11 +85,11 @@ export const ModeSelector = ({
       legacy: !mainDeck.cards.some(cardId => (master.get(cardId)?.info.version ?? 0) > 14),
       limited:
         [...(mainDeck.jokers ?? []), ...mainDeck.cards].reduce(
-          (sum, cardId) => (master.get(cardId)?.originality ?? 0) + sum,
+          (sum, cardId) => (opMap[cardId] ?? 0) + sum,
           0
         ) >= 100,
     };
-  }, [mainDeck]);
+  }, [mainDeck, opMap]);
 
   const handleSelectMode = useCallback(
     (mode: MatchingMode) => {
