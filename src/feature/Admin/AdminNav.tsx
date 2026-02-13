@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 const tabs = [
   { href: '/admin/tickets', label: 'チケット管理' },
   { href: '/admin/users', label: 'ユーザー管理' },
+  { href: '/admin/matches', label: '対戦履歴' },
   { href: '/admin/config', label: 'システム設定' },
 ] as const;
 
