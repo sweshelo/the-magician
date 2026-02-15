@@ -296,6 +296,26 @@ export interface Database {
           rule?: Json;
         };
       };
+      user_ip_logs: {
+        Row: {
+          id: string;
+          user_id: string;
+          ip_address: string;
+          recorded_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          ip_address: string;
+          recorded_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          ip_address?: string;
+          recorded_at?: string;
+        };
+      };
     };
     Functions: {
       get_today_free_play_count: {
@@ -326,10 +346,6 @@ export interface Database {
         Args: { p_credits: number; p_expires_at?: string };
         Returns: { id: string; code: string }[];
       };
-      get_card_usage_ranking: {
-        Args: Record<string, never>;
-        Returns: { card_id: string; use_count: number }[];
-      };
     };
   };
 }
@@ -352,3 +368,5 @@ export type Ticket = Database['public']['Tables']['tickets']['Row'];
 export type TicketInsert = Database['public']['Tables']['tickets']['Insert'];
 
 export type Match = Database['public']['Tables']['matches']['Row'];
+
+export type UserIpLog = Database['public']['Tables']['user_ip_logs']['Row'];

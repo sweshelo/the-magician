@@ -4,12 +4,21 @@ import { EntranceMenu } from '@/feature/EntranceMenu';
 import { Matching } from '@/feature/Matching';
 import { Metadata } from 'next';
 import Link from 'next/link';
+import { getMyProfile } from '@/actions/profile';
+// FIXME: TS 5.9 + Next.js 16.1.6 で 'next/navigation' から redirect をインポートすると TS2305 が発生するため内部パスを使用。
+import { redirect } from 'next/dist/client/components/redirect';
 
 export const metadata: Metadata = {
   title: 'Entrance',
 };
 
-export default function Page() {
+export default async function Page() {
+  const profileData = await getMyProfile();
+
+  if (!profileData) {
+    redirect('/login');
+  }
+
   return (
     <>
       <div className="space-y-4 m-4">

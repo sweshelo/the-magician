@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 const tabs = [
   { href: '/admin/tickets', label: 'チケット管理' },
   { href: '/admin/users', label: 'ユーザー管理' },
+  { href: '/admin/addresses', label: '接続IP管理' },
   { href: '/admin/matches', label: '対戦履歴' },
   { href: '/admin/config', label: 'システム設定' },
 ] as const;
@@ -20,7 +21,7 @@ export function AdminNav() {
           key={tab.href}
           href={tab.href}
           className={`px-4 py-2 rounded-md transition-colors ${
-            pathname === tab.href
+            pathname.startsWith(tab.href)
               ? 'bg-indigo-600 text-white'
               : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
           }`}

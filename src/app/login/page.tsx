@@ -66,9 +66,7 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-900">
       <div className="bg-gray-800 p-8 rounded-lg max-w-md w-full mx-4">
         <h1 className="text-2xl font-bold text-white text-center mb-2">ログイン</h1>
-        <p className="text-gray-400 text-center mb-6">
-          Discordアカウントでログインして、デッキをクラウドに保存しましょう。
-        </p>
+        <p className="text-gray-400 text-center mb-6">Discordアカウントでログインしてください</p>
 
         {error && (
           <div className="bg-red-900 border border-red-600 text-red-200 px-4 py-3 rounded-md mb-6">
@@ -88,8 +86,8 @@ export default function LoginPage() {
         </button>
 
         <div className="mt-6 text-center">
-          <Link href="/entrance" className="text-gray-400 hover:text-gray-300 transition-colors">
-            ゲストとして続ける
+          <Link href="/" className="text-gray-400 hover:text-gray-300 transition-colors">
+            TOPページに戻る
           </Link>
         </div>
       </div>
