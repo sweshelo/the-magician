@@ -326,10 +326,6 @@ export interface Database {
         Args: { p_credits: number; p_expires_at?: string };
         Returns: { id: string; code: string }[];
       };
-      get_card_usage_ranking: {
-        Args: Record<string, never>;
-        Returns: { card_id: string; use_count: number }[];
-      };
     };
   };
 }

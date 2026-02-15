@@ -24,6 +24,12 @@ export const ORIGINALITY_TIERS: OriginalityTier[] = [
   { label: 'Originality 8pt.', points: 8, startRank: 401, endRank: null },
 ];
 
+export type RankingOptions = {
+  deduplicate?: boolean; // true: デッキ内重複排除（採用率）, false: 全カウント（使用回数）。デフォルト: false
+  from?: string; // ISO 8601 日時文字列 (例: "2025-01-01T00:00:00Z")
+  to?: string; // ISO 8601 日時文字列
+};
+
 export type RankingMasterResponse = {
   ranking: RankingEntry[];
   totalMatches: number;

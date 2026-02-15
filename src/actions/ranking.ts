@@ -3,47 +3,71 @@
 import { unstable_cache } from 'next/cache';
 import { createAdminClient } from '@/lib/supabase/server';
 import master from '@/submodule/suit/catalog/catalog';
-import type { RankingEntry, RankingMasterResponse } from './ranking.types';
+import type { RankingEntry, RankingMasterResponse, RankingOptions } from './ranking.types';
 import { getImplementedCardIds } from '@/helper/card';
 
-async function fetchRankingMaster(): Promise<RankingMasterResponse> {
+async function fetchRankingMaster(options: RankingOptions = {}): Promise<RankingMasterResponse> {
+  const { deduplicate = false, from, to } = options;
   const supabase = createAdminClient();
 
-  const [rankingResult, matchCountResult, implementedIds] = await Promise.all([
-    supabase.rpc('get_card_usage_ranking'),
-    supabase.from('matches').select('*', { count: 'exact', head: true }),
-    getImplementedCardIds(),
-  ]);
+  // Build query for matches
+  let query = supabase
+    .from('matches')
+    .select('player1_deck, player2_deck')
+    .not('matching_mode', 'is', null);
 
-  if (rankingResult.error) {
-    console.error('カード使用ランキング取得エラー:', rankingResult.error);
+  if (from) {
+    query = query.gte('started_at', from);
+  }
+  if (to) {
+    query = query.lte('started_at', to);
+  }
+
+  const [matchesResult, implementedIds] = await Promise.all([query, getImplementedCardIds()]);
+
+  if (matchesResult.error) {
+    console.error('マッチデータ取得エラー:', matchesResult.error);
     return { ranking: [], totalMatches: 0, generatedAt: new Date().toISOString() };
   }
 
-  if (matchCountResult.error) {
-    console.error('マッチ数取得エラー:', matchCountResult.error);
+  const matches = matchesResult.data ?? [];
+  const totalMatches = matches.length;
+
+  // JS-side aggregation
+  const cardCounts = new Map<string, number>();
+  for (const match of matches) {
+    for (const deck of [match.player1_deck, match.player2_deck]) {
+      if (!Array.isArray(deck)) continue;
+      const seen = deduplicate ? new Set<string>() : null;
+      for (const cardId of deck) {
+        if (typeof cardId !== 'string') continue;
+        if (seen && seen.has(cardId)) continue;
+        seen?.add(cardId);
+        cardCounts.set(cardId, (cardCounts.get(cardId) ?? 0) + 1);
+      }
+    }
   }
 
-  const rawRanking = (rankingResult.data ?? []) as { card_id: string; use_count: number }[];
-  const totalMatches = matchCountResult.count ?? 0;
+  // Sort by use count descending
+  const sorted = [...cardCounts.entries()].sort((a, b) => b[1] - a[1]);
 
-  // Build ranking from usage data, deduplicating by card name
+  // Build ranking, deduplicating by card name and excluding viruses
   const seenNames = new Set<string>();
   const ranking: RankingEntry[] = [];
   let rank = 1;
 
-  for (const item of rawRanking) {
-    const card = master.get(item.card_id);
-    const name = card?.name ?? item.card_id;
+  for (const [cardId, useCount] of sorted) {
+    const card = master.get(cardId);
+    const name = card?.name ?? cardId;
 
     if (seenNames.has(name) || card?.species?.includes('ウィルス')) continue;
     seenNames.add(name);
 
     ranking.push({
       rank,
-      cardId: item.card_id,
+      cardId,
       name,
-      useCount: item.use_count,
+      useCount,
       rarity: card?.rarity ?? '',
       type: card?.type ?? '',
       cost: card?.cost ?? 0,
@@ -61,7 +85,7 @@ async function fetchRankingMaster(): Promise<RankingMasterResponse> {
     seenNames.add(card.name);
 
     zeroUsageEntries.push({
-      rank: 0, // assigned below
+      rank: 0,
       cardId: id,
       name: card.name,
       useCount: 0,
@@ -87,6 +111,10 @@ async function fetchRankingMaster(): Promise<RankingMasterResponse> {
   };
 }
 
-export const getRankingMaster = unstable_cache(fetchRankingMaster, ['ranking-master'], {
-  revalidate: 604800,
-});
+export const getRankingMaster = unstable_cache(
+  (options: RankingOptions = {}) => fetchRankingMaster(options),
+  ['ranking-master'],
+  {
+    // revalidate: 604800,
+  }
+);
