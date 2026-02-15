@@ -1,8 +1,9 @@
 'use client';
 
-import { createContext, useCallback, useEffect, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import type { User, Session } from '@supabase/supabase-js';
 import { createClient } from '@/lib/supabase/client';
+import { recordIpAddress } from '@/actions/ip';
 
 /**
  * 認証スキップ時のモックユーザー
@@ -89,6 +90,16 @@ export const AuthProvider = ({ children, authSkip }: AuthProviderProps) => {
       subscription.unsubscribe();
     };
   }, [authSkip]);
+
+  // ユーザー確定時にIPアドレスを記録
+  const ipRecorded = useRef(false);
+  useEffect(() => {
+    if (!user || isLoading || ipRecorded.current) return;
+    ipRecorded.current = true;
+    recordIpAddress(user.id).catch(error => {
+      console.error('IPアドレス記録エラー:', error);
+    });
+  }, [user, isLoading]);
 
   const signInWithDiscord = useCallback(async () => {
     if (authSkip) {

@@ -1,7 +1,7 @@
 'use server';
 
 import { createClient, createAdminClient } from '@/lib/supabase/server';
-import type { Ticket, Profile } from '@/type/supabase';
+import type { Ticket, Profile, UserIpLog } from '@/type/supabase';
 
 // ===== 型定義 =====
 
@@ -392,4 +392,145 @@ export async function setUserAdmin(
   }
 
   return { success: true };
+}
+
+// ===== IP アドレス管理 =====
+
+export type IpLogListResponse = {
+  logs: (UserIpLog & { profile?: Profile | null })[];
+  total: number;
+};
+
+export type IpUserListResponse = {
+  users: { user_id: string; profile?: Profile | null; recorded_at: string }[];
+  total: number;
+};
+
+/**
+ * IP記録一覧を取得（管理者用）
+ */
+export async function getIpLogs(options?: {
+  page?: number;
+  limit?: number;
+}): Promise<IpLogListResponse> {
+  if (process.env.AUTH_SKIP === 'true') {
+    return { logs: [], total: 0 };
+  }
+
+  const adminCheck = await checkAdminAccess();
+  if ('error' in adminCheck) {
+    return { logs: [], total: 0 };
+  }
+
+  const page = options?.page ?? 1;
+  const limit = options?.limit ?? 50;
+  const offset = (page - 1) * limit;
+
+  const supabase = createAdminClient();
+
+  const {
+    data: logs,
+    count,
+    error,
+  } = await supabase
+    .from('user_ip_logs')
+    .select('*', { count: 'exact' })
+    .order('recorded_at', { ascending: false })
+    .range(offset, offset + limit - 1);
+
+  if (error) {
+    console.error('IPログ取得エラー:', error);
+    return { logs: [], total: 0 };
+  }
+
+  // ユーザープロファイルを一括取得
+  const userIds = [...new Set((logs ?? []).map(l => l.user_id))];
+  let profileMap = new Map<string, Profile>();
+
+  if (userIds.length > 0) {
+    const { data: profiles } = await supabase.from('profiles').select('*').in('id', userIds);
+
+    if (profiles) {
+      profileMap = new Map(profiles.map(p => [p.id, p]));
+    }
+  }
+
+  return {
+    logs: (logs ?? []).map(log => ({
+      ...log,
+      profile: profileMap.get(log.user_id) ?? null,
+    })),
+    total: count ?? 0,
+  };
+}
+
+/**
+ * 特定IPアドレスを使用しているユーザー一覧を取得
+ */
+export async function getUsersByIp(
+  ipAddress: string,
+  options?: { page?: number; limit?: number }
+): Promise<IpUserListResponse> {
+  if (process.env.AUTH_SKIP === 'true') {
+    return { users: [], total: 0 };
+  }
+
+  const adminCheck = await checkAdminAccess();
+  if ('error' in adminCheck) {
+    return { users: [], total: 0 };
+  }
+
+  const page = options?.page ?? 1;
+  const limit = options?.limit ?? 50;
+  const offset = (page - 1) * limit;
+
+  const supabase = createAdminClient();
+
+  // 該当IPを持つ全レコードを取得してユニーク化
+  const { data: logs, error } = await supabase
+    .from('user_ip_logs')
+    .select('user_id, recorded_at')
+    .eq('ip_address', ipAddress)
+    .order('recorded_at', { ascending: false });
+
+  if (error) {
+    console.error('IP別ユーザー取得エラー:', error);
+    return { users: [], total: 0 };
+  }
+
+  // user_idでユニーク化（最新のrecorded_atを保持）
+  const userMap = new Map<string, string>();
+  for (const log of logs ?? []) {
+    if (!userMap.has(log.user_id)) {
+      userMap.set(log.user_id, log.recorded_at);
+    }
+  }
+
+  const uniqueUsers = [...userMap.entries()].map(([user_id, recorded_at]) => ({
+    user_id,
+    recorded_at,
+  }));
+
+  const totalUnique = uniqueUsers.length;
+  const paged = uniqueUsers.slice(offset, offset + limit);
+
+  // プロファイルを一括取得
+  const userIds = paged.map(u => u.user_id);
+  let profileMap = new Map<string, Profile>();
+
+  if (userIds.length > 0) {
+    const { data: profiles } = await supabase.from('profiles').select('*').in('id', userIds);
+
+    if (profiles) {
+      profileMap = new Map(profiles.map(p => [p.id, p]));
+    }
+  }
+
+  return {
+    users: paged.map(u => ({
+      ...u,
+      profile: profileMap.get(u.user_id) ?? null,
+    })),
+    total: totalUnique,
+  };
 }
