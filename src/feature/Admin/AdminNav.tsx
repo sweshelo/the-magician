@@ -7,6 +7,7 @@ const tabs = [
   { href: '/admin/tickets', label: 'チケット管理' },
   { href: '/admin/users', label: 'ユーザー管理' },
   { href: '/admin/addresses', label: '接続IP管理' },
+  { href: '/admin/matches', label: '対戦履歴' },
   { href: '/admin/config', label: 'システム設定' },
 ] as const;
 
