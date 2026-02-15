@@ -6,31 +6,57 @@ import master from '@/submodule/suit/catalog/catalog';
 import type { RankingEntry, RankingMasterResponse, RankingOptions } from './ranking.types';
 import { getImplementedCardIds } from '@/helper/card';
 
+const PAGE_SIZE = 1000;
+
+async function fetchAllMatches(
+  supabase: ReturnType<typeof createAdminClient>,
+  options: RankingOptions
+) {
+  const { from, to } = options;
+  const allRows: { player1_deck: unknown; player2_deck: unknown }[] = [];
+  let offset = 0;
+
+  while (true) {
+    let query = supabase
+      .from('matches')
+      .select('player1_deck, player2_deck')
+      .not('matching_mode', 'is', null)
+      .range(offset, offset + PAGE_SIZE - 1);
+
+    if (from) {
+      query = query.gte('started_at', from);
+    }
+    if (to) {
+      query = query.lte('started_at', to);
+    }
+
+    const { data, error } = await query;
+    if (error) {
+      console.error('マッチデータ取得エラー:', error);
+      return null;
+    }
+
+    allRows.push(...(data ?? []));
+    if (!data || data.length < PAGE_SIZE) break;
+    offset += PAGE_SIZE;
+  }
+
+  return allRows;
+}
+
 async function fetchRankingMaster(options: RankingOptions = {}): Promise<RankingMasterResponse> {
-  const { deduplicate = false, from, to } = options;
+  const { deduplicate = false } = options;
   const supabase = createAdminClient();
 
-  // Build query for matches
-  let query = supabase
-    .from('matches')
-    .select('player1_deck, player2_deck')
-    .not('matching_mode', 'is', null);
+  const [matches, implementedIds] = await Promise.all([
+    fetchAllMatches(supabase, options),
+    getImplementedCardIds(),
+  ]);
 
-  if (from) {
-    query = query.gte('started_at', from);
-  }
-  if (to) {
-    query = query.lte('started_at', to);
-  }
-
-  const [matchesResult, implementedIds] = await Promise.all([query, getImplementedCardIds()]);
-
-  if (matchesResult.error) {
-    console.error('マッチデータ取得エラー:', matchesResult.error);
+  if (!matches) {
     return { ranking: [], totalMatches: 0, generatedAt: new Date().toISOString() };
   }
 
-  const matches = matchesResult.data ?? [];
   const totalMatches = matches.length;
 
   // JS-side aggregation
@@ -111,10 +137,15 @@ async function fetchRankingMaster(options: RankingOptions = {}): Promise<Ranking
   };
 }
 
-export const getRankingMaster = unstable_cache(
-  (options: RankingOptions = {}) => fetchRankingMaster(options),
-  ['ranking-master'],
-  {
-    // revalidate: 604800,
-  }
-);
+export async function getRankingMaster(options: RankingOptions = {}) {
+  const normalizedFrom = options.from?.split('T')[0] ?? '';
+  const normalizedTo = options.to?.split('T')[0] ?? '';
+  const cacheKey = [
+    'ranking-master',
+    String(options.deduplicate ?? false),
+    normalizedFrom,
+    normalizedTo,
+  ];
+
+  return unstable_cache(() => fetchRankingMaster(options), cacheKey, { revalidate: 604800 })();
+}

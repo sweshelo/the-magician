@@ -93,13 +93,25 @@ export const AuthProvider = ({ children, authSkip }: AuthProviderProps) => {
 
   // ユーザー確定時にIPアドレスを記録
   const ipRecorded = useRef(false);
+  const lastRecordedUserId = useRef<string | null>(null);
   useEffect(() => {
-    if (!user || isLoading || ipRecorded.current) return;
+    if (!user || isLoading) return;
+    if (ipRecorded.current && lastRecordedUserId.current === user.id) return;
     ipRecorded.current = true;
-    recordIpAddress(user.id).catch(error => {
-      console.error('IPアドレス記録エラー:', error);
-    });
-  }, [user, isLoading]);
+    lastRecordedUserId.current = user.id;
+
+    if (authSkip) {
+      // ゲスト: guestIdを渡す（nanoid形式）
+      recordIpAddress(user.id).catch(error => {
+        console.error('IPアドレス記録エラー:', error);
+      });
+    } else {
+      // ログインユーザー: サーバーでセッションから取得するので引数なし
+      recordIpAddress().catch(error => {
+        console.error('IPアドレス記録エラー:', error);
+      });
+    }
+  }, [user, isLoading, authSkip]);
 
   const signInWithDiscord = useCallback(async () => {
     if (authSkip) {
