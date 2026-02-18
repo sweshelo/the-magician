@@ -12,7 +12,7 @@ import { DeckPreview } from '../DeckBuilder/DeckPreview';
 export const DeckManagement = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [previewDeck, setPreviewDeck] = useState<DeckData>();
-  const { decks, mainDeck, setMainDeck, deleteDeck, toggleDeckPublic } = useDeck();
+  const { decks, mainDeck, setMainDeck, deleteDeck, setDeckPublic } = useDeck();
   const { opMap, isLoading: isOpLoading } = useOriginalityMap();
 
   const handleSetMainDeck = async (deckId: string) => {
@@ -34,9 +34,9 @@ export const DeckManagement = () => {
     }
   };
 
-  const handleTogglePublic = async (deckId: string) => {
+  const handleTogglePublic = async (deckId: string, currentIsPublic: boolean) => {
     try {
-      await toggleDeckPublic(deckId);
+      await setDeckPublic(deckId, !currentIsPublic);
     } catch (error) {
       console.error('公開状態切り替えエラー:', error);
       alert('公開状態の切り替えに失敗しました');
@@ -129,7 +129,7 @@ export const DeckManagement = () => {
                 {/* アクションボタン群 */}
                 <div className="flex items-center gap-2 mt-3">
                   <button
-                    onClick={() => handleTogglePublic(deck.id)}
+                    onClick={() => handleTogglePublic(deck.id, deck.is_public ?? false)}
                     className={`px-3 py-1 text-sm rounded transition-colors ${
                       deck.is_public
                         ? 'bg-green-600 text-white hover:bg-green-700'

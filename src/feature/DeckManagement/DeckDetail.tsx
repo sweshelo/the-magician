@@ -9,7 +9,7 @@ import { useAuth } from '@/hooks/auth';
 import { useDeck } from '@/hooks/deck';
 import { useOriginalityMap } from '@/hooks/originality';
 import { originality } from '@/helper/originality';
-import { toggleDeckPublic } from '@/actions/deck';
+import { setDeckPublic } from '@/actions/deck';
 import type { DeckDetailResponse } from '@/actions/deck';
 
 type DeckDetailProps = {
@@ -44,13 +44,13 @@ export const DeckDetail = ({ deck }: DeckDetailProps) => {
   }, [saveDeck, decks, deck.cards, deck.jokers]);
 
   const handleTogglePublic = useCallback(async () => {
-    const result = await toggleDeckPublic(deck.id);
+    const result = await setDeckPublic(deck.id, !isPublic);
     if (result) {
       setIsPublic(result.is_public);
     } else {
       alert('公開状態の切り替えに失敗しました');
     }
-  }, [deck.id]);
+  }, [deck.id, isPublic]);
 
   return (
     <div className="max-w-7xl mx-auto p-4">

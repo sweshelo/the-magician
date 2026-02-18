@@ -50,11 +50,13 @@ export const getDeck = cache(async (deckId: string): Promise<DeckDetailResponse>
 });
 
 /**
- * デッキの公開状態をトグル
+ * デッキの公開状態を設定
  * 認証済みユーザーのみ、自分のデッキのみ操作可能（RLSで制御）
- * アトミックな更新で TOCTOU 競合を回避
  */
-export async function toggleDeckPublic(deckId: string): Promise<{ is_public: boolean } | null> {
+export async function setDeckPublic(
+  deckId: string,
+  isPublic: boolean
+): Promise<{ is_public: boolean } | null> {
   const supabase = await createClient();
 
   const {
@@ -64,20 +66,10 @@ export async function toggleDeckPublic(deckId: string): Promise<{ is_public: boo
 
   if (authError || !user) return null;
 
-  // RLSにより自分のデッキのみ取得・更新可能
-  // 現在値を取得して反転（Supabase JS SDK では SQL式による NOT が使えないため）
-  const { data: deck, error: fetchError } = await supabase
-    .from('decks')
-    .select('is_public')
-    .eq('id', deckId)
-    .single();
-
-  if (fetchError || !deck) return null;
-
-  const newValue = !deck.is_public;
+  // RLSにより自分のデッキのみ更新可能
   const { data: updated, error: updateError } = await supabase
     .from('decks')
-    .update({ is_public: newValue })
+    .update({ is_public: isPublic })
     .eq('id', deckId)
     .select('is_public')
     .single();
