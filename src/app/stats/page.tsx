@@ -1,5 +1,8 @@
+/* eslint-disable react-hooks/error-boundaries */
+// (サーバコンポーネントなので無効化する)
+
 import { Metadata } from 'next';
-import { getRankingMaster } from '@/actions/ranking';
+import { getWeightedRanking } from '@/actions/ranking';
 import { ORIGINALITY_TIERS } from '@/actions/ranking.types';
 import type { RankingEntry } from '@/actions/ranking.types';
 import { getImageUrl } from '@/helper/image';
@@ -50,76 +53,84 @@ const typeLabels: Record<string, string> = {
 };
 
 export default async function StatsPage() {
-  const { ranking, totalMatches, generatedAt } = await getRankingMaster();
+  try {
+    const { ranking, totalMatches, generatedAt } = await getWeightedRanking();
 
-  return (
-    <div className="min-h-screen bg-gray-100 py-10 px-4 flex flex-col items-center">
-      <div className="text-center mb-8">
-        <Link href="/" className="text-gray-500 hover:text-gray-700 text-sm mb-2 inline-block">
-          &larr; TOPに戻る
-        </Link>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">使用カードランキング</h1>
-        <p className="text-gray-600">
-          全 {totalMatches.toLocaleString()} 試合のデッキデータから集計
-        </p>
-        <p className="text-gray-400 text-xs mt-1">
-          最終更新: {new Date(generatedAt).toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' })}
-        </p>
+    return (
+      <div className="min-h-screen bg-gray-100 py-10 px-4 flex flex-col items-center">
+        <div className="text-center mb-8">
+          <Link href="/" className="text-gray-500 hover:text-gray-700 text-sm mb-2 inline-block">
+            &larr; TOPに戻る
+          </Link>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">使用カードランキング</h1>
+          <p className="text-gray-600">
+            直近3週間 {totalMatches.toLocaleString()} 試合のデッキデータから重み付き集計
+          </p>
+          <p className="text-gray-400 text-xs mt-1">
+            最終更新: {new Date(generatedAt).toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' })}
+          </p>
+        </div>
+
+        <div className="w-full max-w-4xl">
+          {ranking.length === 0 ? (
+            <div className="bg-white rounded-lg p-8 shadow text-center text-gray-500">
+              データがありません
+            </div>
+          ) : (
+            <div className="bg-white rounded-lg shadow overflow-hidden">
+              <table className="w-full">
+                <thead>
+                  <tr className="bg-gray-50 border-b border-gray-200">
+                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase w-12">
+                      #
+                    </th>
+                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      カード
+                    </th>
+                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase w-20 hidden sm:table-cell">
+                      レアリティ
+                    </th>
+                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase w-24 hidden sm:table-cell">
+                      タイプ
+                    </th>
+                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase w-16 hidden sm:table-cell">
+                      コスト
+                    </th>
+                    <th className="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase w-20">
+                      使用ポイント
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {ranking.map(entry => {
+                    const tier = ORIGINALITY_TIERS.find(
+                      t =>
+                        entry.rank >= t.startRank && (t.endRank === null || entry.rank <= t.endRank)
+                    );
+                    const showTierHeader = tier && entry.rank === tier.startRank;
+
+                    return (
+                      <RankingRow
+                        key={entry.cardId}
+                        entry={entry}
+                        tierHeader={showTierHeader ? tier.label : undefined}
+                      />
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
       </div>
-
-      <div className="w-full max-w-4xl">
-        {ranking.length === 0 ? (
-          <div className="bg-white rounded-lg p-8 shadow text-center text-gray-500">
-            データがありません
-          </div>
-        ) : (
-          <div className="bg-white rounded-lg shadow overflow-hidden">
-            <table className="w-full">
-              <thead>
-                <tr className="bg-gray-50 border-b border-gray-200">
-                  <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase w-12">
-                    #
-                  </th>
-                  <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    カード
-                  </th>
-                  <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase w-20 hidden sm:table-cell">
-                    レアリティ
-                  </th>
-                  <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase w-24 hidden sm:table-cell">
-                    タイプ
-                  </th>
-                  <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase w-16 hidden sm:table-cell">
-                    コスト
-                  </th>
-                  <th className="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase w-20">
-                    使用数
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {ranking.map(entry => {
-                  const tier = ORIGINALITY_TIERS.find(
-                    t =>
-                      entry.rank >= t.startRank && (t.endRank === null || entry.rank <= t.endRank)
-                  );
-                  const showTierHeader = tier && entry.rank === tier.startRank;
-
-                  return (
-                    <RankingRow
-                      key={entry.cardId}
-                      entry={entry}
-                      tierHeader={showTierHeader ? tier.label : undefined}
-                    />
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
+    );
+  } catch {
+    return (
+      <div className="min-h-screen bg-gray-100 py-10 px-4 flex flex-col items-center">
+        <p>ランキングは現在ご利用頂けません。</p>
       </div>
-    </div>
-  );
+    );
+  }
 }
 
 function RankingRow({ entry, tierHeader }: { entry: RankingEntry; tierHeader?: string }) {
