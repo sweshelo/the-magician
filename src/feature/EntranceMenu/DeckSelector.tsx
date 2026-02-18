@@ -3,9 +3,9 @@
 import { useState } from 'react';
 import { useDeck } from '@/hooks/deck';
 import { DeckPreview } from '@/feature/DeckBuilder/DeckPreview';
-import { ICard } from '@/submodule/suit/types';
 import { originality } from '@/helper/originality';
 import { useOriginalityMap } from '@/hooks/originality';
+import { DeckListModal } from '@/component/ui/DeckListModal';
 
 export const DeckSelector = () => {
   const { decks, mainDeck, isLoading, setMainDeck } = useDeck();
@@ -30,14 +30,6 @@ export const DeckSelector = () => {
     if (mainDeck && mainDeck.cards.length > 0) {
       setIsPreviewOpen(true);
     }
-  };
-
-  const convertToICards = (cards: string[]): ICard[] => {
-    return cards.map((catalogId, index) => ({
-      id: `deck-${catalogId}-${index}`,
-      catalogId,
-      lv: 1,
-    }));
   };
 
   const getDeckStatus = () => {
@@ -127,67 +119,20 @@ export const DeckSelector = () => {
       )}
 
       {/* Deck List Modal */}
-      {isDeckListOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-gray-800 p-6 rounded-lg max-w-md w-full mx-4 max-h-96 overflow-y-auto">
-            <h4 className="text-lg font-semibold text-white mb-4">デッキを選択</h4>
-
-            {decks.length === 0 ? (
-              <p className="text-gray-400 text-center py-4">保存されたデッキがありません</p>
-            ) : (
-              <div className="space-y-2">
-                {decks.map(deck => (
-                  <div
-                    key={deck.id}
-                    className={`p-3 rounded-md border cursor-pointer transition-colors ${
-                      mainDeck?.id === deck.id
-                        ? 'bg-blue-700 border-blue-500'
-                        : 'bg-gray-700 border-gray-600 hover:bg-gray-600'
-                    }`}
-                    onClick={() => handleSetMainDeck(deck.id)}
-                  >
-                    <div className="flex justify-between items-center">
-                      <span className="text-white font-medium">{deck.title}</span>
-                      <p className="flex gap-2">
-                        {(deck.jokers?.length ?? 0) < 2 && (
-                          <span className="text-red-400 text-sm">JOKERなし</span>
-                        )}
-                        <span className="text-gray-400 text-sm">
-                          {isOpLoading
-                            ? '...'
-                            : originality([...deck.cards, ...(deck.jokers ?? [])], opMap)}
-                          P
-                        </span>
-                        <span className="text-gray-400 text-sm">{deck.cards.length}枚</span>
-                      </p>
-                    </div>
-                    {mainDeck?.id === deck.id && (
-                      <span className="text-blue-300 text-xs">現在のメインデッキ</span>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-
-            <div className="mt-4 flex justify-end">
-              <button
-                onClick={() => setIsDeckListOpen(false)}
-                className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
-              >
-                閉じる
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <DeckListModal
+        isOpen={isDeckListOpen}
+        onClose={() => setIsDeckListOpen(false)}
+        decks={decks}
+        mainDeckId={mainDeck?.id ?? null}
+        onSelectDeck={handleSetMainDeck}
+        originalityMap={opMap}
+        isOriginalityLoading={isOpLoading}
+      />
 
       {/* Deck Preview Modal */}
       {isPreviewOpen && mainDeck && (
         <DeckPreview
-          deck={{
-            cards: convertToICards(mainDeck.cards),
-            joker: mainDeck.jokers ? convertToICards(mainDeck.jokers) : undefined,
-          }}
+          deck={{ cards: mainDeck.cards, jokers: mainDeck.jokers }}
           onClose={() => setIsPreviewOpen(false)}
         />
       )}

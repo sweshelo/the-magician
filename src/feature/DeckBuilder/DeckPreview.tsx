@@ -1,13 +1,12 @@
 import { RichButton } from '@/component/ui/RichButton';
 import { getImageUrl } from '@/helper/image';
 import master from '@/submodule/suit/catalog/catalog';
-import { ICard } from '@/submodule/suit/types';
 import { ReactNode } from 'react';
 
 interface DeckPreviewProps {
   deck: {
-    cards: ICard[];
-    joker?: ICard[];
+    cards: string[];
+    jokers?: string[];
   };
   onClose: () => void;
   children?: ReactNode;
@@ -33,12 +32,12 @@ export const DeckPreview = ({ deck, onClose, children }: DeckPreviewProps) => {
           <div className="flex justify-center">
             {/* デフォルト値の 1192 は 10*112+8*9 */}
             <div className={`flex flex-wrap justify-start gap-2`} style={{ width: 1192 }}>
-              {deck.cards?.map((card, index) => (
+              {deck.cards?.map((catalogId, index) => (
                 <div
-                  key={`deck-preview-${card.catalogId}-${index}`}
+                  key={`deck-preview-${catalogId}-${index}`}
                   className={`w-28 h-39 border-2 border-slate-600 rounded justify-center items-center text-slate-500 relative dnd-clickable`}
                   style={{
-                    backgroundImage: `url(${getImageUrl(card?.catalogId)})`,
+                    backgroundImage: `url(${getImageUrl(catalogId)})`,
                     backgroundSize: 'cover',
                   }}
                 />
@@ -46,17 +45,17 @@ export const DeckPreview = ({ deck, onClose, children }: DeckPreviewProps) => {
             </div>
           </div>
         </div>
-        {deck.joker && (
+        {deck.jokers && deck.jokers.length > 0 && (
           <div className="flex gap-2 flex-col justify-center my-3">
             <div className="text-center text-lg">JOKER</div>
             <div className="flex gap-10">
-              {deck.joker.map((joker, index) => {
+              {deck.jokers.map((catalogId, index) => {
                 return (
                   <div
-                    key={joker.catalogId ?? joker.id}
+                    key={catalogId}
                     className={`w-90 border ${JOKER_TABLE[index].color} text-bold px-5 py-1`}
                   >
-                    {JOKER_TABLE[index].suffix}: {master.get(joker.catalogId ?? joker.id)?.id}
+                    {JOKER_TABLE[index].suffix}: {master.get(catalogId)?.id}
                   </div>
                 );
               })}

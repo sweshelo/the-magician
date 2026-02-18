@@ -1,8 +1,7 @@
 'use client';
 
 import { useDeck } from '@/hooks/deck';
-import type { DeckData } from '@/type/deck';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 interface DeckSaveDialogProps {
   isOpen: boolean;
@@ -10,12 +9,6 @@ interface DeckSaveDialogProps {
   onSave: (title: string, isMainDeck: boolean) => void;
   deck: string[];
   jokers?: string[];
-}
-
-interface DeckListDialogProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onLoad: (deck: DeckData) => void;
 }
 
 export const DeckSaveDialog = ({
@@ -279,86 +272,6 @@ export const DeckSaveDialog = ({
             }
           >
             保存
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export const DeckLoadDialog = ({ isOpen, onClose, onLoad }: DeckListDialogProps) => {
-  const { decks, mainDeck, setMainDeck, deleteDeck, refreshDecks } = useDeck();
-
-  useEffect(() => {
-    if (isOpen) {
-      refreshDecks();
-    }
-  }, [isOpen, refreshDecks]);
-
-  const handleLoadDeck = (deck: DeckData) => {
-    onLoad(deck);
-    onClose();
-  };
-
-  const handleSetMainDeck = async (deckId: string) => {
-    try {
-      await setMainDeck(deckId);
-    } catch (error) {
-      console.error('メインデッキ設定エラー:', error);
-    }
-  };
-
-  const handleDeleteDeck = async (deckId: string, deckTitle: string, event: React.MouseEvent) => {
-    event.stopPropagation();
-    if (confirm(`「${deckTitle}」を削除してもよろしいですか？`)) {
-      try {
-        await deleteDeck(deckId);
-      } catch (error) {
-        console.error('デッキ削除エラー:', error);
-      }
-    }
-  };
-
-  if (!isOpen) return null;
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-gray-800 p-6 rounded-lg max-w-md w-full">
-        <h2 className="text-xl font-bold mb-4 text-white">デッキ一覧</h2>
-
-        {decks.length === 0 ? (
-          <p className="text-white mb-4">保存されたデッキがありません。</p>
-        ) : (
-          <div className="max-h-80 overflow-y-auto mb-4">
-            {decks.map(deck => (
-              <div
-                key={deck.id}
-                className="p-3 bg-gray-700 mb-2 rounded cursor-pointer hover:bg-gray-600 flex items-center"
-                onClick={() => handleLoadDeck(deck)}
-              >
-                <input
-                  type="radio"
-                  name="mainDeck"
-                  className="mr-3 h-4 w-4"
-                  checked={mainDeck?.id === deck.id}
-                  onChange={() => handleSetMainDeck(deck.id)}
-                  onClick={e => e.stopPropagation()}
-                />
-                <span className="text-white flex-grow">{deck.title}</span>
-                <button
-                  className="text-red-400 hover:text-red-300 px-2"
-                  onClick={e => handleDeleteDeck(deck.id, deck.title, e)}
-                >
-                  削除
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-
-        <div className="flex justify-end">
-          <button className="px-4 py-2 bg-gray-600 text-white rounded" onClick={onClose}>
-            閉じる
           </button>
         </div>
       </div>
