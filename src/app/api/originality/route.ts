@@ -1,9 +1,13 @@
 import { NextResponse } from 'next/server';
-import { getOriginalityMap } from '@/actions/originality';
+import { getWeightedRanking } from '@/actions/ranking';
 
 export const revalidate = 604800;
 
 export async function GET() {
-  const data = await getOriginalityMap();
-  return NextResponse.json(data);
+  try {
+    const data = await getWeightedRanking();
+    return NextResponse.json(data);
+  } catch {
+    return NextResponse.error();
+  }
 }

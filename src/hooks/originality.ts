@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
+import { getOriginalityMap } from '@/actions/originality';
 
 export function useOriginalityMap(): { opMap: Record<string, number>; isLoading: boolean } {
   const [opMap, setOpMap] = useState<Record<string, number>>({});
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/originality')
-      .then(res => res.json())
-      .then((data: Record<string, number>) => {
+    getOriginalityMap()
+      .then(data => {
         setOpMap(data);
         setIsLoading(false);
       })
