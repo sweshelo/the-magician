@@ -123,7 +123,10 @@ export const DeckProvider = ({ children }: DeckProviderProps) => {
   // デッキの公開状態をトグル
   const toggleDeckPublic = useCallback(
     async (deckId: string): Promise<void> => {
-      await toggleDeckPublicAction(deckId);
+      const result = await toggleDeckPublicAction(deckId);
+      if (!result) {
+        throw new Error('公開状態の切り替えに失敗しました');
+      }
       await refreshDecks();
     },
     [refreshDecks]

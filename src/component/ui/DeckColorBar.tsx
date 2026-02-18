@@ -20,7 +20,7 @@ export function DeckColorBar({ cards }: { cards: string[] }) {
   }
 
   const segments: { flexGrow: number; backgroundColor: string }[] = [];
-  for (const [color, { normal, intercept }] of counts) {
+  for (const [color, { normal, intercept }] of [...counts.entries()].sort((a, b) => a[0] - b[0])) {
     const hex =
       colorTable.cardColorHex[color as keyof typeof colorTable.cardColorHex] ?? defaultHex;
     if (normal > 0) {

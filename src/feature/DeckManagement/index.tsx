@@ -20,6 +20,7 @@ export const DeckManagement = () => {
       await setMainDeck(deckId);
     } catch (error) {
       console.error('メインデッキ設定エラー:', error);
+      alert('メインデッキの設定に失敗しました');
     }
   };
 
@@ -29,6 +30,7 @@ export const DeckManagement = () => {
       await deleteDeck(deckId);
     } catch (error) {
       console.error('デッキ削除エラー:', error);
+      alert('デッキの削除に失敗しました');
     }
   };
 
@@ -37,6 +39,7 @@ export const DeckManagement = () => {
       await toggleDeckPublic(deckId);
     } catch (error) {
       console.error('公開状態切り替えエラー:', error);
+      alert('公開状態の切り替えに失敗しました');
     }
   };
 

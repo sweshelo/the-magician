@@ -15,7 +15,7 @@ export const DeckCardGrid = ({ cards, jokers }: DeckCardGridProps) => {
   return (
     <>
       <div
-        className="bg-slate-800/35 w-full p-4 overflow-auto border-y-3 border-white p-3 box-border"
+        className="bg-slate-800/35 w-full p-4 overflow-auto border-y-3 border-white box-border"
         style={{
           height: `688px`,
           transition: 'opacity 100ms ease-in-out',

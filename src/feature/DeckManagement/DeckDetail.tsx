@@ -47,6 +47,8 @@ export const DeckDetail = ({ deck }: DeckDetailProps) => {
     const result = await toggleDeckPublic(deck.id);
     if (result) {
       setIsPublic(result.is_public);
+    } else {
+      alert('公開状態の切り替えに失敗しました');
     }
   }, [deck.id]);
 

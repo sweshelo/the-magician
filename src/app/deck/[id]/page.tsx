@@ -1,6 +1,7 @@
 import { getDeck } from '@/actions/deck';
 import { DeckDetail } from '@/feature/DeckManagement/DeckDetail';
 import { Metadata } from 'next';
+// FIXME: TS 5.9 + Next.js 16.1.6 で 'next/navigation' から notFound をインポートすると TS2305 が発生するため内部パスを使用。
 import { notFound } from 'next/dist/client/components/not-found';
 
 type Props = {

@@ -1,5 +1,6 @@
 'use server';
 
+import { cache } from 'react';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 
 export type DeckDetailResponse = {
@@ -14,11 +15,16 @@ export type DeckDetailResponse = {
 /**
  * デッキの詳細を取得
  * RLSにより、公開デッキは誰でも・非公開デッキはオーナーのみ取得可能
+ * React.cache によりリクエスト内で重複呼び出しがデデュプされる
  */
-export async function getDeck(deckId: string): Promise<DeckDetailResponse> {
+export const getDeck = cache(async (deckId: string): Promise<DeckDetailResponse> => {
   const supabase = await createClient();
 
-  const { data: deck, error } = await supabase.from('decks').select('*').eq('id', deckId).single();
+  const { data: deck, error } = await supabase
+    .from('decks')
+    .select('id, title, cards, jokers, is_public, user_id')
+    .eq('id', deckId)
+    .single();
 
   if (error || !deck) return null;
 
@@ -41,11 +47,12 @@ export async function getDeck(deckId: string): Promise<DeckDetailResponse> {
       displayName: profile?.display_name ?? profile?.discord_username ?? '不明',
     },
   };
-}
+});
 
 /**
  * デッキの公開状態をトグル
- * 認証済みユーザーのみ、自分のデッキのみ操作可能
+ * 認証済みユーザーのみ、自分のデッキのみ操作可能（RLSで制御）
+ * アトミックな更新で TOCTOU 競合を回避
  */
 export async function toggleDeckPublic(deckId: string): Promise<{ is_public: boolean } | null> {
   const supabase = await createClient();
@@ -57,7 +64,8 @@ export async function toggleDeckPublic(deckId: string): Promise<{ is_public: boo
 
   if (authError || !user) return null;
 
-  // RLSにより自分のデッキのみ取得可能
+  // RLSにより自分のデッキのみ取得・更新可能
+  // 現在値を取得して反転（Supabase JS SDK では SQL式による NOT が使えないため）
   const { data: deck, error: fetchError } = await supabase
     .from('decks')
     .select('is_public')
@@ -66,14 +74,15 @@ export async function toggleDeckPublic(deckId: string): Promise<{ is_public: boo
 
   if (fetchError || !deck) return null;
 
-  // 反転して更新（RLSにより自分のデッキのみ更新可能）
   const newValue = !deck.is_public;
-  const { error: updateError } = await supabase
+  const { data: updated, error: updateError } = await supabase
     .from('decks')
     .update({ is_public: newValue })
-    .eq('id', deckId);
+    .eq('id', deckId)
+    .select('is_public')
+    .single();
 
-  if (updateError) return null;
+  if (updateError || !updated) return null;
 
-  return { is_public: newValue };
+  return { is_public: updated.is_public };
 }

@@ -841,6 +841,7 @@ export const DeckBuilder = ({ implementedIds, opMap }: DeckBuilderProps) => {
         setLoadDialogOpen(false);
       } catch (error) {
         console.error('メインデッキ設定エラー:', error);
+        alert('メインデッキの設定に失敗しました');
       }
     },
     [setMainDeck]
@@ -970,7 +971,7 @@ export const DeckBuilder = ({ implementedIds, opMap }: DeckBuilderProps) => {
         mainDeckId={savedMainDeck?.id ?? null}
         onSelectDeck={handleSelectDeck}
         originalityMap={opMap}
-        isOriginalityLoading={false}
+        isOriginalityLoading={Object.keys(opMap).length === 0}
       />
 
       {isPreviewOpen && (
