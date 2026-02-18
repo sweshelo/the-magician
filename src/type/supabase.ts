@@ -48,6 +48,7 @@ export interface Database {
           cards: string[];
           jokers: string[];
           is_main: boolean | null;
+          is_public: boolean;
           created_at: string;
           updated_at: string;
         };
@@ -58,6 +59,7 @@ export interface Database {
           cards: string[];
           jokers?: string[];
           is_main?: boolean;
+          is_public?: boolean;
           created_at?: string;
           updated_at?: string;
         };
@@ -68,6 +70,7 @@ export interface Database {
           cards?: string[];
           jokers?: string[];
           is_main?: boolean;
+          is_public?: boolean;
           created_at?: string;
           updated_at?: string;
         };

@@ -6,9 +6,9 @@ import { defaultUIColors } from '@/helper/color';
 import master from '@/submodule/suit/catalog/catalog';
 import { ICard, Catalog } from '@/submodule/suit/types';
 import { useCallback, useMemo, useState, memo, useRef, useLayoutEffect } from 'react';
-import { DeckSaveDialog, DeckLoadDialog } from './DeckDialogs';
+import { DeckSaveDialog } from './DeckDialogs';
+import { DeckListModal } from '@/component/ui/DeckListModal';
 import { useDeck } from '@/hooks/deck';
-import type { DeckData } from '@/type/deck';
 import { Button } from '@/component/interface/button';
 import { DeckPreview } from './DeckPreview';
 import { useSearchParams } from 'next/navigation';
@@ -447,8 +447,10 @@ type DeckBuilderProps = {
 export const DeckBuilder = ({ implementedIds, opMap }: DeckBuilderProps) => {
   // useDeck hook for Supabase/LocalStorage deck management
   const {
+    decks,
     mainDeck: savedMainDeck,
     saveDeck: saveDeckToStorage,
+    setMainDeck,
     isLoading: isDeckLoading,
   } = useDeck();
 
@@ -773,11 +775,11 @@ export const DeckBuilder = ({ implementedIds, opMap }: DeckBuilderProps) => {
   const sortDeck = useCallback(() => {
     setDeck(prevDeck => {
       // タイプごとにカードを分類
-      const typeCategories = ['unit_and_advanced', 'intercept', 'trigger'];
+      const typeCategories = ['unit_and_advanced', 'trigger', 'intercept'];
       const cardsByType: Record<string, string[]> = {
         unit_and_advanced: [],
-        intercept: [],
         trigger: [],
+        intercept: [],
       };
 
       // タイプごとに分類
@@ -832,21 +834,17 @@ export const DeckBuilder = ({ implementedIds, opMap }: DeckBuilderProps) => {
     setJokers([]);
   }, []);
 
-  const handleLoadDeck = useCallback(
-    (deckData: DeckData) => {
-      setDeck(deckData.cards);
-      setJokers(deckData.jokers || []);
-
-      // Check if this is the main deck
-      if (savedMainDeck && deckData.id === savedMainDeck.id) {
-        setCurrentDeckTitle(savedMainDeck.title);
-        setCurrentDeckId(savedMainDeck.id);
-      } else {
-        setCurrentDeckTitle(deckData.title);
-        setCurrentDeckId(deckData.id);
+  const handleSelectDeck = useCallback(
+    async (deckId: string) => {
+      try {
+        await setMainDeck(deckId);
+        setLoadDialogOpen(false);
+      } catch (error) {
+        console.error('メインデッキ設定エラー:', error);
+        alert('メインデッキの設定に失敗しました');
       }
     },
-    [savedMainDeck]
+    [setMainDeck]
   );
 
   return (
@@ -966,20 +964,18 @@ export const DeckBuilder = ({ implementedIds, opMap }: DeckBuilderProps) => {
         jokers={jokers}
       />
 
-      <DeckLoadDialog
+      <DeckListModal
         isOpen={loadDialogOpen}
         onClose={() => setLoadDialogOpen(false)}
-        onLoad={handleLoadDeck}
+        decks={decks}
+        mainDeckId={savedMainDeck?.id ?? null}
+        onSelectDeck={handleSelectDeck}
+        originalityMap={opMap}
+        isOriginalityLoading={Object.keys(opMap).length === 0}
       />
 
       {isPreviewOpen && (
-        <DeckPreview
-          deck={{
-            cards: deck.map(id => ({ catalogId: id }) as ICard),
-            joker: jokers.map(id => ({ id }) as ICard),
-          }}
-          onClose={() => setIsPreviewOpen(false)}
-        />
+        <DeckPreview deck={{ cards: deck, jokers }} onClose={() => setIsPreviewOpen(false)} />
       )}
     </div>
   );

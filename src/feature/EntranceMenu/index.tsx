@@ -11,12 +11,21 @@ export const EntranceMenu = () => {
       <div className="text-center">
         <h2 className="text-2xl font-bold text-black mb-4">ゲーム設定</h2>
       </div>
-      <AuthStatus />
-      <MigrationBanner />
-      <PlayerNameEditor />
-      <DeckSelector />
-      <TicketRedeem />
-      <PlayStatus />
+      {process.env.DISABLE_AUTH === 'true' ? (
+        <>
+          <PlayerNameEditor />
+          <DeckSelector />
+        </>
+      ) : (
+        <>
+          <AuthStatus />
+          <MigrationBanner />
+          <PlayerNameEditor />
+          <DeckSelector />
+          <TicketRedeem />
+          <PlayStatus />
+        </>
+      )}
     </div>
   );
 };

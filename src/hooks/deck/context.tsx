@@ -3,6 +3,7 @@
 import { createContext, useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { useAuth } from '@/hooks/auth';
 import { DeckService } from '@/service/deck-service';
+import { setDeckPublic as setDeckPublicAction } from '@/actions/deck';
 import type { DeckData } from '@/type/deck';
 
 export type DeckContextType = {
@@ -20,6 +21,7 @@ export type DeckContextType = {
   ) => Promise<DeckData>;
   deleteDeck: (deckId: string) => Promise<void>;
   setMainDeck: (deckId: string) => Promise<void>;
+  setDeckPublic: (deckId: string, isPublic: boolean) => Promise<void>;
   // マイグレーション
   migrateFromLocalStorage: () => Promise<{ success: number; failed: number }>;
   clearLocalStorage: () => void;
@@ -118,6 +120,18 @@ export const DeckProvider = ({ children }: DeckProviderProps) => {
     [userId, refreshDecks]
   );
 
+  // デッキの公開状態を設定
+  const setDeckPublicState = useCallback(
+    async (deckId: string, isPublic: boolean): Promise<void> => {
+      const result = await setDeckPublicAction(deckId, isPublic);
+      if (!result) {
+        throw new Error('公開状態の切り替えに失敗しました');
+      }
+      await refreshDecks();
+    },
+    [refreshDecks]
+  );
+
   // LocalStorageから移行
   const migrateFromLocalStorage = useCallback(async (): Promise<{
     success: number;
@@ -148,6 +162,7 @@ export const DeckProvider = ({ children }: DeckProviderProps) => {
       saveDeck,
       deleteDeck,
       setMainDeck,
+      setDeckPublic: setDeckPublicState,
       migrateFromLocalStorage,
       clearLocalStorage,
       hasLocalDecks,
@@ -162,6 +177,7 @@ export const DeckProvider = ({ children }: DeckProviderProps) => {
       saveDeck,
       deleteDeck,
       setMainDeck,
+      setDeckPublicState,
       migrateFromLocalStorage,
       clearLocalStorage,
       hasLocalDecks,

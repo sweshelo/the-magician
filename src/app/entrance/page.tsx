@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 };
 
 export default async function Page() {
-  const profileData = await getMyProfile();
+  const profileData = process.env.DISABLE_AUTH === 'true' ? 'SKIP' : await getMyProfile();
 
   if (!profileData) {
     redirect('/login');
@@ -29,7 +29,7 @@ export default async function Page() {
           デッキ編集
         </Link>
         <EntranceMenu />
-        <Matching />
+        {process.env.DISABLE_AUTH !== 'true' && <Matching />}
         <RoomCreator />
         <RoomEntrance />
       </div>
