@@ -8,6 +8,7 @@ import type { RankingEntry, RankingMasterResponse, RankingOptions } from './rank
 import { getImplementedCardIds } from '@/helper/card';
 
 const PAGE_SIZE = 1000;
+const baseDate = previousSunday(new Date());
 
 async function fetchAllMatches(
   supabase: ReturnType<typeof createAdminClient>,
@@ -163,8 +164,6 @@ export async function getRankingMaster(options: RankingOptions = {}) {
 }
 
 async function fetchWeightedRanking(): Promise<RankingMasterResponse> {
-  const today = new Date();
-  const baseDate = previousSunday(today);
   const week1Start = startOfWeek(baseDate, { weekStartsOn: 1 });
   const week1End = endOfWeek(baseDate, { weekStartsOn: 1 });
 
@@ -245,6 +244,10 @@ async function fetchWeightedRanking(): Promise<RankingMasterResponse> {
   return { ranking, totalMatches, generatedAt: new Date().toISOString() };
 }
 
-export const getWeightedRanking = unstable_cache(fetchWeightedRanking, ['weighted-ranking'], {
-  revalidate: 604800,
-});
+export const getWeightedRanking = unstable_cache(
+  fetchWeightedRanking,
+  ['weighted-ranking', baseDate.toISOString()],
+  {
+    revalidate: 604800,
+  }
+);
