@@ -11,6 +11,8 @@ const fromSupabaseDeck = (deck: Deck): DeckData => ({
   title: deck.title,
   cards: deck.cards,
   jokers: deck.jokers,
+  is_public: deck.is_public,
+  user_id: deck.user_id,
 });
 
 /**

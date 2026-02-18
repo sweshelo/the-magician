@@ -12,7 +12,7 @@ import { DeckPreview } from '../DeckBuilder/DeckPreview';
 export const DeckManagement = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [previewDeck, setPreviewDeck] = useState<DeckData>();
-  const { decks, mainDeck, setMainDeck, deleteDeck } = useDeck();
+  const { decks, mainDeck, setMainDeck, deleteDeck, toggleDeckPublic } = useDeck();
   const { opMap, isLoading: isOpLoading } = useOriginalityMap();
 
   const handleSetMainDeck = async (deckId: string) => {
@@ -29,6 +29,14 @@ export const DeckManagement = () => {
       await deleteDeck(deckId);
     } catch (error) {
       console.error('デッキ削除エラー:', error);
+    }
+  };
+
+  const handleTogglePublic = async (deckId: string) => {
+    try {
+      await toggleDeckPublic(deckId);
+    } catch (error) {
+      console.error('公開状態切り替えエラー:', error);
     }
   };
 
@@ -60,53 +68,74 @@ export const DeckManagement = () => {
                 className={`p-4 rounded-lg border ${
                   isMain ? 'bg-blue-900/40 border-blue-500' : 'bg-gray-800 border-gray-700'
                 }`}
-                onClick={() => {
-                  setPreviewDeck(deck);
-                  setIsOpen(true);
-                }}
               >
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <span className="text-white font-medium">{deck.title}</span>
-                    {isMain && (
-                      <span className="bg-blue-600 text-white text-xs px-2 py-0.5 rounded">
-                        メインデッキ
+                {/* タイトル・メタ情報: クリックでデッキ詳細ページへ遷移 */}
+                <Link
+                  href={`/deck/${deck.id}`}
+                  className="block cursor-pointer hover:opacity-80 transition-opacity mb-2"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-white font-medium">{deck.title}</span>
+                      {isMain && (
+                        <span className="bg-blue-600 text-white text-xs px-2 py-0.5 rounded">
+                          メインデッキ
+                        </span>
+                      )}
+                      {deck.is_public && (
+                        <span className="bg-green-600 text-white text-xs px-2 py-0.5 rounded">
+                          公開中
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-3 text-sm">
+                      {(deck.jokers?.length ?? 0) < 2 && (
+                        <span className="text-red-400">JOKERなし</span>
+                      )}
+                      <span className="text-gray-400">
+                        {isOpLoading
+                          ? '...'
+                          : originality([...deck.cards, ...(deck.jokers ?? [])], opMap)}
+                        P
                       </span>
-                    )}
+                      <span className="text-gray-400">{deck.cards.length}枚</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-3 text-sm">
-                    {(deck.jokers?.length ?? 0) < 2 && (
-                      <span className="text-red-400">JOKERなし</span>
-                    )}
-                    <span className="text-gray-400">
-                      {isOpLoading
-                        ? '...'
-                        : originality([...deck.cards, ...(deck.jokers ?? [])], opMap)}
-                      P
-                    </span>
-                    <span className="text-gray-400">{deck.cards.length}枚</span>
-                  </div>
-                </div>
+                </Link>
 
-                <DeckColorBar cards={deck.cards} />
+                {/* カラーバー: クリックでモーダルプレビュー表示 */}
+                <button
+                  onClick={() => {
+                    setPreviewDeck(deck);
+                    setIsOpen(true);
+                  }}
+                  className="w-full cursor-pointer hover:opacity-80 transition-opacity"
+                >
+                  <DeckColorBar cards={deck.cards} />
+                </button>
 
-                <div className="flex items-center gap-2 mt-3 z-10">
+                {/* アクションボタン群 */}
+                <div className="flex items-center gap-2 mt-3">
                   {!isMain && (
                     <button
-                      onClick={e => {
-                        e.stopPropagation();
-                        handleSetMainDeck(deck.id);
-                      }}
+                      onClick={() => handleSetMainDeck(deck.id)}
                       className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
                     >
                       メインデッキに設定
                     </button>
                   )}
                   <button
-                    onClick={e => {
-                      e.stopPropagation();
-                      handleDeleteDeck(deck.id, deck.title);
-                    }}
+                    onClick={() => handleTogglePublic(deck.id)}
+                    className={`px-3 py-1 text-sm rounded transition-colors ${
+                      deck.is_public
+                        ? 'bg-green-600 text-white hover:bg-green-700'
+                        : 'bg-gray-600 text-white hover:bg-gray-500'
+                    }`}
+                  >
+                    {deck.is_public ? '公開中' : '非公開'}
+                  </button>
+                  <button
+                    onClick={() => handleDeleteDeck(deck.id, deck.title)}
                     className="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
                   >
                     削除

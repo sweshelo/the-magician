@@ -1,6 +1,5 @@
 import { RichButton } from '@/component/ui/RichButton';
-import { getImageUrl } from '@/helper/image';
-import master from '@/submodule/suit/catalog/catalog';
+import { DeckCardGrid } from '@/component/ui/DeckCardGrid';
 import { ReactNode } from 'react';
 
 interface DeckPreviewProps {
@@ -12,56 +11,11 @@ interface DeckPreviewProps {
   children?: ReactNode;
 }
 
-const JOKER_TABLE = [
-  { suffix: '1st', color: 'border-cyan-500' },
-  { suffix: '2nd', color: 'border-yellow-500' },
-];
-
 export const DeckPreview = ({ deck, onClose, children }: DeckPreviewProps) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-95">
       <div className="flex flex-col items-center">
-        <div
-          className="bg-slate-800/35 w-full p-4 overflow-auto border-y-3 border-white p-3 box-border"
-          style={{
-            height: `688px`,
-            transition: 'opacity 100ms ease-in-out',
-          }}
-        >
-          {/* Center container */}
-          <div className="flex justify-center">
-            {/* デフォルト値の 1192 は 10*112+8*9 */}
-            <div className={`flex flex-wrap justify-start gap-2`} style={{ width: 1192 }}>
-              {deck.cards?.map((catalogId, index) => (
-                <div
-                  key={`deck-preview-${catalogId}-${index}`}
-                  className={`w-28 h-39 border-2 border-slate-600 rounded justify-center items-center text-slate-500 relative dnd-clickable`}
-                  style={{
-                    backgroundImage: `url(${getImageUrl(catalogId)})`,
-                    backgroundSize: 'cover',
-                  }}
-                />
-              ))}
-            </div>
-          </div>
-        </div>
-        {deck.jokers && deck.jokers.length > 0 && (
-          <div className="flex gap-2 flex-col justify-center my-3">
-            <div className="text-center text-lg">JOKER</div>
-            <div className="flex gap-10">
-              {deck.jokers.map((catalogId, index) => {
-                return (
-                  <div
-                    key={catalogId}
-                    className={`w-90 border ${JOKER_TABLE[index].color} text-bold px-5 py-1`}
-                  >
-                    {JOKER_TABLE[index].suffix}: {master.get(catalogId)?.id}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
+        <DeckCardGrid cards={deck.cards} jokers={deck.jokers} />
         <div className="mt-6 flex justify-center gap-2">
           <RichButton onClick={onClose}>閉じる</RichButton>
           {children}
