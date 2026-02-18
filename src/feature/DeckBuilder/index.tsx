@@ -773,11 +773,11 @@ export const DeckBuilder = ({ implementedIds, opMap }: DeckBuilderProps) => {
   const sortDeck = useCallback(() => {
     setDeck(prevDeck => {
       // タイプごとにカードを分類
-      const typeCategories = ['unit_and_advanced', 'intercept', 'trigger'];
+      const typeCategories = ['unit_and_advanced', 'trigger', 'intercept'];
       const cardsByType: Record<string, string[]> = {
         unit_and_advanced: [],
-        intercept: [],
         trigger: [],
+        intercept: [],
       };
 
       // タイプごとに分類
