@@ -6,6 +6,7 @@ import { DeckPreview } from '@/feature/DeckBuilder/DeckPreview';
 import { originality } from '@/helper/originality';
 import { useOriginalityMap } from '@/hooks/originality';
 import { DeckListModal } from '@/component/ui/DeckListModal';
+import Link from 'next/link';
 
 export const DeckSelector = () => {
   const { decks, mainDeck, isLoading, setMainDeck } = useDeck();
@@ -98,6 +99,12 @@ export const DeckSelector = () => {
         >
           デッキ選択
         </button>
+        <Link
+          href={'/deck'}
+          className="px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700 transition-colors"
+        >
+          デッキ管理
+        </Link>
       </div>
 
       {/* Error message */}
