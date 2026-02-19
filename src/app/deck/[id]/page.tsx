@@ -11,8 +11,26 @@ type Props = {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const deck = await getDeck(id);
+
+  if (!deck) {
+    return { title: 'デッキが見つかりません' };
+  }
+
+  const title = `${deck.title} - デッキ詳細`;
+  const description = `${deck.owner.displayName} のデッキ (${deck.cards.length}枚)`;
+
   return {
-    title: deck ? `${deck.title} - デッキ詳細` : 'デッキが見つかりません',
+    title,
+    openGraph: {
+      title,
+      description,
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+    },
   };
 }
 
