@@ -30,8 +30,26 @@ export default async function Page() {
         </Link>
         <EntranceMenu />
         {process.env.DISABLE_AUTH !== 'true' && <Matching />}
-        <RoomCreator />
-        <RoomEntrance />
+        {process.env.DISABLE_ROOM_CREATION === 'true' ? (
+          <div className="max-w-lg mx-auto text-center p-3 my-3 bg-red-900 border border-red-600 rounded-md">
+            <p className="text-red-200 text-sm">
+              現在公式サーバ上ではルーム作成機能を提供しておりません
+              <br />
+              ランダムマッチングをお楽しみ下さい
+              <br />
+              <span className="text-[10px] text-red-100">
+                公開されているソースコードを利用して個人サーバを建てることで
+                <br />
+                引き続きルーム作成機能を利用することが出来ます
+              </span>
+            </p>
+          </div>
+        ) : (
+          <>
+            <RoomCreator />
+            <RoomEntrance />
+          </>
+        )}
       </div>
     </>
   );
