@@ -160,7 +160,7 @@ export async function getRankingMaster(options: RankingOptions = {}) {
     normalizedTo,
   ];
 
-  return unstable_cache(() => fetchRankingMaster(options), cacheKey, { revalidate: 604800 })();
+  return unstable_cache(() => fetchRankingMaster(options), cacheKey, { revalidate: 86400 })();
 }
 
 async function fetchWeightedRanking(): Promise<RankingMasterResponse> {
@@ -248,6 +248,6 @@ export const getWeightedRanking = unstable_cache(
   fetchWeightedRanking,
   ['weighted-ranking', baseDate.toISOString()],
   {
-    revalidate: 604800,
+    revalidate: 86400,
   }
 );

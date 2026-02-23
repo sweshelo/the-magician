@@ -8,7 +8,7 @@ import type { RankingEntry } from '@/actions/ranking.types';
 import { getImageUrl } from '@/helper/image';
 import Link from 'next/link';
 
-export const revalidate = 604800;
+export const revalidate = 86400;
 
 export const metadata: Metadata = {
   title: '統計 - 使用カードランキング',

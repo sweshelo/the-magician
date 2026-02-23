@@ -37,5 +37,5 @@ async function fetchOriginalityMap(): Promise<Record<string, number>> {
 }
 
 export const getOriginalityMap = unstable_cache(fetchOriginalityMap, ['originality-map-weighted'], {
-  revalidate: 604800,
+  revalidate: 86400,
 });

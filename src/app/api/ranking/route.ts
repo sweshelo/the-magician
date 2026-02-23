@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getWeightedRanking } from '@/actions/ranking';
 
-export const revalidate = 604800;
+export const revalidate = 86400;
 
 export async function GET() {
   try {
