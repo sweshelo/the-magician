@@ -1,0 +1,23 @@
+name: Notify the-highpriestess
+
+on:
+  push:
+    branches:
+      - main
+      - release
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.HIGHPRIESTESS_DISPATCH_TOKEN }}
+          repository: sweshelo/the-highpriestess
+          event-type: dependency-updated
+          client-payload: >-
+            {
+              "repository": "${{ github.repository }}",
+              "ref": "${{ github.ref }}",
+              "sha": "${{ github.sha }}"
+            }
