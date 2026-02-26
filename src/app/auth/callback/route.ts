@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createClient, isSupabasePublicConfigured } from '@/lib/supabase/server';
 
 /**
  * OAuth認証コールバック
@@ -19,6 +19,12 @@ export async function GET(request: Request) {
   const origin = forwardedHost
     ? `${forwardedProto}://${forwardedHost}`
     : new URL(request.url).origin;
+
+  if (!isSupabasePublicConfigured()) {
+    return NextResponse.redirect(
+      `${origin}/auth/error?message=${encodeURIComponent('認証機能は利用できません')}`
+    );
+  }
 
   if (code) {
     const supabase = await createClient();

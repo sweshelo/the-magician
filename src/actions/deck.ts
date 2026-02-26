@@ -1,7 +1,7 @@
 'use server';
 
 import { cache } from 'react';
-import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { createClient, createAdminClient, isSupabaseConfigured } from '@/lib/supabase/server';
 
 export type DeckDetailResponse = {
   id: string;
@@ -18,6 +18,8 @@ export type DeckDetailResponse = {
  * React.cache によりリクエスト内で重複呼び出しがデデュプされる
  */
 export const getDeck = cache(async (deckId: string): Promise<DeckDetailResponse> => {
+  if (!isSupabaseConfigured()) return null;
+
   const supabase = await createClient();
 
   const { data: deck, error } = await supabase
