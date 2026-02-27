@@ -146,7 +146,7 @@ function enrichMatchesWithOpponents(matches: Match[], userId: string): MatchWith
  * 自分のプロフィールと戦績サマリーを取得
  */
 export async function getMyProfile(): Promise<ProfileResponse> {
-  if (process.env.AUTH_SKIP === 'true') {
+  if (process.env.DISABLE_SUPABASE === 'true') {
     return {
       profile: {
         id: 'mock-user',
@@ -193,7 +193,7 @@ export async function getMyMatches(options?: {
   page?: number;
   limit?: number;
 }): Promise<MatchListResponse> {
-  if (process.env.AUTH_SKIP === 'true') {
+  if (process.env.DISABLE_SUPABASE === 'true') {
     return { matches: [], total: 0 };
   }
 
@@ -233,7 +233,7 @@ export async function getMyMatches(options?: {
 export async function getUserProfile(userId: string): Promise<ProfileResponse> {
   if (!UUID_RE.test(userId)) return null;
 
-  if (process.env.AUTH_SKIP === 'true') {
+  if (process.env.DISABLE_SUPABASE === 'true') {
     return {
       profile: {
         id: userId,
@@ -282,7 +282,7 @@ export async function getUserMatches(
 ): Promise<MatchListResponse> {
   if (!UUID_RE.test(userId)) return { matches: [], total: 0 };
 
-  if (process.env.AUTH_SKIP === 'true') {
+  if (process.env.DISABLE_SUPABASE === 'true') {
     return { matches: [], total: 0 };
   }
 
@@ -319,7 +319,7 @@ export async function getAllMatches(options?: {
   page?: number;
   limit?: number;
 }): Promise<GlobalMatchListResponse> {
-  if (process.env.AUTH_SKIP === 'true') {
+  if (process.env.DISABLE_SUPABASE === 'true') {
     return { matches: [], total: 0 };
   }
 
@@ -392,7 +392,7 @@ function resolveUserName(matches: Match[], userId: string): string {
 export async function getPublicProfile(userId: string): Promise<PublicProfileResponse> {
   if (!UUID_RE.test(userId)) return null;
 
-  if (process.env.AUTH_SKIP === 'true') {
+  if (process.env.DISABLE_SUPABASE === 'true') {
     return {
       userName: 'テストユーザー',
       stats: { totalMatches: 0, wins: 0, losses: 0, winRate: 0 },
@@ -424,7 +424,7 @@ export async function getProfileMatches(
 ): Promise<MatchListResponse> {
   if (!UUID_RE.test(userId)) return { matches: [], total: 0 };
 
-  if (process.env.AUTH_SKIP === 'true') {
+  if (process.env.DISABLE_SUPABASE === 'true') {
     return { matches: [], total: 0 };
   }
 

@@ -11,7 +11,7 @@ export const EntranceMenu = () => {
       <div className="text-center">
         <h2 className="text-2xl font-bold text-black mb-4">ゲーム設定</h2>
       </div>
-      {process.env.DISABLE_AUTH === 'true' ? (
+      {process.env.DISABLE_DISCORD_LOGIN === 'true' ? (
         <>
           <PlayerNameEditor />
           <DeckSelector />
