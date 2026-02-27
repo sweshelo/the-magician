@@ -3,6 +3,22 @@ import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
 
 /**
+ * Supabase (admin/service role) が設定されているかを確認
+ * ランキング・管理機能の利用可否チェック用
+ */
+export function isSupabaseConfigured(): boolean {
+  return !!(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY);
+}
+
+/**
+ * Supabase (public/anon key) が設定されているかを確認
+ * 認証・デッキ同期機能の利用可否チェック用
+ */
+export function isSupabasePublicConfigured(): boolean {
+  return !!(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+}
+
+/**
  * サーバー用Supabaseクライアント
  * Server Components, Route Handlers, Server Actionsで使用
  */

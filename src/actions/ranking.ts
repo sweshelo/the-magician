@@ -2,7 +2,7 @@
 
 import { unstable_cache } from 'next/cache';
 import { endOfWeek, previousSunday, startOfWeek, subDays } from 'date-fns';
-import { createAdminClient } from '@/lib/supabase/server';
+import { createAdminClient, isSupabaseConfigured } from '@/lib/supabase/server';
 import master from '@/submodule/suit/catalog/catalog';
 import type { RankingEntry, RankingMasterResponse, RankingOptions } from './ranking.types';
 import { getImplementedCardIds } from '@/helper/card';
@@ -47,6 +47,11 @@ async function fetchAllMatches(
 }
 
 async function fetchRankingMaster(options: RankingOptions = {}): Promise<RankingMasterResponse> {
+  // Supabaseが設定されていない場合は空のランキングを返す
+  if (!isSupabaseConfigured()) {
+    return { ranking: [], totalMatches: 0, generatedAt: new Date().toISOString() };
+  }
+
   const { deduplicate = false } = options;
   const supabase = createAdminClient();
 

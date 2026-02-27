@@ -1,12 +1,13 @@
 'use server';
 
 import { headers } from 'next/headers';
-import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { createClient, createAdminClient, isSupabaseConfigured } from '@/lib/supabase/server';
 
 // UUID v4形式の正規表現
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export async function recordIpAddress(guestId?: string): Promise<void> {
+  if (!isSupabaseConfigured()) return;
   // ログインユーザーの場合、セッションからIDを取得
   const supabaseAuth = await createClient();
   const {
