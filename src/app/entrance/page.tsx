@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 };
 
 export default async function Page() {
-  const profileData = process.env.DISABLE_AUTH === 'true' ? 'SKIP' : await getMyProfile();
+  const profileData = process.env.DISABLE_DISCORD_LOGIN === 'true' ? 'SKIP' : await getMyProfile();
 
   if (!profileData) {
     redirect('/login');
@@ -29,7 +29,7 @@ export default async function Page() {
           デッキ編集
         </Link>
         <EntranceMenu />
-        {process.env.DISABLE_AUTH !== 'true' && <Matching />}
+        {process.env.DISABLE_DISCORD_LOGIN !== 'true' && <Matching />}
         {process.env.DISABLE_ROOM_CREATION === 'true' ? (
           <div className="max-w-lg mx-auto text-center p-3 my-3 bg-red-900 border border-red-600 rounded-md">
             <p className="text-red-200 text-sm">

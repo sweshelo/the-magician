@@ -7,6 +7,7 @@ import { cookies } from 'next/headers';
  * ランキング・管理機能の利用可否チェック用
  */
 export function isSupabaseConfigured(): boolean {
+  if (process.env.DISABLE_SUPABASE === 'true') return false;
   return !!(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY);
 }
 
@@ -15,6 +16,7 @@ export function isSupabaseConfigured(): boolean {
  * 認証・デッキ同期機能の利用可否チェック用
  */
 export function isSupabasePublicConfigured(): boolean {
+  if (process.env.DISABLE_SUPABASE === 'true') return false;
   return !!(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
 }
 

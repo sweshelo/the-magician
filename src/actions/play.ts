@@ -39,7 +39,7 @@ export type RedeemTicketResponse = {
  */
 export async function getPlayStatus(): Promise<PlayStatusResponse> {
   // 認証スキップモードの場合
-  if (process.env.AUTH_SKIP === 'true') {
+  if (process.env.DISABLE_SUPABASE === 'true') {
     return {
       canPlay: true,
       dailyFreeLimit: 999,
@@ -133,7 +133,7 @@ export async function checkCanPlay(): Promise<PlayStatusResponse> {
  */
 export async function recordPlay(params?: PlayRecordRequest): Promise<PlayRecordResponse> {
   // 認証スキップモードの場合は記録しない
-  if (process.env.AUTH_SKIP === 'true') {
+  if (process.env.DISABLE_SUPABASE === 'true') {
     return {
       success: true,
       consumptionType: 'free',
@@ -195,7 +195,7 @@ export async function recordPlay(params?: PlayRecordRequest): Promise<PlayRecord
  */
 export async function redeemTicket(code: string): Promise<RedeemTicketResponse> {
   // 認証スキップモードの場合
-  if (process.env.AUTH_SKIP === 'true') {
+  if (process.env.DISABLE_SUPABASE === 'true') {
     return {
       success: true,
       creditsAdded: 10,

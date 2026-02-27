@@ -36,7 +36,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const authSkip = process.env.AUTH_SKIP === 'true';
+  const authSkip = process.env.DISABLE_SUPABASE === 'true';
 
   return (
     <html lang="ja">
