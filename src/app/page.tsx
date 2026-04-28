@@ -2,14 +2,14 @@ import { Metadata } from 'next';
 import { LinkCard } from '@/component/ui/LinkCard';
 
 export const metadata: Metadata = {
-  title: 'TOP',
+  title: 'TOP | Revolutions',
 };
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-gray-100 py-10 px-4 flex flex-col items-center">
       <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold text-gray-900 mb-2">Re:volutions</h1>
+        <h1 className="text-4xl font-bold text-gray-900 mb-2">Revolutions</h1>
         <p className="text-gray-600">ありえねぇカードゲームシミュレーター</p>
       </div>
 
