@@ -8,10 +8,16 @@ import master from '@/submodule/suit/catalog/catalog';
 import { useOriginalityMap } from '@/hooks/originality';
 import { Tooltip } from 'react-tooltip';
 
+interface ModeInfoTag {
+  text: string;
+  color: string;
+}
+
 interface ModeInfo {
   mode: MatchingMode;
   label: string;
   description: string;
+  tags?: ModeInfoTag[];
 }
 
 const MODES: ModeInfo[] = [
@@ -34,6 +40,12 @@ const MODES: ModeInfo[] = [
     mode: 'limited',
     label: 'LIMITED',
     description: 'デッキ合計オリジナリティ100以上必須。',
+    tags: [
+      {
+        color: 'blue',
+        text: '無料',
+      },
+    ],
   },
 ];
 
@@ -115,7 +127,7 @@ export const ModeSelector = ({
       <div className="text-center text-gray-400">現在{activeGames}組が対戦中です</div>
 
       <div className="grid grid-cols-1 gap-3">
-        {MODES.map(({ mode, label, description }) => {
+        {MODES.map(({ mode, label, description, tags }) => {
           const isValid = deckValidation[mode];
           const isDisabled = !mainDeck || !isValid || isLoading || isDeckLoading;
           const isDeckInvalid = !!mainDeck && !isValid;
@@ -136,7 +148,17 @@ export const ModeSelector = ({
             >
               <div className="flex items-center justify-between">
                 <div>
-                  <span className="font-medium text-gray-800">{label}</span>
+                  <div className="flex items-center justify-start">
+                    <div className="font-medium text-gray-800">{label}</div>
+                    {tags?.map(tag => (
+                      <div
+                        key={tag.text}
+                        className={`ml-2 px-1 rounded-sm text-xs border-2 border-${tag.color}-500 text-${tag.color}-500`}
+                      >
+                        {tag.text}
+                      </div>
+                    ))}
+                  </div>
                   <p className="text-sm text-gray-500 mt-1">{description}</p>
                 </div>
                 <div
